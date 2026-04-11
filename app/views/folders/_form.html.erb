@@ -1,0 +1,16 @@
+<%= form_with(model: folder) do |form| %>
+  <% if folder.errors.any? %>
+    <div role="alert" data-variant="error">
+      <% folder.errors.full_messages.each do |message| %>
+        <p><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= form.label :name %>
+  <%= form.text_field :name, required: true, autofocus: true, placeholder: "Folder name" %>
+
+  <%= form.hidden_field :parent_id %>
+
+  <%= form.submit %>
+<% end %>

@@ -1,0 +1,9 @@
+<h1>Edit folder</h1>
+
+<%= render "form", folder: @folder %>
+
+<p><%= link_to "Back", folder_path(@folder) %></p>
+
+<hr>
+<%= button_to "Delete folder", @folder, method: :delete, class: "ghost",
+    data: { turbo_confirm: "Are you sure? The folder must be empty to delete." } %>

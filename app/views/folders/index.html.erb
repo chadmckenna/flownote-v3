@@ -1,0 +1,27 @@
+<h1>Notes</h1>
+
+<menu class="buttons">
+  <%= link_to "New note", new_folder_note_path(@folder), class: "button" %>
+  <%= link_to "New folder", new_folder_path, class: "button outline" %>
+</menu>
+
+<% @subfolders.each do |folder| %>
+  <article class="card">
+    <header>
+      <h3><%= link_to folder.name, folder %></h3>
+    </header>
+  </article>
+<% end %>
+
+<% @notes.each do |note| %>
+  <article class="card">
+    <header>
+      <h3><%= link_to note.title, folder_note_path(@folder, note) %></h3>
+    </header>
+    <p><small>Updated <%= time_ago_in_words(note.updated_at) %> ago</small></p>
+  </article>
+<% end %>
+
+<% if @subfolders.empty? && @notes.empty? %>
+  <p>No notes yet. Create your first note or folder to get started.</p>
+<% end %>

@@ -1,0 +1,20 @@
+<%= form_with(model: note, url: note.persisted? ? folder_note_path(note.folder, note) : folder_notes_path(@folder)) do |form| %>
+  <% if note.errors.any? %>
+    <div role="alert" data-variant="error">
+      <% note.errors.full_messages.each do |message| %>
+        <p><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= form.label :title %>
+  <%= form.text_field :title, required: true, autofocus: true, placeholder: "Title" %>
+
+  <%= form.label :folder_id, "Folder" %>
+  <%= form.select :folder_id, folder_options_for_select(Current.user, note.folder_id) %>
+
+  <%= form.label :body %>
+  <%= form.rich_text_area :body %>
+
+  <%= form.submit %>
+<% end %>

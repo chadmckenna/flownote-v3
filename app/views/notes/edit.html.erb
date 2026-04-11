@@ -1,0 +1,5 @@
+<h1>Edit note</h1>
+
+<%= render "form", note: @note %>
+
+<p><%= link_to "Back", folder_note_path(@note.folder, @note) %></p>

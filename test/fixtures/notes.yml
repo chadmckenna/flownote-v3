@@ -1,0 +1,14 @@
+one:
+  title: First note
+  user: one
+  folder: work
+
+two:
+  title: Second note
+  user: two
+  folder: root_two
+
+root_note:
+  title: Root note
+  user: one
+  folder: root_one

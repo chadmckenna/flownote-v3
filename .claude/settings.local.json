@@ -5,7 +5,27 @@
       "Bash(bin/rails version:*)",
       "Bash(bin/rails test:*)",
       "Bash(bundle install:*)",
-      "Bash(bin/rails db:migrate:*)"
+      "Bash(bin/rails db:migrate:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:basecamp.github.io)",
+      "Bash(xargs ls:*)",
+      "Bash(find:*)",
+      "Bash(bin/rails runner:*)",
+      "Bash(bin/rails dbconsole:*)",
+      "Bash(sqlite3 db/development.sqlite3 \"PRAGMA table_info\\(users\\);\")",
+      "Bash(bin/rails action_text:install:*)",
+      "Bash(bin/rails generate:*)",
+      "Bash(bin/brakeman:*)",
+      "WebFetch(domain:oat.ink)",
+      "WebFetch(domain:unpkg.com)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_evaluate",
+      "Bash(gem search:*)",
+      "mcp__playwright__browser_fill_form",
+      "Bash(bin/rails routes:*)"
     ]
   }
 }

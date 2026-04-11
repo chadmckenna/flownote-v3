@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :folders, only: [ :show, :new, :create, :edit, :update, :destroy ] do
+    resources :notes, except: [ :index ]
+  end
   use_doorkeeper do
     skip_controllers :applications, :authorized_applications
   end
@@ -21,5 +24,5 @@ Rails.application.routes.draw do
     end
   end
 
-  root "sessions#new"
+  root "folders#index"
 end
