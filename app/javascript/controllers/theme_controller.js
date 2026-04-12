@@ -2,6 +2,11 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
+    const saved = localStorage.getItem("theme")
+    const theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+
+    document.documentElement.setAttribute("data-theme", theme)
+    document.documentElement.style.colorScheme = theme
     this.#updateLabel()
   }
 

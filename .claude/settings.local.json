@@ -25,7 +25,14 @@
       "mcp__playwright__browser_evaluate",
       "Bash(gem search:*)",
       "mcp__playwright__browser_fill_form",
-      "Bash(bin/rails routes:*)"
+      "Bash(bin/rails routes:*)",
+      "mcp__playwright__browser_hover",
+      "Bash(grep -oh \"var\\(--[^\\)]*\\)\" /home/chad/Work/flownote/flownote-v3/app/assets/stylesheets/*.css)",
+      "Bash(grep -E \"\\\\.\\(rb|erb|js\\)$\")",
+      "Bash(bin/dev:*)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/up)",
+      "Bash(bin/rails server:*)",
+      "mcp__playwright__browser_handle_dialog"
     ]
   }
 }

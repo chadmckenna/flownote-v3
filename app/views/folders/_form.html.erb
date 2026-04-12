@@ -1,4 +1,4 @@
-<%= form_with(model: folder) do |form| %>
+<%= form_with(model: folder, data: { turbo_frame: "_top" }) do |form| %>
   <% if folder.errors.any? %>
     <div role="alert" data-variant="error">
       <% folder.errors.full_messages.each do |message| %>

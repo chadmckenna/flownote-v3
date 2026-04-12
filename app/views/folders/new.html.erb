@@ -1,5 +1,15 @@
-<h1>New folder</h1>
-
-<%= render "form", folder: @folder %>
-
-<p><%= link_to "Back", @folder.parent&.root? ? root_path : folder_path(@folder.parent) %></p>
+<%= turbo_frame_tag "new_folder" do %>
+  <%= form_with(model: @folder, class: "inline-form", data: { turbo_frame: "_top" }) do |form| %>
+    <% if @folder.errors.any? %>
+      <div role="alert" data-variant="error">
+        <% @folder.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+    <%= form.hidden_field :parent_id %>
+    <%= form.text_field :name, required: true, autofocus: true, placeholder: "Folder name", "aria-label": "Folder name" %>
+    <%= form.submit %>
+    <%= link_to "Cancel", @folder.parent&.root? ? root_path : folder_path(@folder.parent) %>
+  <% end %>
+<% end %>

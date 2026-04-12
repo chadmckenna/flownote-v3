@@ -1,38 +1,51 @@
-<nav aria-label="breadcrumb">
-  <ul>
-    <li><%= link_to "Notes", root_path %></li>
-    <% @ancestors.reject(&:root?).each do |ancestor| %>
-      <li><%= link_to ancestor.name, ancestor %></li>
-    <% end %>
-    <li aria-current="page"><%= @folder.name %></li>
-  </ul>
-</nav>
-
-<h1><%= @folder.name %></h1>
+<%= turbo_frame_tag dom_id(@folder, :edit) do %>
+  <nav aria-label="breadcrumb" class="breadcrumb-heading">
+    <ul>
+      <li><%= link_to "~", root_path, data: { turbo_frame: "_top" } %></li>
+      <% @ancestors.reject(&:root?).each do |ancestor| %>
+        <li><%= link_to ancestor.name, ancestor, data: { turbo_frame: "_top" } %></li>
+      <% end %>
+      <li aria-current="page"><%= @folder.name %></li>
+    </ul>
+  </nav>
+<% end %>
 
 <menu class="buttons">
-  <%= link_to "New note", new_folder_note_path(@folder), class: "button" %>
-  <%= link_to "New folder", new_folder_path(parent_id: @folder.id), class: "button outline" %>
-  <%= link_to "Edit folder", edit_folder_path(@folder), class: "button ghost" %>
+  <%= link_to "New note", new_folder_note_path(@folder), data: { turbo_frame: "new_note" }, class: "button" %>
+  <%= link_to "New folder", new_folder_path(parent_id: @folder.id), data: { turbo_frame: "new_folder" }, class: "button outline" %>
+  <%= link_to "Edit folder", edit_folder_path(@folder), data: { turbo_frame: dom_id(@folder, :edit) }, class: "button ghost" %>
+  <%= button_to "Delete folder", @folder, method: :delete, class: "button ghost danger-text",
+      form: { class: "buttons-right" },
+      data: { turbo_confirm: "Are you sure? The folder must be empty to delete." } %>
 </menu>
 
-<% @subfolders.each do |folder| %>
-  <article class="card">
-    <header>
-      <h3><%= link_to folder.name, folder %></h3>
-    </header>
-  </article>
-<% end %>
+<%= turbo_frame_tag "new_note" %>
+<%= turbo_frame_tag "new_folder" %>
 
-<% @notes.each do |note| %>
-  <article class="card">
-    <header>
-      <h3><%= link_to note.title, folder_note_path(@folder, note) %></h3>
-    </header>
-    <p><small>Updated <%= time_ago_in_words(note.updated_at) %> ago</small></p>
-  </article>
-<% end %>
-
-<% if @subfolders.empty? && @notes.empty? %>
-  <p>This folder is empty.</p>
-<% end %>
+  <ul class="file-listing">
+    <li>
+      <%= link_to(@folder.parent.root? ? root_path : folder_path(@folder.parent)) do %>
+        <span class="type">d</span>
+        <span class="name-folder">../</span>
+      <% end %>
+    </li>
+  <% if @subfolders.any? || @notes.any? %>
+    <% @subfolders.each do |folder| %>
+      <li>
+        <%= link_to folder_path(folder) do %>
+          <span class="type">d</span>
+          <span class="name-folder"><%= folder.name %>/</span>
+        <% end %>
+      </li>
+    <% end %>
+    <% @notes.each do |note| %>
+      <li>
+        <%= link_to edit_folder_note_path(@folder, note) do %>
+          <span class="type">-</span>
+          <span class="name"><%= note.title %></span>
+          <span class="meta"><%= time_ago_in_words(note.updated_at) %> ago</span>
+        <% end %>
+      </li>
+    <% end %>
+  <% end %>
+  </ul>

@@ -1,5 +1,5 @@
 class NotesController < ApplicationController
-  before_action :set_folder
+  before_action :set_folder, only: %i[ show new edit create update destroy ]
   before_action :set_note, only: %i[ show edit update destroy ]
 
   def show
@@ -17,7 +17,7 @@ class NotesController < ApplicationController
     @note = Current.user.notes.build(note_params)
 
     if @note.save
-      redirect_to folder_note_path(@note.folder, @note), notice: "Note was successfully created."
+      redirect_to(@note.folder.root? ? root_path : folder_path(@note.folder), notice: "Note was successfully created.")
     else
       render :new, status: :unprocessable_entity
     end
@@ -35,6 +35,20 @@ class NotesController < ApplicationController
     folder = @note.folder
     @note.destroy!
     redirect_to(folder.root? ? root_path : folder_path(folder), notice: "Note was successfully deleted.", status: :see_other)
+  end
+
+  def quick_new
+    @note = Current.user.notes.build(folder_id: Current.user.root_folder.id)
+  end
+
+  def quick_create
+    @note = Current.user.notes.build(note_params)
+
+    if @note.save
+      redirect_to folder_note_path(@note.folder, @note), notice: "Note was successfully created."
+    else
+      render :quick_new, status: :unprocessable_entity
+    end
   end
 
   private

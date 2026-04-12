@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get "notes/new", to: "notes#quick_new", as: :new_note
+  post "notes", to: "notes#quick_create", as: :notes
+
   resources :folders, only: [ :show, :new, :create, :edit, :update, :destroy ] do
     resources :notes, except: [ :index ]
   end

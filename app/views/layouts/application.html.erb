@@ -18,10 +18,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <link rel="stylesheet" href="https://unpkg.com/@knadh/oat/oat.min.css">
-    <script src="https://unpkg.com/@knadh/oat/oat.min.js" defer></script>
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag "base", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "lexxy", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
@@ -32,9 +29,9 @@
       <% if authenticated? %>
         <ul>
           <li><%= link_to "Flownote", root_path %></li>
-          <li><%= link_to "Notes", root_path %></li>
         </ul>
         <ul>
+          <li><%= link_to "+ Note", new_note_path, class: "button small" %></li>
           <li><button class="ghost small" data-controller="theme" data-action="click->theme#toggle"></button></li>
           <li><%= button_to "Sign out", session_path, method: :delete, class: "ghost small" %></li>
         </ul>

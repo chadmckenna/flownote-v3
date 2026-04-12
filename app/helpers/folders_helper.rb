@@ -6,6 +6,12 @@ module FoldersHelper
     options_for_select(options, selected_id)
   end
 
+  def folder_path_string(folder)
+    return "~" if folder.root?
+    parts = folder.ancestors.reject(&:root?).map(&:name) + [ folder.name ]
+    "~/#{parts.join('/')}"
+  end
+
   private
     def build_folder_tree(folders, options, depth)
       folders.each do |folder|
