@@ -15,6 +15,7 @@
   --accent: #3b82f6;
   --danger: #ef4444;
   --success: #16a34a;
+  --warning: #f59e0b;
   --btn-bg: #09090b;
   --btn-text: #ffffff;
 
@@ -298,6 +299,18 @@ lexxy-editor summary::-webkit-details-marker {
   color: var(--text);
 
   p { margin: 0; }
+}
+
+[data-variant="warning"] {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--warning) 12%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--warning) 40%, var(--border));
+  color: var(--text);
+
+  p { margin: 0 0 var(--space-2); }
+  p:last-child { margin-bottom: 0; }
 }
 
 /* ==========================================================================

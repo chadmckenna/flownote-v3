@@ -1,14 +1,17 @@
 one:
   title: First note
+  body: Body of the first note
   user: one
   folder: work
 
 two:
   title: Second note
+  body: Body of the second note
   user: two
   folder: root_two
 
 root_note:
   title: Root note
+  body: Body of the root note
   user: one
   folder: root_one

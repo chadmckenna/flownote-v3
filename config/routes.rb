@@ -24,6 +24,10 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resource :me, only: :show, controller: "me"
+      resources :folders, only: %i[index show create destroy] do
+        resources :notes, only: %i[index], shallow: true
+      end
+      resources :notes, only: %i[show create update destroy]
     end
   end
 

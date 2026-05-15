@@ -1,3 +1,12 @@
 <h1>Edit note</h1>
 
+<%= turbo_stream_from @note %>
+
+<div data-controller="external-change-alert" hidden>
+  <div role="alert" data-variant="warning">
+    <p><strong>This note has been changed elsewhere.</strong> Any changes you save will overwrite the latest version.</p>
+    <p><%= link_to "View latest version", folder_note_path(@note.folder, @note), target: "_blank", rel: "noopener" %></p>
+  </div>
+</div>
+
 <%= render "form", note: @note, form_url: folder_note_path(@note.folder, @note), cancel_path: @note.folder.root? ? root_path : folder_path(@note.folder) %>

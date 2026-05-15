@@ -1,6 +1,6 @@
 class Folder < ApplicationRecord
   belongs_to :user
-  belongs_to :parent, class_name: "Folder", optional: true
+  belongs_to :parent, class_name: "Folder", optional: true, touch: true
 
   has_many :subfolders, class_name: "Folder", foreign_key: :parent_id, dependent: :restrict_with_error
   has_many :notes, dependent: :restrict_with_error
@@ -10,6 +10,8 @@ class Folder < ApplicationRecord
   validate :parent_belongs_to_same_user
   validate :not_ancestor_of_self, if: :parent_id_changed?
   validate :root_folder_immutable, on: :update
+
+  broadcasts_refreshes
 
   def root?
     parent_id.nil? && name == "/"

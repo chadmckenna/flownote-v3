@@ -21,7 +21,10 @@
   <% end %>
 
   <%= form.label :body %>
-  <%= form.rich_text_area :body %>
+  <div data-controller="vim-editor">
+    <%= form.text_area :body, rows: 24, placeholder: "Write in Markdown...",
+                              data: { vim_editor_target: "textarea" } %>
+  </div>
 
   <menu class="buttons">
     <%= form.submit %>

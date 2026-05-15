@@ -261,3 +261,62 @@ nav[aria-label="breadcrumb"] {
     margin: 0 0 var(--space-4);
   }
 }
+
+.cm-editor {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-height: 24rem;
+  font-family: var(--font-mono);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.cm-editor.cm-focused {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.cm-scroller {
+  overflow: auto;
+  max-height: 60vh;
+}
+
+[data-theme="dark"] .cm-editor {
+  .cm-gutters {
+    background: var(--card);
+    color: var(--text);
+    border-right-color: var(--border);
+  }
+
+  .cm-activeLine,
+  .cm-activeLineGutter {
+    background: var(--bg-subtle, rgba(255, 255, 255, 0.04));
+  }
+
+  .cm-cursor {
+    border-left-color: var(--text);
+  }
+
+  .cm-fat-cursor {
+    background: var(--accent) !important;
+    color: var(--bg) !important;
+  }
+
+  .cm-panels,
+  .cm-panels-bottom,
+  .cm-panels-top {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .cm-vim-panel input {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .cm-vim-message {
+    color: var(--text);
+  }
+}
