@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Flownote V3" %></title>
+    <title><%= content_for(:title) || "Flownote" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Flownote V3">
+    <meta name="application-name" content="Flownote">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -18,15 +18,44 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <link rel="stylesheet" href="https://unpkg.com/@knadh/oat/oat.min.css">
-    <script src="https://unpkg.com/@knadh/oat/oat.min.js" defer></script>
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag "base", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "lexxy", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="container">
-    <%= yield %>
+  <body>
+    <nav data-topnav>
+      <% if authenticated? %>
+        <ul>
+          <li><%= link_to "Flownote", root_path %></li>
+        </ul>
+        <ul>
+          <li><%= link_to "+ Note", new_note_path, class: "button small" %></li>
+          <li><button class="ghost small" data-controller="theme" data-action="click->theme#toggle"></button></li>
+          <li><%= button_to "Sign out", session_path, method: :delete, class: "ghost small" %></li>
+        </ul>
+      <% else %>
+        <ul>
+          <li><%= link_to "Flownote", root_path %></li>
+        </ul>
+        <ul>
+          <li><button class="ghost small" data-controller="theme" data-action="click->theme#toggle"></button></li>
+          <li><%= link_to "Sign in", new_session_path %></li>
+          <li><%= link_to "Sign up", new_registration_path, class: "button small" %></li>
+        </ul>
+      <% end %>
+    </nav>
+
+    <main class="container">
+      <% if flash[:notice] %>
+        <div role="alert" data-variant="success"><%= flash[:notice] %></div>
+      <% end %>
+      <% if flash[:alert] %>
+        <div role="alert" data-variant="error"><%= flash[:alert] %></div>
+      <% end %>
+
+      <%= yield %>
+    </main>
   </body>
 </html>

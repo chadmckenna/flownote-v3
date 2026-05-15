@@ -1,0 +1,9 @@
+one_body:
+  record: one (Note)
+  name: body
+  body: <p>Body of the first note</p>
+
+two_body:
+  record: two (Note)
+  name: body
+  body: <p>Body of the second note</p>

@@ -1,10 +1,263 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+/* ==========================================================================
+   App-specific layout styles
+   ========================================================================== */
+
+nav[data-topnav] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-6);
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+
+  ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    margin: 0;
+    padding: 0;
+  }
+
+  a:not(.button) {
+    color: var(--text);
+  }
+}
+
+menu.buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0 0 var(--space-4);
+}
+
+.buttons-right {
+  margin-left: auto;
+}
+
+.danger-text {
+  color: var(--danger, #e53e3e);
+}
+
+.folder-path {
+  margin: 0;
+  font-family: var(--font-mono);
+  opacity: 0.5;
+
+  code {
+    background: transparent;
+    color: inherit;
+  }
+}
+
+.file-listing {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  list-style: none;
+  margin: var(--space-4) 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  li {
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid var(--border);
+
+    &:hover {
+      background: var(--bg-subtle);
+      text-decoration: none;
+    }
+  }
+
+  li:last-child a {
+    border-bottom: none;
+  }
+
+  .type {
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+
+  .name {
+    font-weight: 500;
+  }
+
+  .name-folder {
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .meta {
+    opacity: 0.4;
+    font-size: var(--text-sm);
+    margin-left: auto;
+  }
+}
+
+summary.lexxy-editor__toolbar-button {
+  justify-content: center !important;
+}
+
+/* Lexxy editor dark mode — override hardcoded light backgrounds */
+[data-theme="dark"] {
+  lexxy-editor {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+  }
+
+  lexxy-editor [role="toolbar"] {
+    border-bottom-color: var(--border) !important;
+  }
+
+  .lexxy-editor__content {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+  }
+
+  .lexxy-editor__toolbar-button {
+    color: var(--text) !important;
+  }
+
+  lexxy-editor svg {
+    fill: currentColor !important;
+  }
+
+  .lexxy-editor__toolbar-dropdown-list {
+    background: var(--card) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+  }
+
+  /* Text formatting dropdown buttons (Normal, H2, H3, etc.) */
+  .lexxy-editor__toolbar-dropdown-list button {
+    color: var(--text) !important;
+    background: transparent !important;
+  }
+
+  .lexxy-editor__toolbar-dropdown-list button:hover,
+  .lexxy-editor__toolbar-dropdown-list button[aria-pressed="true"] {
+    background: var(--bg) !important;
+  }
+
+  /* Other dropdown panels (link, overflow) */
+  .lexxy-editor__toolbar-dropdown-content {
+    background: var(--card) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+  }
+
+  /* Link/overflow dropdown buttons */
+  .lexxy-editor__toolbar-dropdown-actions button,
+  .lexxy-editor__toolbar-overflow-menu button {
+    color: var(--text) !important;
+  }
+
+  /* Highlight color buttons keep their own colors — only style the border and reset button */
+  .lexxy-highlight-colors .lexxy-editor__toolbar-button {
+    border-color: var(--border) !important;
+  }
+
+  .lexxy-editor__toolbar-dropdown-reset {
+    color: var(--text) !important;
+  }
+
+  lexxy-editor input {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+  }
+
+  .lexxy-editor__toolbar-separator {
+    background: var(--border) !important;
+    border-color: var(--border) !important;
+  }
+
+  .lexxy-floating-controls {
+    background: var(--bg) !important;
+    border-color: var(--border) !important;
+  }
+
+  .lexxy-floating-controls,
+  lexxy-code-language-picker {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .lexxy-code-language-picker {
+    background: var(--card) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+  }
+}
+
+.inline-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+
+  form {
+    display: contents;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+    margin: 0;
+  }
+
+  input[type="submit"], a, button {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  div[role="alert"] {
+    flex-basis: 100%;
+  }
+}
+
+nav[aria-label="breadcrumb"] {
+  ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    list-style: none;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+
+  li + li::before {
+    content: "/";
+    margin-right: var(--space-1);
+    opacity: 0.4;
+  }
+
+  li[aria-current="page"] {
+    opacity: 0.5;
+  }
+
+  &.breadcrumb-heading ul {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin: 0 0 var(--space-4);
+  }
+}

@@ -1,0 +1,24 @@
+root_one:
+  name: /
+  user: one
+  parent:
+
+root_two:
+  name: /
+  user: two
+  parent:
+
+work:
+  name: Work
+  user: one
+  parent: root_one
+
+projects:
+  name: Projects
+  user: one
+  parent: work
+
+other_user_folder:
+  name: Personal
+  user: two
+  parent: root_two

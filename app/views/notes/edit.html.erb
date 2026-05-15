@@ -1,0 +1,3 @@
+<h1>Edit note</h1>
+
+<%= render "form", note: @note, form_url: folder_note_path(@note.folder, @note), cancel_path: @note.folder.root? ? root_path : folder_path(@note.folder) %>

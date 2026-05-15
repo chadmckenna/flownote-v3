@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  get "notes/new", to: "notes#quick_new", as: :new_note
+  post "notes", to: "notes#quick_create", as: :notes
+
+  resources :folders, only: [ :show, :new, :create, :edit, :update, :destroy ] do
+    resources :notes, except: [ :index ]
+  end
   use_doorkeeper do
     skip_controllers :applications, :authorized_applications
   end
@@ -21,5 +27,5 @@ Rails.application.routes.draw do
     end
   end
 
-  root "sessions#new"
+  root "folders#index"
 end
