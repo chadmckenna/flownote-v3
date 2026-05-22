@@ -20,12 +20,7 @@
     </menu>
   </div>
 
-  <% if local_assigns[:show_folder_select] %>
-    <%= form.label :folder_id, "Folder" %>
-    <%= form.select :folder_id, folder_options_for_select(Current.user, note.folder_id) %>
-  <% else %>
-    <%= form.hidden_field :folder_id %>
-  <% end %>
+  <%= form.hidden_field :folder_id %>
 
   <div data-controller="vim-editor">
     <%= form.text_area :body, rows: 24, placeholder: "Write in Markdown...",

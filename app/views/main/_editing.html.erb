@@ -1,0 +1,5 @@
+<div class="folder-shell__pane" data-mode="editing">
+  <%= render "notes/form", note: note,
+                           form_url: folder_note_path(note.folder, note),
+                           cancel_path: folder_or_root_path(note.folder) %>
+</div>

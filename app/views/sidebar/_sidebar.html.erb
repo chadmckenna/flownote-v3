@@ -1,0 +1,31 @@
+<aside class="folder-shell__sidebar">
+  <ul class="file-listing">
+  <% unless @folder.root? %>
+    <li>
+      <%= link_to(folder_or_root_path(@folder.parent),
+                  data: { turbo_stream: true, turbo_action: "advance" }) do %>
+        <span class="type">d</span>
+        <span class="name-folder">../</span>
+      <% end %>
+    </li>
+  <% end %>
+  <% @subfolders.each do |subfolder| %>
+    <li>
+      <%= link_to folder_path(subfolder),
+                  data: { turbo_stream: true, turbo_action: "advance" } do %>
+        <span class="type">d</span>
+        <span class="name-folder"><%= subfolder.name %>/</span>
+      <% end %>
+    </li>
+  <% end %>
+  <% @sidebar_notes.each do |note| %>
+    <%= tag.li("aria-current": ("page" if @note && note.id == @note.id)) do %>
+      <%= link_to edit_folder_note_path(@folder, note),
+                  data: { turbo_stream: true, turbo_action: "advance" } do %>
+        <span class="type">-</span>
+        <span class="name"><%= note.title %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+  </ul>
+</aside>

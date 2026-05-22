@@ -1,9 +1,16 @@
 class NotesController < ApplicationController
+  include ShellLoader
+
+  layout "editor", only: %i[ show edit ]
   before_action :set_folder, only: %i[ show new edit create update destroy ]
   before_action :set_note, only: %i[ show edit update destroy ]
+  before_action :load_shell, only: %i[ show edit ]
 
   def show
-    load_folder_sidebar
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def new
@@ -12,14 +19,17 @@ class NotesController < ApplicationController
   end
 
   def edit
-    load_folder_sidebar
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def create
     @note = Current.user.notes.build(note_params)
 
     if @note.save
-      redirect_to(@note.folder.root? ? root_path : folder_path(@note.folder), notice: "Note was successfully created.")
+      redirect_to edit_folder_note_path(@note.folder, @note), notice: "Note was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -42,21 +52,7 @@ class NotesController < ApplicationController
   def destroy
     folder = @note.folder
     @note.destroy!
-    redirect_to(folder.root? ? root_path : folder_path(folder), notice: "Note was successfully deleted.", status: :see_other)
-  end
-
-  def quick_new
-    @note = Current.user.notes.build(folder_id: Current.user.root_folder.id)
-  end
-
-  def quick_create
-    @note = Current.user.notes.build(note_params)
-
-    if @note.save
-      redirect_to folder_note_path(@note.folder, @note), notice: "Note was successfully created."
-    else
-      render :quick_new, status: :unprocessable_entity
-    end
+    redirect_to(helpers.folder_or_root_path(folder), notice: "Note was successfully deleted.", status: :see_other)
   end
 
   private
@@ -70,11 +66,5 @@ class NotesController < ApplicationController
 
     def note_params
       params.expect(note: [ :title, :body, :folder_id ])
-    end
-
-    def load_folder_sidebar
-      @subfolders = @folder.subfolders.order(:name)
-      @sibling_notes = @folder.notes.order(updated_at: :desc)
-      @ancestors = @folder.ancestors
     end
 end

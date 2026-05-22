@@ -1,20 +1,25 @@
 class FoldersController < ApplicationController
+  include ShellLoader
+
+  layout "editor", only: %i[ index show ]
   before_action :set_folder, only: %i[ show edit update destroy ]
   before_action :require_non_root_folder, only: %i[ edit update destroy ]
+  before_action :load_shell, only: %i[ index show ]
 
   def index
-    @folder = Current.user.root_folder
-    @subfolders = @folder.subfolders.order(:name)
-    @notes = @folder.notes.order(updated_at: :desc)
-    @ancestors = []
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def show
     redirect_to root_path and return if @folder.root?
 
-    @subfolders = @folder.subfolders.order(:name)
-    @notes = @folder.notes.order(updated_at: :desc)
-    @ancestors = @folder.ancestors
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def new
@@ -28,7 +33,7 @@ class FoldersController < ApplicationController
     @folder = Current.user.folders.build(folder_params)
 
     if @folder.save
-      redirect_to(@folder.parent.root? ? root_path : @folder.parent, notice: "Folder was successfully created.")
+      redirect_to(helpers.folder_or_root_path(@folder.parent), notice: "Folder was successfully created.")
     else
       render :new, status: :unprocessable_entity
     end
@@ -44,7 +49,7 @@ class FoldersController < ApplicationController
 
   def destroy
     if @folder.destroy
-      redirect_to(@folder.parent.root? ? root_path : @folder.parent, notice: "Folder was successfully deleted.", status: :see_other)
+      redirect_to(helpers.folder_or_root_path(@folder.parent), notice: "Folder was successfully deleted.", status: :see_other)
     else
       redirect_to @folder, alert: "Folder cannot be deleted because it is not empty."
     end

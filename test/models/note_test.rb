@@ -12,10 +12,9 @@ class NoteTest < ActiveSupport::TestCase
     assert_includes note.errors[:title], "can't be blank"
   end
 
-  test "requires body" do
+  test "allows empty body" do
     note = users(:one).notes.build(title: "Test", body: "", folder: folders(:root_one))
-    assert_not note.valid?
-    assert_includes note.errors[:body], "can't be blank"
+    assert note.valid?
   end
 
   test "requires folder" do

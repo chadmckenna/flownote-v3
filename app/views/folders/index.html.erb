@@ -1,17 +1,1 @@
-<% content_for :main_class, "folder-shell" %>
-
-<%= turbo_stream_from @folder %>
-
-<%= turbo_frame_tag "folder_context" do %>
-  <%= render "folders/context", folder: @folder, ancestors: @ancestors %>
-  <aside class="folder-shell__sidebar">
-    <%= render "folders/sidebar", folder: @folder, ancestors: @ancestors,
-                                  subfolders: @subfolders, notes: @notes %>
-  </aside>
-<% end %>
-
-<%= turbo_frame_tag "editor_main", class: "folder-shell__main" do %>
-  <div class="folder-shell__pane" data-mode="browse">
-    <p class="folder-shell__hint">Select a note to begin editing.</p>
-  </div>
-<% end %>
+<%= render "main/browse" %>

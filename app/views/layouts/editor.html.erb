@@ -1,0 +1,14 @@
+<% content_for :main_class, "folder-shell" %>
+<% content_for :main do %>
+  <%= turbo_stream_from(@note || @folder) %>
+
+  <%= turbo_frame_tag "folder_context" do %>
+    <%= render "topnav/context" %>
+    <%= render "sidebar/sidebar" %>
+  <% end %>
+
+  <%= turbo_frame_tag "editor_main", class: "folder-shell__main" do %>
+    <%= yield %>
+  <% end %>
+<% end %>
+<%= render template: "layouts/application" %>

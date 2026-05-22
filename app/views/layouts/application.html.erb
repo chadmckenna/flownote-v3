@@ -27,33 +27,13 @@
   </head>
 
   <body>
-    <nav data-topnav>
-      <% if authenticated? %>
-        <ul>
-          <li><%= link_to "Flownote", root_path %></li>
-        </ul>
-        <ul>
-          <li><%= link_to "+ Note", new_note_path, class: "button small" %></li>
-          <li><button class="ghost small" data-controller="theme" data-action="click->theme#toggle"></button></li>
-          <li><%= button_to "Sign out", session_path, method: :delete, class: "ghost small" %></li>
-        </ul>
-      <% else %>
-        <ul>
-          <li><%= link_to "Flownote", root_path %></li>
-        </ul>
-        <ul>
-          <li><button class="ghost small" data-controller="theme" data-action="click->theme#toggle"></button></li>
-          <li><%= link_to "Sign in", new_session_path %></li>
-          <li><%= link_to "Sign up", new_registration_path, class: "button small" %></li>
-        </ul>
-      <% end %>
-    </nav>
+    <%= render "topnav/topnav" %>
 
     <main class="<%= content_for(:main_class).presence || "container" %>">
       <% unless content_for?(:main_class) %>
         <%= render "shared/flashes" %>
       <% end %>
-      <%= yield %>
+      <%= content_for?(:main) ? content_for(:main) : yield %>
     </main>
   </body>
 </html>

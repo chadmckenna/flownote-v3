@@ -1,18 +1,1 @@
-<% content_for :main_class, "folder-shell" %>
-
-<%= turbo_stream_from @note %>
-
-<%= turbo_frame_tag "folder_context" do %>
-  <%= render "folders/context", folder: @note.folder, ancestors: @ancestors %>
-  <aside class="folder-shell__sidebar">
-    <%= render "folders/sidebar", folder: @note.folder, ancestors: @ancestors,
-                                  subfolders: @subfolders, notes: @sibling_notes,
-                                  current_note: @note %>
-  </aside>
-<% end %>
-
-<%= turbo_frame_tag "editor_main", class: "folder-shell__main" do %>
-  <div class="folder-shell__pane" data-mode="editing">
-    <%= render "form", note: @note, form_url: folder_note_path(@note.folder, @note), cancel_path: @note.folder.root? ? root_path : folder_path(@note.folder) %>
-  </div>
-<% end %>
+<%= render "main/editing", note: @note %>
