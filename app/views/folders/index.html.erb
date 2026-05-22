@@ -1,31 +1,17 @@
-<menu class="buttons">
-  <%= link_to "New note", new_folder_note_path(@folder), data: { turbo_frame: "new_note" }, class: "button" %>
-  <%= link_to "New folder", new_folder_path(parent_id: @folder.id), data: { turbo_frame: "new_folder" }, class: "button outline" %>
-</menu>
+<% content_for :main_class, "folder-shell" %>
 
-<%= turbo_frame_tag "new_note" %>
-<%= turbo_frame_tag "new_folder" %>
+<%= turbo_stream_from @folder %>
 
-<% if @subfolders.any? || @notes.any? %>
-  <ul class="file-listing">
-    <% @subfolders.each do |folder| %>
-      <li>
-        <%= link_to folder_path(folder) do %>
-          <span class="type">d</span>
-          <span class="name-folder"><%= folder.name %>/</span>
-        <% end %>
-      </li>
-    <% end %>
-    <% @notes.each do |note| %>
-      <li>
-        <%= link_to edit_folder_note_path(@folder, note) do %>
-          <span class="type">-</span>
-          <span class="name"><%= note.title %></span>
-          <span class="meta"><%= time_ago_in_words(note.updated_at) %> ago</span>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-<% else %>
-  <p>No notes yet. Create your first note or folder to get started.</p>
+<%= turbo_frame_tag "folder_context" do %>
+  <%= render "folders/context", folder: @folder, ancestors: @ancestors %>
+  <aside class="folder-shell__sidebar">
+    <%= render "folders/sidebar", folder: @folder, ancestors: @ancestors,
+                                  subfolders: @subfolders, notes: @notes %>
+  </aside>
+<% end %>
+
+<%= turbo_frame_tag "editor_main", class: "folder-shell__main" do %>
+  <div class="folder-shell__pane" data-mode="browse">
+    <p class="folder-shell__hint">Select a note to begin editing.</p>
+  </div>
 <% end %>

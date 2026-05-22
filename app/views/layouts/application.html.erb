@@ -49,14 +49,10 @@
       <% end %>
     </nav>
 
-    <main class="container">
-      <% if flash[:notice] %>
-        <div role="alert" data-variant="success"><%= flash[:notice] %></div>
+    <main class="<%= content_for(:main_class).presence || "container" %>">
+      <% unless content_for?(:main_class) %>
+        <%= render "shared/flashes" %>
       <% end %>
-      <% if flash[:alert] %>
-        <div role="alert" data-variant="error"><%= flash[:alert] %></div>
-      <% end %>
-
       <%= yield %>
     </main>
   </body>

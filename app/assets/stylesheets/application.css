@@ -320,3 +320,118 @@ nav[aria-label="breadcrumb"] {
     color: var(--text);
   }
 }
+
+.folder-shell {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  height: calc(100vh - 4rem);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(280px, 340px) 1fr;
+  grid-template-areas:
+    "context context"
+    "sidebar main";
+}
+
+.folder-shell > turbo-frame#folder_context { display: contents; }
+
+.folder-shell__context {
+  grid-area: context;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.folder-shell__sidebar {
+  grid-area: sidebar;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: var(--space-3);
+}
+
+.folder-shell__sidebar .file-listing li[aria-current="page"] {
+  background: var(--card);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+.folder-shell__main {
+  grid-area: main;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.folder-shell__pane {
+  height: 100%;
+  padding: var(--space-3);
+  box-sizing: border-box;
+}
+
+.folder-shell__pane[data-mode="browse"] {
+  display: grid;
+  place-items: center;
+}
+
+.folder-shell__hint {
+  font-style: italic;
+  opacity: 0.5;
+}
+
+.folder-shell__pane[data-mode="editing"] {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.folder-shell__pane[data-mode="viewing"] {
+  overflow-y: auto;
+}
+
+.note-form__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.note-form__heading input[type="text"] {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.note-form__heading .buttons {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.folder-shell__pane[data-mode="editing"] form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.folder-shell__pane[data-mode="editing"] [data-controller="vim-editor"] {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.folder-shell__pane[data-mode="editing"] .cm-editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.folder-shell__pane[data-mode="editing"] .cm-scroller {
+  max-height: none;
+}
+
+@media (max-width: 768px) {
+  .folder-shell {
+    grid-template-columns: 1fr;
+    grid-template-areas: "context" "sidebar" "main";
+    grid-template-rows: auto auto 1fr;
+  }
+}

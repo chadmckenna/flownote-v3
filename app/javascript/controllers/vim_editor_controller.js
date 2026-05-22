@@ -62,6 +62,8 @@ export default class extends Controller {
 
     this.submitHandler = () => { ta.value = this.view.state.doc.toString() }
     ta.form?.addEventListener("submit", this.submitHandler)
+
+    this.view.focus()
   }
 
   disconnect() {

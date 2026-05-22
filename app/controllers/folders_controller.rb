@@ -6,6 +6,7 @@ class FoldersController < ApplicationController
     @folder = Current.user.root_folder
     @subfolders = @folder.subfolders.order(:name)
     @notes = @folder.notes.order(updated_at: :desc)
+    @ancestors = []
   end
 
   def show

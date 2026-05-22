@@ -1,0 +1,27 @@
+<% current_note = local_assigns[:current_note] %>
+<ul class="file-listing" data-controller="sidebar-active">
+  <% unless folder.root? %>
+    <li>
+      <%= link_to(folder.parent.root? ? root_path : folder_path(folder.parent)) do %>
+        <span class="type">d</span>
+        <span class="name-folder">../</span>
+      <% end %>
+    </li>
+  <% end %>
+  <% subfolders.each do |subfolder| %>
+    <li>
+      <%= link_to folder_path(subfolder) do %>
+        <span class="type">d</span>
+        <span class="name-folder"><%= subfolder.name %>/</span>
+      <% end %>
+    </li>
+  <% end %>
+  <% notes.each do |note| %>
+    <%= tag.li("aria-current": ("page" if current_note && note.id == current_note.id)) do %>
+      <%= link_to edit_folder_note_path(folder, note), data: { turbo_frame: "editor_main", turbo_action: "advance" } do %>
+        <span class="type">-</span>
+        <span class="name"><%= note.title %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+</ul>

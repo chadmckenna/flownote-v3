@@ -1,26 +1,26 @@
+<% content_for :main_class, "folder-shell" %>
+
 <%= turbo_stream_from @note %>
 
-<article>
-  <nav aria-label="breadcrumb" class="breadcrumb-heading">
-    <ul>
-      <li><%= link_to "~", root_path %></li>
-      <% @note.folder.ancestors.reject(&:root?).each do |ancestor| %>
-        <li><%= link_to ancestor.name, ancestor %></li>
-      <% end %>
-      <% unless @note.folder.root? %>
-        <li><%= link_to @note.folder.name, @note.folder %></li>
-      <% end %>
-      <li aria-current="page"><%= @note.title %></li>
-    </ul>
-  </nav>
+<%= turbo_frame_tag "folder_context" do %>
+  <%= render "folders/context", folder: @note.folder, ancestors: @ancestors %>
+  <aside class="folder-shell__sidebar">
+    <%= render "folders/sidebar", folder: @note.folder, ancestors: @ancestors,
+                                  subfolders: @subfolders, notes: @sibling_notes,
+                                  current_note: @note %>
+  </aside>
+<% end %>
 
-  <div class="prose"><%= render_markdown(@note.body) %></div>
+<%= turbo_frame_tag "editor_main", class: "folder-shell__main" do %>
+  <div class="folder-shell__pane" data-mode="viewing">
+    <menu class="buttons">
+      <%= link_to "Edit", edit_folder_note_path(@note.folder, @note), data: { turbo_frame: "editor_main", turbo_action: "advance" }, class: "button" %>
+      <%= link_to "Close", @note.folder.root? ? root_path : folder_path(@note.folder), class: "button outline" %>
+      <%= button_to "Delete", folder_note_path(@note.folder, @note), method: :delete, class: "button ghost danger-text",
+          form: { class: "buttons-right", data: { turbo_frame: "_top" } },
+          data: { turbo_confirm: "Are you sure?" } %>
+    </menu>
 
-  <menu class="buttons">
-    <%= link_to "Edit", edit_folder_note_path(@note.folder, @note), class: "button" %>
-    <%= link_to "Back", @note.folder.root? ? root_path : folder_path(@note.folder), class: "button outline" %>
-    <%= button_to "Delete", folder_note_path(@note.folder, @note), method: :delete, class: "button ghost danger-text",
-        form: { class: "buttons-right" },
-        data: { turbo_confirm: "Are you sure?" } %>
-  </menu>
-</article>
+    <article class="prose"><%= render_markdown(@note.body) %></article>
+  </div>
+<% end %>

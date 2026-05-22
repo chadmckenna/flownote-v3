@@ -3,6 +3,7 @@ class NotesController < ApplicationController
   before_action :set_note, only: %i[ show edit update destroy ]
 
   def show
+    load_folder_sidebar
   end
 
   def new
@@ -11,6 +12,7 @@ class NotesController < ApplicationController
   end
 
   def edit
+    load_folder_sidebar
   end
 
   def create
@@ -25,7 +27,13 @@ class NotesController < ApplicationController
 
   def update
     if @note.update(note_params)
-      redirect_to folder_note_path(@note.folder, @note), notice: "Note was successfully updated."
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now[:notice] = "Note `#{@note.title}` was successfully updated."
+          render turbo_stream: turbo_stream.update("flash-slot", partial: "shared/flashes")
+        end
+        format.html { redirect_to edit_folder_note_path(@note.folder, @note), notice: "Note was successfully updated." }
+      end
     else
       render :edit, status: :unprocessable_entity
     end
@@ -62,5 +70,11 @@ class NotesController < ApplicationController
 
     def note_params
       params.expect(note: [ :title, :body, :folder_id ])
+    end
+
+    def load_folder_sidebar
+      @subfolders = @folder.subfolders.order(:name)
+      @sibling_notes = @folder.notes.order(updated_at: :desc)
+      @ancestors = @folder.ancestors
     end
 end
