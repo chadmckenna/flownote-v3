@@ -15,7 +15,7 @@
         <%= link_to "View", folder_note_path(note.folder, note), data: { turbo_frame: "editor_main", turbo_action: "advance" }, class: "button outline" %>
       <% end %>
       <% if local_assigns[:cancel_path] %>
-        <%= link_to "Close", cancel_path, class: "button outline" %>
+        <%= link_to "Close", cancel_path, data: { turbo_frame: "editor_main", turbo_action: "advance" }, class: "button outline" %>
       <% end %>
     </menu>
   </div>

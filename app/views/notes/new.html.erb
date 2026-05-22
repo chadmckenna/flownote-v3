@@ -9,7 +9,7 @@
     <% end %>
     <%= form.hidden_field :folder_id %>
     <%= form.text_field :title, required: true, autofocus: true, placeholder: "Note title", "aria-label": "Note title" %>
-    <%= form.submit "Create Note" %>
+    <%= form.submit "Save" %>
     <%= link_to "Cancel", folder_or_root_path(@folder) %>
   <% end %>
 <% end %>

@@ -10,7 +10,7 @@
       <% end %>
       <%= form.hidden_field :parent_id %>
       <%= form.text_field :name, required: true, autofocus: true, placeholder: "Folder name", "aria-label": "Folder name" %>
-      <%= form.submit %>
+      <%= form.submit "Save" %>
     <% end %>
     <%= link_to "Cancel", folder_path(@folder) %>
   </div>

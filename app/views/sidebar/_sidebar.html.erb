@@ -28,4 +28,13 @@
     <% end %>
   <% end %>
   </ul>
+
+  <div class="folder-shell__sidebar__actions">
+    <%= turbo_frame_tag "new_note" %>
+    <%= turbo_frame_tag "new_folder" %>
+    <menu class="buttons">
+      <%= link_to "New note", new_folder_note_path(@folder), data: { turbo_frame: "new_note" }, class: "button" %>
+      <%= link_to "New folder", new_folder_path(parent_id: @folder.id), data: { turbo_frame: "new_folder" }, class: "button outline" %>
+    </menu>
+  </div>
 </aside>

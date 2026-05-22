@@ -60,7 +60,7 @@ menu.buttons {
   font-family: var(--font-mono);
   font-size: 0.95rem;
   list-style: none;
-  margin: var(--space-4) 0;
+  margin: 0 !important;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -328,7 +328,7 @@ nav[aria-label="breadcrumb"] {
   height: calc(100vh - 4rem);
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: minmax(280px, 340px) 1fr;
+  grid-template-columns: minmax(280px, 380px) 1fr;
   grid-template-areas:
     "context context"
     "sidebar main";
@@ -342,17 +342,54 @@ nav[aria-label="breadcrumb"] {
   border-bottom: 1px solid var(--border);
 }
 
+.folder-shell__context__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.folder-shell__context__row > turbo-frame {
+  display: contents;
+}
+
+.folder-shell__context__row nav[aria-label="breadcrumb"] ul {
+  margin: 0;
+}
+
+.folder-shell__context__row menu.buttons {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: auto;
+}
+
 .folder-shell__sidebar {
   grid-area: sidebar;
   border-right: 1px solid var(--border);
-  overflow-y: auto;
   padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.folder-shell__sidebar .file-listing {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .folder-shell__sidebar .file-listing li[aria-current="page"] {
   background: var(--card);
   font-weight: 600;
   border-radius: var(--radius-sm);
+}
+
+.folder-shell__sidebar__actions {
+  flex: 0 0 auto;
+  margin-top: var(--space-3);
+}
+
+.folder-shell__sidebar__actions menu.buttons {
+  margin: var(--space-2) 0 0 0;
 }
 
 .folder-shell__main {
