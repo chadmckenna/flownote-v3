@@ -1,3 +1,23 @@
 <div class="folder-shell__pane" data-mode="browse">
-  <p class="folder-shell__hint">Select a note to begin editing.</p>
+  <% if @subfolders.empty? && @sidebar_notes.empty? %>
+    <div class="folder-shell__empty">
+      <h2>
+        <% if @folder.root? %>
+          Welcome to Flownote
+        <% else %>
+          Nothing here yet
+        <% end %>
+      </h2>
+      <p>
+        <% if @folder.root? %>
+          Start by creating your first note, or organize your thoughts into folders.
+        <% else %>
+          Add a note to this folder, or create a subfolder to keep things tidy.
+        <% end %>
+      </p>
+      <p class="folder-shell__hint">Use the <strong>New note</strong> and <strong>New folder</strong> actions in the sidebar.</p>
+    </div>
+  <% else %>
+    <p class="folder-shell__hint">Select a note from the sidebar to begin editing.</p>
+  <% end %>
 </div>

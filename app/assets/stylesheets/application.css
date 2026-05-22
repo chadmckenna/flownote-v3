@@ -414,6 +414,38 @@ nav[aria-label="breadcrumb"] {
   opacity: 0.5;
 }
 
+.folder-shell__empty {
+  text-align: center;
+  max-width: 32rem;
+}
+
+.folder-shell__empty h2 {
+  margin-top: 0;
+  margin-bottom: var(--space-2);
+}
+
+.folder-shell__empty p {
+  margin: var(--space-2) 0;
+  opacity: 0.75;
+}
+
+.folder-shell__empty .folder-shell__hint {
+  margin-top: var(--space-3);
+}
+
+.folder-shell__sidebar .file-listing:has(> .folder-shell__sidebar__empty:only-child) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.folder-shell__sidebar__empty {
+  list-style: none;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.5;
+}
+
 .folder-shell__pane[data-mode="editing"] {
   display: flex;
   flex-direction: column;
