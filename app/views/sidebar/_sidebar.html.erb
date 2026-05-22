@@ -27,6 +27,9 @@
       <% end %>
     <% end %>
   <% end %>
+  <% if @subfolders.empty? && @sidebar_notes.empty? %>
+    <li class="folder-shell__sidebar__empty">This folder is empty.</li>
+  <% end %>
   </ul>
 
   <div class="folder-shell__sidebar__actions">

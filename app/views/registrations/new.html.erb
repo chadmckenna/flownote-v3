@@ -1,6 +1,6 @@
 <h1>Sign up</h1>
 
-<%= form_with model: @user, url: registration_path do |form| %>
+<%= form_with model: @user, url: registration_path, data: { turbo: false } do |form| %>
   <% if @user.errors.any? %>
     <div role="alert" data-variant="error">
       <% @user.errors.full_messages.each do |message| %>

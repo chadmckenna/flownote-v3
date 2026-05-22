@@ -1,6 +1,6 @@
 <h1>Sign in</h1>
 
-<%= form_with url: session_path do |form| %>
+<%= form_with url: session_path, data: { turbo: false } do |form| %>
   <%= form.label :email_address, "Email" %>
   <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %>
 
