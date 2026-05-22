@@ -1,7 +1,4 @@
 Rails.application.routes.draw do
-  get "notes/new", to: "notes#quick_new", as: :new_note
-  post "notes", to: "notes#quick_create", as: :notes
-
   resources :folders, only: [ :show, :new, :create, :edit, :update, :destroy ] do
     resources :notes, except: [ :index ]
   end
@@ -24,6 +21,10 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resource :me, only: :show, controller: "me"
+      resources :folders, only: %i[index show create destroy] do
+        resources :notes, only: %i[index], shallow: true
+      end
+      resources :notes, only: %i[show create update destroy]
     end
   end
 

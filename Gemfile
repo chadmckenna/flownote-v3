@@ -46,6 +46,9 @@ gem "image_processing", "~> 1.2"
 # Rich text editor built on Lexical [https://github.com/basecamp/lexxy]
 gem 'lexxy', '~> 0.9.7.beta' # Need to specify the version since it's a pre-release
 
+# CommonMark + GFM Markdown renderer for server-side note rendering [https://github.com/gjtorikian/commonmarker]
+gem "commonmarker"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

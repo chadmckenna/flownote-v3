@@ -20,7 +20,7 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     end
 
     note = Note.last
-    assert_redirected_to folder_note_path(note.folder, note)
+    assert_redirected_to edit_folder_note_path(note.folder, note)
   end
 
   test "create with missing title" do
@@ -43,7 +43,7 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
 
   test "update" do
     patch folder_note_path(@folder, @note), params: { note: { title: "Updated title" } }
-    assert_redirected_to folder_note_path(@note.folder, @note)
+    assert_redirected_to edit_folder_note_path(@note.folder, @note)
     assert_equal "Updated title", @note.reload.title
   end
 

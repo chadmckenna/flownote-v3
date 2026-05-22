@@ -1,0 +1,37 @@
+<div class="folder-shell__context">
+  <div id="flash-slot">
+    <%= render "shared/flashes" %>
+  </div>
+
+  <div class="folder-shell__context__row">
+    <%= turbo_frame_tag dom_id(@folder, :edit) do %>
+      <nav aria-label="breadcrumb" class="breadcrumb-heading">
+        <ul>
+          <li><%= link_to "~", root_path, data: { turbo_frame: "_top" } %></li>
+          <% @ancestors.reject(&:root?).each do |ancestor| %>
+            <li><%= link_to ancestor.name, ancestor, data: { turbo_frame: "_top" } %></li>
+          <% end %>
+          <% unless @folder.root? %>
+            <% if @note %>
+              <li><%= link_to @folder.name, @folder, data: { turbo_frame: "_top" } %></li>
+            <% else %>
+              <li aria-current="page"><%= @folder.name %></li>
+            <% end %>
+          <% end %>
+          <% if @note %>
+            <li aria-current="page"><%= @note.title %></li>
+          <% end %>
+        </ul>
+      </nav>
+    <% end %>
+
+    <% unless @folder.root? %>
+      <menu class="buttons">
+        <%= link_to "Edit folder", edit_folder_path(@folder), data: { turbo_frame: dom_id(@folder, :edit) }, class: "button ghost" %>
+        <%= button_to "Delete folder", @folder, method: :delete, class: "button ghost danger-text",
+            form: { data: { turbo_frame: "_top" } },
+            data: { turbo_confirm: "Are you sure? The folder must be empty to delete." } %>
+      </menu>
+    <% end %>
+  </div>
+</div>

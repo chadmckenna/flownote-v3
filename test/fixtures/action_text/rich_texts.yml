@@ -1,9 +1,3 @@
-one_body:
-  record: one (Note)
-  name: body
-  body: <p>Body of the first note</p>
-
-two_body:
-  record: two (Note)
-  name: body
-  body: <p>Body of the second note</p>
+# ActionText rich text fixtures.
+# Notes no longer use ActionText (body is a plain Markdown column on `notes`).
+# This file is kept for future models that may use has_rich_text.
