@@ -23,6 +23,8 @@ Vim.defineEx("x", "x", submitFromVim)
 export default class extends Controller {
   static targets = ["textarea"]
 
+  #dirty = false
+
   connect() {
     const ta = this.textareaTarget
 
@@ -51,7 +53,7 @@ export default class extends Controller {
           markdown(),
           EditorView.lineWrapping,
           EditorView.updateListener.of((u) => {
-            if (u.docChanged) ta.value = u.state.doc.toString()
+            if (u.docChanged) this.#dirty = true
           }),
         ],
       }),
@@ -60,15 +62,49 @@ export default class extends Controller {
     ta.style.display = "none"
     ta.insertAdjacentElement("afterend", this.view.dom)
 
-    this.submitHandler = () => { ta.value = this.view.state.doc.toString() }
+    this.submitHandler = () => {
+      ta.value = this.view.state.doc.toString()
+      this.#dirty = false
+    }
     ta.form?.addEventListener("submit", this.submitHandler)
+
+    // Hard navigations (reload, tab close, typed URL): browser shows its own prompt.
+    this.beforeUnloadHandler = (event) => {
+      if (this.#dirty) event.preventDefault()
+    }
+    window.addEventListener("beforeunload", this.beforeUnloadHandler)
+
+    // Turbo Drive visits (e.g. breadcrumb links that break out to _top).
+    this.beforeVisitHandler = (event) => {
+      if (this.#dirty && !this.#confirmDiscard()) event.preventDefault()
+    }
+    document.addEventListener("turbo:before-visit", this.beforeVisitHandler)
+
+    // Turbo Frame / Stream links that replace the editor in place — these never
+    // fire turbo:before-visit, so intercept the click before Turbo handles it.
+    this.navigateClickHandler = (event) => {
+      if (!this.#dirty) return
+      const link = event.target.closest("a[data-turbo-stream='true'], a[data-turbo-frame='editor_main']")
+      if (link && !this.#confirmDiscard()) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+      }
+    }
+    document.addEventListener("click", this.navigateClickHandler, { capture: true })
 
     this.view.focus()
   }
 
   disconnect() {
     this.textareaTarget.form?.removeEventListener("submit", this.submitHandler)
+    window.removeEventListener("beforeunload", this.beforeUnloadHandler)
+    document.removeEventListener("turbo:before-visit", this.beforeVisitHandler)
+    document.removeEventListener("click", this.navigateClickHandler, { capture: true })
     this.view?.destroy()
     this.textareaTarget.style.display = ""
+  }
+
+  #confirmDiscard() {
+    return confirm("You have unsaved changes. Leave without saving?")
   }
 }

@@ -66,8 +66,6 @@
 
   .btn--small {
     --btn-padding: 0.25rem var(--inline-space-half);
-
-    font-size: var(--text-small);
   }
 
   /* Button groups
