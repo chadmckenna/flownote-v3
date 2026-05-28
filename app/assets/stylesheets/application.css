@@ -498,9 +498,59 @@ nav[aria-label="breadcrumb"] {
 }
 
 @media (max-width: 768px) {
+  /* Editor shell: drop the fixed viewport lock and let the whole page scroll
+     naturally instead of stacking three internally-scrolling regions. */
   .folder-shell {
     grid-template-columns: 1fr;
     grid-template-areas: "context" "sidebar" "main";
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto auto;
+    height: auto;
+  }
+
+  .folder-shell__sidebar .file-listing {
+    flex: none;
+    overflow-y: visible;
+  }
+
+  .folder-shell__main {
+    overflow: visible;
+  }
+
+  .folder-shell__pane[data-mode="browse"] {
+    display: block;
+  }
+
+  .folder-shell__pane[data-mode="editing"] .cm-editor {
+    min-height: 50vh;
+  }
+
+  /* Note heading: give the title input the full width and let the action
+     buttons wrap below it rather than squeezing the title. */
+  .note-form__heading {
+    flex-wrap: wrap;
+  }
+
+  .note-form__heading input[type="text"] {
+    flex-basis: 100%;
+  }
+
+  /* Context row: let folder action buttons wrap below the breadcrumb instead
+     of overflowing the viewport. */
+  .folder-shell__context__row {
+    flex-wrap: wrap;
+  }
+
+  .folder-shell__context__row menu.buttons {
+    margin-left: 0;
+  }
+
+  nav[aria-label="breadcrumb"].breadcrumb-heading ul {
+    flex-wrap: wrap;
+    font-size: var(--text-xl);
+  }
+
+  /* Topnav: reclaim horizontal space on narrow screens. */
+  nav[data-topnav] {
+    padding: var(--space-2) var(--space-3);
   }
 }

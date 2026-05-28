@@ -322,3 +322,37 @@ lexxy-editor summary::-webkit-details-marker {
   margin: 0 auto;
   padding: var(--space-6) var(--space-4);
 }
+
+/* ==========================================================================
+   Mobile touch targets
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* Ensure controls meet the ~44px minimum tap size. */
+  button,
+  .button,
+  input[type="submit"] {
+    min-height: 44px;
+  }
+
+  .small {
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* The theme toggle is an empty-label ghost button — keep it square and tappable. */
+  [data-controller="theme"] {
+    min-width: 44px;
+  }
+
+  /* Lexxy's own toolbar controls opt out of our button sizing. */
+  lexxy-editor button,
+  lexxy-editor summary {
+    min-height: 0;
+  }
+
+  /* Comfortable tap height for file/folder rows in the sidebar. */
+  .file-listing a {
+    padding: var(--space-3);
+  }
+}
