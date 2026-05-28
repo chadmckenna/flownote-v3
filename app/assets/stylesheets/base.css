@@ -1,358 +1,57 @@
-/* ==========================================================================
-   Design Tokens
-   ========================================================================== */
-
-:root {
-  color-scheme: light dark;
-
-  /* Colors — light */
-  --bg: #ffffff;
-  --bg-subtle: #f4f4f5;
-  --text: #09090b;
-  --text-muted: #71717a;
-  --border: #d4d4d8;
-  --card: #ffffff;
-  --accent: #3b82f6;
-  --danger: #ef4444;
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --btn-bg: #09090b;
-  --btn-text: #ffffff;
-
-  /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-
-  /* Typography */
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Code", "Fira Code", monospace;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-
-  /* Radii */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-}
-
-[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #09090b;
-  --bg-subtle: #18181b;
-  --text: #fafafa;
-  --text-muted: #a1a1aa;
-  --border: #27272a;
-  --card: #18181b;
-  --btn-bg: #fafafa;
-  --btn-text: #09090b;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #09090b;
-    --bg-subtle: #18181b;
-    --text: #fafafa;
-    --text-muted: #a1a1aa;
-    --border: #27272a;
-    --card: #18181b;
-    --btn-bg: #fafafa;
-    --btn-text: #09090b;
-  }
-}
-
-/* ==========================================================================
-   Reset & Base
-   ========================================================================== */
-
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: 1.6;
-  color: var(--text);
-  background: var(--bg);
-}
-
-/* ==========================================================================
-   Typography
-   ========================================================================== */
-
-h1, h2, h3, h4 {
-  margin: 0 0 var(--space-4);
-  line-height: 1.2;
-  font-weight: 600;
-}
-
-h1 { font-size: var(--text-3xl); }
-h2 { font-size: var(--text-2xl); }
-h3 { font-size: var(--text-xl); }
-h4 { font-size: var(--text-lg); }
-
-p {
-  margin: 0 0 var(--space-4);
-}
-
-a {
-  color: var(--accent);
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-code {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  background: var(--bg-subtle);
-  padding: 0.15em 0.4em;
-  border-radius: var(--radius-sm);
-}
-
-hr {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: var(--space-6) 0;
-}
-
-small {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-
-/* ==========================================================================
-   Forms
-   ========================================================================== */
-
-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: var(--space-1);
-  font-size: var(--text-sm);
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="url"],
-input[type="search"],
-select,
-textarea {
-  display: block;
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  font-family: inherit;
-  font-size: var(--text-base);
-  line-height: 1.5;
-  color: var(--text);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-4);
-
-  &:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: -1px;
-    border-color: var(--accent);
+@layer base {
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-normal);
+    line-height: 1.6;
+    margin: 0;
   }
 
-  &::placeholder {
-    color: var(--text-muted);
+  /* Headings */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 var(--block-space);
   }
-}
 
-select {
-  appearance: auto;
-}
+  h1 { font-size: var(--text-xx-large); }
+  h2 { font-size: var(--text-x-large); }
+  h3 { font-size: var(--text-large); }
+  h4 { font-size: var(--text-medium); }
 
-/* ==========================================================================
-   Buttons
-   ========================================================================== */
+  p {
+    margin: 0 0 var(--block-space);
+  }
 
-button,
-.button,
-input[type="submit"] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2) var(--space-4);
-  font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--btn-text);
-  background: var(--btn-bg);
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-
-  &:hover {
-    opacity: 0.85;
+  a {
+    color: var(--color-link);
     text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-}
-
-.outline {
-  color: var(--text);
-  background: transparent;
-  border-color: var(--border);
-
-  &:hover {
-    background: var(--bg-subtle);
-    opacity: 1;
-  }
-}
-
-.ghost {
-  color: var(--text);
-  background: transparent;
-  border-color: transparent;
-
-  &:hover {
-    background: var(--bg-subtle);
-    opacity: 1;
-  }
-}
-
-.small {
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--text-sm);
-}
-
-/* Reset our styles inside the Lexxy editor so Lexxy's own styles take effect */
-lexxy-editor button,
-lexxy-editor summary {
-  background: transparent;
-  color: currentColor;
-  border: none;
-  padding: 0;
-  font-size: inherit;
-  font-weight: normal;
-  line-height: inherit;
-  white-space: normal;
-  text-decoration: none;
-  border-radius: 0;
-}
-
-lexxy-editor details {
-  overflow: visible;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  margin: 0;
-}
-
-lexxy-editor summary {
-  list-style: none;
-}
-
-lexxy-editor summary::-webkit-details-marker {
-  display: none;
-}
-
-/* Override Lexxy's hardcoded text color so content inherits the page theme */
-.lexxy-content {
-  color: inherit;
-}
-
-/* ==========================================================================
-   Alerts
-   ========================================================================== */
-
-[data-variant="success"] {
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--success) 10%, var(--bg));
-  border: 1px solid color-mix(in srgb, var(--success) 30%, var(--border));
-  color: var(--text);
-
-  p { margin: 0; }
-}
-
-[data-variant="error"] {
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--danger) 10%, var(--bg));
-  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
-  color: var(--text);
-
-  p { margin: 0; }
-}
-
-[data-variant="warning"] {
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--warning) 12%, var(--bg));
-  border: 1px solid color-mix(in srgb, var(--warning) 40%, var(--border));
-  color: var(--text);
-
-  p { margin: 0 0 var(--space-2); }
-  p:last-child { margin-bottom: 0; }
-}
-
-/* ==========================================================================
-   Layout
-   ========================================================================== */
-
-.container {
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-4);
-}
-
-/* ==========================================================================
-   Mobile touch targets
-   ========================================================================== */
-
-@media (max-width: 768px) {
-  /* Ensure controls meet the ~44px minimum tap size. */
-  button,
-  .button,
-  input[type="submit"] {
-    min-height: 44px;
+  code {
+    background: var(--color-shade);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    padding: 0.15em 0.4em;
   }
 
-  .small {
-    min-height: 44px;
-    padding: var(--space-2) var(--space-3);
+  hr {
+    border: none;
+    border-block-start: 1px solid var(--color-border);
+    margin-block: 1.5rem;
   }
 
-  /* The theme toggle is an empty-label ghost button — keep it square and tappable. */
-  [data-controller="theme"] {
-    min-width: 44px;
-  }
-
-  /* Lexxy's own toolbar controls opt out of our button sizing. */
-  lexxy-editor button,
-  lexxy-editor summary {
-    min-height: 0;
-  }
-
-  /* Comfortable tap height for file/folder rows in the sidebar. */
-  .file-listing a {
-    padding: var(--space-3);
+  small {
+    color: var(--color-ink-muted);
+    font-size: var(--text-small);
   }
 }

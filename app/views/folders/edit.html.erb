@@ -2,7 +2,7 @@
   <div class="inline-form">
     <%= form_with(model: @folder, data: { turbo_frame: "_top" }) do |form| %>
       <% if @folder.errors.any? %>
-        <div role="alert" data-variant="error">
+        <div role="alert" class="alert alert--error">
           <% @folder.errors.full_messages.each do |message| %>
             <p><%= message %></p>
           <% end %>

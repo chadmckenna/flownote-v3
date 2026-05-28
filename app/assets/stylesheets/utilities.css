@@ -1,0 +1,4 @@
+@layer utilities {
+  /* Text color */
+  .txt-negative { color: var(--color-negative); }
+}
