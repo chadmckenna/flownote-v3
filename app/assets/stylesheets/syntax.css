@@ -1,0 +1,71 @@
+@layer components {
+  /* Code block container
+  /* ------------------------------------------------------------------------ */
+
+  .prose pre {
+    background: var(--color-shade);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-small);
+    margin-block: var(--block-space);
+    overflow-x: auto;
+    padding: var(--block-space);
+  }
+
+  /* Reset the inline-code chrome (background/padding) from base.css for block
+     code so only the container above is styled. */
+  .prose pre code {
+    background: none;
+    border-radius: 0;
+    font-family: var(--font-mono);
+    padding: 0;
+  }
+
+  /* highlight.js token colors
+  /* ------------------------------------------------------------------------ */
+  /* Mapped onto named design tokens so light/dark follows token reassignment
+     in _global.css — no per-theme block needed here. */
+
+  .prose .hljs {
+    color: var(--color-ink);
+  }
+
+  .prose .hljs-comment,
+  .prose .hljs-quote {
+    color: var(--color-ink-muted);
+    font-style: italic;
+  }
+
+  .prose .hljs-keyword,
+  .prose .hljs-built_in,
+  .prose .hljs-literal,
+  .prose .hljs-type {
+    color: var(--color-link);
+  }
+
+  .prose .hljs-string,
+  .prose .hljs-regexp,
+  .prose .hljs-addition {
+    color: var(--color-positive);
+  }
+
+  .prose .hljs-number,
+  .prose .hljs-symbol,
+  .prose .hljs-attr,
+  .prose .hljs-attribute {
+    color: var(--color-warning);
+  }
+
+  .prose .hljs-title,
+  .prose .hljs-section,
+  .prose .hljs-name,
+  .prose .hljs-selector-tag,
+  .prose .hljs-deletion {
+    color: var(--color-negative);
+  }
+
+  .prose .hljs-meta,
+  .prose .hljs-tag {
+    color: var(--color-ink-muted);
+  }
+}

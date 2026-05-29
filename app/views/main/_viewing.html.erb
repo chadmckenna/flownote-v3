@@ -13,5 +13,5 @@
         data: { turbo_confirm: "Are you sure?" } %>
   </menu>
 
-  <article class="prose"><%= render_markdown(note.body) %></article>
+  <article class="prose" data-controller="syntax-highlight"><%= render_markdown(note.body) %></article>
 </div>

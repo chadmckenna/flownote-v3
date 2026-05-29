@@ -30,3 +30,7 @@ pin "@codemirror/lang-javascript", to: "@codemirror--lang-javascript.js" # @6.2.
 pin "@lezer/css", to: "@lezer--css.js" # @1.3.3
 pin "@lezer/html", to: "@lezer--html.js" # @1.3.13
 pin "@lezer/javascript", to: "@lezer--javascript.js" # @1.5.4
+# Self-contained "common" bundle (~37 languages) vendored from jsDelivr's /+esm
+# (lib/common.js/+esm). Do NOT re-run `bin/importmap pin highlight.js` — the
+# default es/index.js entry uses relative ../lib imports that 404 under Propshaft.
+pin "highlight.js" # @11.11.1
