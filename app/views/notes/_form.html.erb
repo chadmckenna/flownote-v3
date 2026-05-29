@@ -1,6 +1,6 @@
 <%= form_with(model: note, url: form_url) do |form| %>
   <% if note.errors.any? %>
-    <div role="alert" data-variant="error">
+    <div role="alert" class="alert alert--error">
       <% note.errors.full_messages.each do |message| %>
         <p><%= message %></p>
       <% end %>
@@ -9,14 +9,14 @@
 
   <div class="note-form__heading">
     <%= form.text_field :title, required: true, placeholder: "Title", "aria-label": "Title" %>
-    <menu class="buttons">
-      <%= form.submit "Save" %>
+    <menu class="btn-group">
       <% if note.persisted? %>
-        <%= link_to "View", folder_note_path(note.folder, note), data: { turbo_frame: "editor_main", turbo_action: "advance" }, class: "button outline" %>
+        <%= link_to "View", folder_note_path(note.folder, note), data: { turbo_frame: "editor_main", turbo_action: "advance" }, class: "btn btn--outline" %>
       <% end %>
       <% if local_assigns[:cancel_path] %>
-        <%= link_to "Close", cancel_path, data: { turbo_frame: "editor_main", turbo_action: "advance" }, class: "button outline" %>
+        <%= link_to "Close", cancel_path, data: { turbo_frame: "editor_main", turbo_action: "advance" }, class: "btn btn--outline" %>
       <% end %>
+      <%= form.submit "Save" %>
     </menu>
   </div>
 

@@ -1,0 +1,62 @@
+@layer components {
+  .file-listing {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin: 0;
+      padding: 0;
+    }
+
+    a {
+      align-items: baseline;
+      border-block-end: 1px solid var(--color-border);
+      color: inherit;
+      display: flex;
+      gap: 0.75rem;
+      padding: var(--block-space-half) 0.75rem;
+      text-decoration: none;
+
+      &:hover {
+        background: var(--color-shade);
+        text-decoration: none;
+      }
+    }
+
+    li:last-child a {
+      border-block-end: none;
+    }
+  }
+
+  .file-listing__type {
+    flex-shrink: 0;
+    opacity: 0.4;
+  }
+
+  .file-listing__name {
+    font-weight: 500;
+  }
+
+  .file-listing__name--folder {
+    color: var(--color-link);
+    font-weight: 500;
+  }
+
+  .file-listing__meta {
+    font-size: var(--text-small);
+    margin-inline-start: auto;
+    opacity: 0.4;
+  }
+
+  @media (max-width: 768px) {
+    /* Comfortable tap height for file/folder rows in the sidebar. */
+    .file-listing a {
+      padding: 0.75rem;
+    }
+  }
+}

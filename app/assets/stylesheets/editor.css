@@ -1,0 +1,199 @@
+/* Third-party editor integration (Lexxy + CodeMirror).
+ *
+ * This file is intentionally UNLAYERED. Lexxy's gem stylesheet and
+ * CodeMirror's runtime-injected styles are unlayered and Lexxy loads after
+ * this file, so:
+ *   - our CodeMirror wrapper styling competes by normal source order, and
+ *   - the dark-mode overrides of Lexxy/CodeMirror internals must use
+ *     !important to win (the sanctioned third-party exception in
+ *     .claude/css-guidelines.md §7). All first-party CSS stays in layers.
+ */
+
+/* CodeMirror wrapper
+/* -------------------------------------------------------------------------- */
+
+.cm-editor {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  min-block-size: 24rem;
+
+  &.cm-focused {
+    outline: var(--focus-ring-size) solid var(--focus-ring-color);
+    outline-offset: -1px;
+  }
+}
+
+.cm-scroller {
+  max-block-size: 60vh;
+  overflow: auto;
+}
+
+/* Editing mode: fill the available pane height instead of the 24rem default.
+   Kept here (unlayered) so it overrides the unlayered .cm-editor base above —
+   a layered rule in folder-shell.css would lose to it. */
+.folder-shell__pane[data-mode="editing"] .cm-editor {
+  block-size: 100%;
+  flex: 1 1 auto;
+  min-block-size: 0;
+}
+
+.folder-shell__pane[data-mode="editing"] .cm-scroller {
+  max-block-size: none;
+}
+
+@media (max-width: 768px) {
+  .folder-shell__pane[data-mode="editing"] .cm-editor {
+    min-block-size: 50vh;
+  }
+}
+
+/* Lexxy content inherits the page theme rather than Lexxy's hardcoded color */
+.lexxy-content {
+  color: inherit;
+}
+
+summary.lexxy-editor__toolbar-button {
+  justify-content: center !important;
+}
+
+/* Lexxy dark mode — override hardcoded light backgrounds
+/* -------------------------------------------------------------------------- */
+
+[data-theme="dark"] {
+  lexxy-editor {
+    background: var(--color-canvas) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-ink) !important;
+  }
+
+  lexxy-editor [role="toolbar"] {
+    border-bottom-color: var(--color-border) !important;
+  }
+
+  .lexxy-editor__content {
+    background: var(--color-canvas) !important;
+    color: var(--color-ink) !important;
+  }
+
+  .lexxy-editor__toolbar-button {
+    color: var(--color-ink) !important;
+  }
+
+  lexxy-editor svg {
+    fill: currentColor !important;
+  }
+
+  .lexxy-editor__toolbar-dropdown-list {
+    background: var(--color-card) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-ink) !important;
+  }
+
+  /* Text formatting dropdown buttons (Normal, H2, H3, etc.) */
+  .lexxy-editor__toolbar-dropdown-list button {
+    background: transparent !important;
+    color: var(--color-ink) !important;
+  }
+
+  .lexxy-editor__toolbar-dropdown-list button:hover,
+  .lexxy-editor__toolbar-dropdown-list button[aria-pressed="true"] {
+    background: var(--color-canvas) !important;
+  }
+
+  /* Other dropdown panels (link, overflow) */
+  .lexxy-editor__toolbar-dropdown-content {
+    background: var(--color-card) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-ink) !important;
+  }
+
+  /* Link/overflow dropdown buttons */
+  .lexxy-editor__toolbar-dropdown-actions button,
+  .lexxy-editor__toolbar-overflow-menu button {
+    color: var(--color-ink) !important;
+  }
+
+  /* Highlight color buttons keep their own colors — only style the border */
+  .lexxy-highlight-colors .lexxy-editor__toolbar-button {
+    border-color: var(--color-border) !important;
+  }
+
+  .lexxy-editor__toolbar-dropdown-reset {
+    color: var(--color-ink) !important;
+  }
+
+  lexxy-editor input {
+    background: var(--color-canvas) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-ink) !important;
+  }
+
+  .lexxy-editor__toolbar-separator {
+    background: var(--color-border) !important;
+    border-color: var(--color-border) !important;
+  }
+
+  .lexxy-floating-controls {
+    background: var(--color-canvas) !important;
+    border-color: var(--color-border) !important;
+  }
+
+  .lexxy-floating-controls,
+  lexxy-code-language-picker {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .lexxy-code-language-picker {
+    background: var(--color-card) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-ink) !important;
+  }
+}
+
+/* CodeMirror dark mode
+/* -------------------------------------------------------------------------- */
+
+[data-theme="dark"] .cm-editor {
+  .cm-gutters {
+    background: var(--color-card);
+    border-right-color: var(--color-border);
+    color: var(--color-ink);
+  }
+
+  .cm-activeLine,
+  .cm-activeLineGutter {
+    background: var(--color-shade, rgba(255, 255, 255, 0.04));
+  }
+
+  .cm-cursor {
+    border-left-color: var(--color-ink);
+  }
+
+  .cm-fat-cursor {
+    background: var(--color-link) !important;
+    color: var(--color-canvas) !important;
+  }
+
+  .cm-panels,
+  .cm-panels-bottom,
+  .cm-panels-top {
+    background: var(--color-card);
+    border-color: var(--color-border);
+    color: var(--color-ink);
+  }
+
+  .cm-vim-panel input {
+    background: var(--color-canvas);
+    border-color: var(--color-border);
+    color: var(--color-ink);
+  }
+
+  .cm-vim-message {
+    color: var(--color-ink);
+  }
+}

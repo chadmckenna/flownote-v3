@@ -1,0 +1,146 @@
+@layer components {
+  /* Base
+  /* ------------------------------------------------------------------------ */
+
+  /* A plain selector list (not :is()) so the bare `button` match keeps its
+     low specificity — the Lexxy reset below relies on out-specifying it. */
+  .btn,
+  button,
+  input[type="submit"] {
+    --btn-background: var(--color-ink);
+    --btn-border-color: transparent;
+    --btn-color: var(--color-canvas);
+    --btn-padding: var(--block-space-half) var(--inline-space);
+
+    align-items: center;
+    background: var(--btn-background);
+    border: 1px solid var(--btn-border-color);
+    border-radius: var(--radius-md);
+    color: var(--btn-color);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: inherit;
+    font-size: var(--text-small);
+    font-weight: 500;
+    justify-content: center;
+    line-height: 1.5;
+    padding: var(--btn-padding);
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      opacity: 0.85;
+      text-decoration: none;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+  }
+
+  /* Variants
+  /* ------------------------------------------------------------------------ */
+
+  .btn--outline {
+    --btn-background: transparent;
+    --btn-border-color: var(--color-border);
+    --btn-color: var(--color-ink);
+
+    &:hover {
+      background: var(--color-shade);
+      opacity: 1;
+    }
+  }
+
+  .btn--ghost {
+    --btn-background: transparent;
+    --btn-border-color: transparent;
+    --btn-color: var(--color-ink);
+
+    &:hover {
+      background: var(--color-shade);
+      opacity: 1;
+    }
+  }
+
+  .btn--small {
+    --btn-padding: 0.25rem var(--inline-space-half);
+  }
+
+  /* Button groups
+  /* ------------------------------------------------------------------------ */
+
+  .btn-group {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--inline-space-half);
+    margin: 0 0 var(--block-space);
+    padding: 0;
+  }
+
+  /* Lexxy button reset
+  /* ------------------------------------------------------------------------ */
+
+  /* Strip our button styles inside the Lexxy editor so Lexxy's own styles
+     take effect. Higher specificity than the bare `button` base above. */
+  lexxy-editor button,
+  lexxy-editor summary {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: currentColor;
+    font-size: inherit;
+    font-weight: normal;
+    line-height: inherit;
+    padding: 0;
+    text-decoration: none;
+    white-space: normal;
+  }
+
+  lexxy-editor details {
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+  }
+
+  lexxy-editor summary {
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  /* Mobile tap targets
+  /* ------------------------------------------------------------------------ */
+
+  @media (max-width: 768px) {
+    /* Ensure controls meet the ~44px minimum tap size. */
+    .btn,
+    button,
+    input[type="submit"] {
+      min-block-size: 44px;
+    }
+
+    .btn--small {
+      --btn-padding: var(--block-space-half) 0.75rem;
+
+      min-block-size: 44px;
+    }
+
+    /* The theme toggle is an empty-label ghost button — keep it tappable. */
+    [data-controller="theme"] {
+      min-inline-size: 44px;
+    }
+
+    /* Lexxy's own toolbar controls opt out of our button sizing. */
+    lexxy-editor button,
+    lexxy-editor summary {
+      min-block-size: 0;
+    }
+  }
+}

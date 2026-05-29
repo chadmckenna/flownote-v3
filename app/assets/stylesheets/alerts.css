@@ -1,0 +1,39 @@
+@layer components {
+  .alert {
+    --alert-color: var(--color-ink);
+
+    background: color-mix(in srgb, var(--alert-color) 10%, var(--color-canvas));
+    border: 1px solid color-mix(in srgb, var(--alert-color) 30%, var(--color-border));
+    border-radius: var(--radius-md);
+    color: var(--color-ink);
+    margin-block-end: var(--block-space);
+    padding: 0.75rem var(--inline-space);
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .alert--success {
+    --alert-color: var(--color-positive);
+  }
+
+  .alert--error {
+    --alert-color: var(--color-negative);
+  }
+
+  .alert--warning {
+    --alert-color: var(--color-warning);
+
+    background: color-mix(in srgb, var(--alert-color) 12%, var(--color-canvas));
+    border-color: color-mix(in srgb, var(--alert-color) 40%, var(--color-border));
+
+    p {
+      margin: 0 0 var(--block-space-half);
+    }
+
+    p:last-child {
+      margin-block-end: 0;
+    }
+  }
+}

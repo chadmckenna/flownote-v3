@@ -1,0 +1,93 @@
+/* Cascade layer order — declared once, before any layer is populated.
+   Later layers win regardless of selector specificity. */
+@layer reset, base, components, modules, utilities;
+
+:root {
+  color-scheme: light dark;
+
+  /* Spacing — two-axis inline/block system with half/double modifiers */
+  --inline-space: 1rem;
+  --inline-space-half: calc(var(--inline-space) / 2);
+  --inline-space-double: calc(var(--inline-space) * 2);
+  --block-space: 1rem;
+  --block-space-half: calc(var(--block-space) / 2);
+  --block-space-double: calc(var(--block-space) * 2);
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+
+  --text-small: 0.875rem;
+  --text-normal: 1rem;
+  --text-medium: 1.125rem;
+  --text-large: 1.25rem;
+  --text-x-large: 1.5rem;
+  --text-xx-large: 1.875rem;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Focus rings for keyboard navigation */
+  --focus-ring-color: var(--color-link);
+  --focus-ring-offset: 2px;
+  --focus-ring-size: 2px;
+
+  /* OKLCH colors: raw channel triplets (L C H) — theme-independent.
+     Values mirror the existing zinc/blue/red/green/amber palette. */
+  --lch-white: 100% 0 0;
+  --lch-zinc-50: 98.5% 0 0;
+  --lch-zinc-100: 96.7% 0.001 286.375;
+  --lch-zinc-300: 87.1% 0.006 286.286;
+  --lch-zinc-400: 70.5% 0.015 286.067;
+  --lch-zinc-500: 55.2% 0.016 285.938;
+  --lch-zinc-800: 27.4% 0.006 286.033;
+  --lch-zinc-900: 21% 0.006 285.885;
+  --lch-zinc-950: 14.1% 0.005 285.823;
+  --lch-blue: 62.3% 0.214 259.815;
+  --lch-red: 63.7% 0.237 25.331;
+  --lch-green: 62.7% 0.17 149.214;
+  --lch-amber: 76.9% 0.188 70.08;
+
+  /* Colors: named abstractions (light mode) — always reference these,
+     never a raw --lch-* or a literal, in components. */
+  --color-canvas: oklch(var(--lch-white));
+  --color-shade: oklch(var(--lch-zinc-100));
+  --color-card: oklch(var(--lch-white));
+  --color-ink: oklch(var(--lch-zinc-950));
+  --color-ink-muted: oklch(var(--lch-zinc-500));
+  --color-border: oklch(var(--lch-zinc-300));
+  --color-link: oklch(var(--lch-blue));
+  --color-negative: oklch(var(--lch-red));
+  --color-positive: oklch(var(--lch-green));
+  --color-warning: oklch(var(--lch-amber));
+}
+
+/* Dark mode — explicit theme choice. Re-point the named tokens at darker
+   raw values; components consume --color-* and re-theme automatically. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-canvas: oklch(var(--lch-zinc-950));
+  --color-shade: oklch(var(--lch-zinc-900));
+  --color-card: oklch(var(--lch-zinc-900));
+  --color-ink: oklch(var(--lch-zinc-50));
+  --color-ink-muted: oklch(var(--lch-zinc-400));
+  --color-border: oklch(var(--lch-zinc-800));
+}
+
+/* Fallback to system preference before JS sets an explicit data-theme
+   (and whenever the user hasn't opted into light). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-canvas: oklch(var(--lch-zinc-950));
+    --color-shade: oklch(var(--lch-zinc-900));
+    --color-card: oklch(var(--lch-zinc-900));
+    --color-ink: oklch(var(--lch-zinc-50));
+    --color-ink-muted: oklch(var(--lch-zinc-400));
+    --color-border: oklch(var(--lch-zinc-800));
+  }
+}

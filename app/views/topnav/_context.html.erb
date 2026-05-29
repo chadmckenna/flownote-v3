@@ -3,7 +3,7 @@
     <%= render "shared/flashes" %>
   </div>
 
-  <div class="folder-shell__context__row">
+  <div class="folder-shell__context-row">
     <%= turbo_frame_tag dom_id(@folder, :edit) do %>
       <nav aria-label="breadcrumb" class="breadcrumb-heading">
         <ul>
@@ -26,9 +26,9 @@
     <% end %>
 
     <% unless @folder.root? %>
-      <menu class="buttons">
-        <%= link_to "Edit folder", edit_folder_path(@folder), data: { turbo_frame: dom_id(@folder, :edit) }, class: "button ghost" %>
-        <%= button_to "Delete folder", @folder, method: :delete, class: "button ghost danger-text",
+      <menu class="btn-group">
+        <%= link_to "Edit folder", edit_folder_path(@folder), data: { turbo_frame: dom_id(@folder, :edit) }, class: "btn btn--ghost" %>
+        <%= button_to "Delete folder", @folder, method: :delete, class: "btn btn--ghost txt-negative",
             form: { data: { turbo_frame: "_top" } },
             data: { turbo_confirm: "Are you sure? The folder must be empty to delete." } %>
       </menu>

@@ -1,0 +1,98 @@
+@layer components {
+  /* Fields
+  /* ------------------------------------------------------------------------ */
+
+  label {
+    display: block;
+    font-size: var(--text-small);
+    font-weight: 500;
+    margin-block-end: 0.25rem;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="search"],
+  select,
+  textarea {
+    background: var(--color-canvas);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-ink);
+    display: block;
+    font-family: inherit;
+    font-size: var(--text-normal);
+    inline-size: 100%;
+    line-height: 1.5;
+    margin-block-end: var(--block-space);
+    padding: var(--block-space-half) 0.75rem;
+
+    &:focus {
+      border-color: var(--focus-ring-color);
+      outline: var(--focus-ring-size) solid var(--focus-ring-color);
+      outline-offset: -1px;
+    }
+
+    &::placeholder {
+      color: var(--color-ink-muted);
+    }
+  }
+
+  select {
+    appearance: auto;
+  }
+
+  /* Inline form (single-row create/rename)
+  /* ------------------------------------------------------------------------ */
+
+  .inline-form {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--inline-space-half);
+
+    form {
+      display: contents;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      margin: 0;
+      min-inline-size: 150px;
+    }
+
+    input[type="submit"],
+    a,
+    button {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .alert {
+      flex-basis: 100%;
+    }
+  }
+
+  /* Note editor heading row
+  /* ------------------------------------------------------------------------ */
+
+  .note-form__heading {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0 0 var(--block-space);
+
+    /* Full-width title forces the action buttons onto the next line. */
+    input[type="text"] {
+      flex: 1 1 100%;
+      margin: 0;
+    }
+
+    .btn-group {
+      flex: 0 0 auto;
+      margin: 0;
+    }
+  }
+}

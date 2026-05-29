@@ -4,17 +4,17 @@
       <li><%= link_to "Flownote", root_path %></li>
     </ul>
     <ul>
-      <li><button class="ghost small" data-controller="theme" data-action="click->theme#toggle"></button></li>
-      <li><%= button_to "Sign out", session_path, method: :delete, class: "ghost small" %></li>
+      <li><button class="btn--ghost btn--small" data-controller="theme" data-action="click->theme#toggle"></button></li>
+      <li><%= button_to "Sign out", session_path, method: :delete, class: "btn--ghost btn--small" %></li>
     </ul>
   <% else %>
     <ul>
       <li><%= link_to "Flownote", root_path %></li>
     </ul>
     <ul>
-      <li><button class="ghost small" data-controller="theme" data-action="click->theme#toggle"></button></li>
+      <li><button class="btn--ghost btn--small" data-controller="theme" data-action="click->theme#toggle"></button></li>
       <li><%= link_to "Sign in", new_session_path %></li>
-      <li><%= link_to "Sign up", new_registration_path, class: "button small" %></li>
+      <li><%= link_to "Sign up", new_registration_path, class: "btn btn--small" %></li>
     </ul>
   <% end %>
 </nav>

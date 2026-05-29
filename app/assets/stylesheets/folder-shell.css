@@ -1,0 +1,206 @@
+@layer modules {
+  /* Shell grid
+  /* ------------------------------------------------------------------------ */
+
+  .folder-shell {
+    block-size: calc(100vh - 4rem);
+    display: grid;
+    grid-template-areas:
+      "context context"
+      "sidebar main";
+    grid-template-columns: minmax(280px, 380px) 1fr;
+    grid-template-rows: auto 1fr;
+    margin: 0;
+    max-inline-size: none;
+    padding: 0;
+
+    > turbo-frame#folder_context {
+      display: contents;
+    }
+  }
+
+  /* Context (breadcrumb + folder actions)
+  /* ------------------------------------------------------------------------ */
+
+  .folder-shell__context {
+    border-block-end: 1px solid var(--color-border);
+    grid-area: context;
+    padding: 0.75rem;
+  }
+
+  .folder-shell__context-row {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+
+    > turbo-frame {
+      display: contents;
+    }
+
+    nav[aria-label="breadcrumb"] ul {
+      margin: 0;
+    }
+
+    .btn-group {
+      margin-block: 0;
+      margin-inline-start: auto;
+    }
+  }
+
+  /* Sidebar (file listing + actions)
+  /* ------------------------------------------------------------------------ */
+
+  .folder-shell__sidebar {
+    border-inline-end: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    grid-area: sidebar;
+    min-block-size: 0;
+    padding: 0.75rem;
+
+    .file-listing {
+      flex: 1 1 auto;
+      min-block-size: 0;
+      overflow-y: auto;
+
+      li[aria-current="page"] {
+        background: var(--color-card);
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+      }
+
+      /* Center the empty-state message when it's the only row. */
+      &:has(> .folder-shell__sidebar-empty:only-child) {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
+
+  .folder-shell__sidebar-actions {
+    flex: 0 0 auto;
+    margin-block-start: 0.75rem;
+
+    .btn-group {
+      margin: var(--block-space-half) 0 0;
+    }
+  }
+
+  .folder-shell__sidebar-empty {
+    font-style: italic;
+    list-style: none;
+    opacity: 0.5;
+    text-align: center;
+  }
+
+  /* Main pane
+  /* ------------------------------------------------------------------------ */
+
+  .folder-shell__main {
+    grid-area: main;
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+
+  .folder-shell__pane {
+    block-size: 100%;
+    padding: 0.75rem;
+
+    &[data-mode="browse"] {
+      display: grid;
+      place-items: center;
+    }
+
+    &[data-mode="viewing"] {
+      overflow-y: auto;
+    }
+
+    &[data-mode="editing"] {
+      display: flex;
+      flex-direction: column;
+      min-block-size: 0;
+
+      form {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-block-size: 0;
+      }
+
+      [data-controller="vim-editor"] {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-block-size: 0;
+      }
+
+      /* Note: .cm-editor / .cm-scroller sizing for editing mode lives in
+         editor.css (unlayered) so it can override the unlayered .cm-editor
+         base — layered rules here would lose to it. */
+    }
+  }
+
+  /* Empty / hint states
+  /* ------------------------------------------------------------------------ */
+
+  .folder-shell__hint {
+    font-style: italic;
+    opacity: 0.5;
+  }
+
+  .folder-shell__empty {
+    max-inline-size: 32rem;
+    text-align: center;
+
+    h2 {
+      margin-block: 0 var(--block-space-half);
+    }
+
+    p {
+      margin-block: var(--block-space-half);
+      opacity: 0.75;
+    }
+
+    .folder-shell__hint {
+      margin-block-start: 0.75rem;
+    }
+  }
+
+  /* Responsive: drop the fixed viewport lock and let the whole page scroll
+     naturally instead of stacking three internally-scrolling regions.
+  /* ------------------------------------------------------------------------ */
+
+  @media (max-width: 768px) {
+    .folder-shell {
+      block-size: auto;
+      grid-template-areas:
+        "context"
+        "sidebar"
+        "main";
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+
+    .folder-shell__sidebar .file-listing {
+      flex: none;
+      overflow-y: visible;
+    }
+
+    .folder-shell__main {
+      overflow: visible;
+    }
+
+    .folder-shell__pane[data-mode="browse"] {
+      display: block;
+    }
+
+    .folder-shell__context-row {
+      flex-wrap: wrap;
+    }
+
+    .folder-shell__context-row .btn-group {
+      margin-inline-start: 0;
+    }
+  }
+}
