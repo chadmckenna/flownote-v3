@@ -8,9 +8,25 @@
     color: var(--color-ink);
     margin-block-end: var(--block-space);
     padding: 0.75rem var(--inline-space);
+    transition: opacity 0.4s ease, transform 0.4s ease;
 
     p {
       margin: 0;
+    }
+  }
+
+  .alert--leaving {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .alert {
+      transition: opacity 0.4s ease;
+    }
+
+    .alert--leaving {
+      transform: none;
     }
   }
 
