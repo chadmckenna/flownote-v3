@@ -11,6 +11,7 @@ FlownoteV3 is a Rails 8.1 application (Ruby 4.0.2) that provides user authentica
 - **Rails way first.** Use generators and built-in Rails functionality before reaching for gems or writing custom code.
 - **Server-side first.** Do things server-side whenever possible using Turbo and Stimulus. Avoid client-side JS frameworks or heavy client logic.
 - **Keep it simple.** This service should stay clutter-free and fast. Resist unnecessary abstractions, dependencies, and complexity.
+- And most important: **Keep it simple-er.** When designing and making changes, always think about making the smallest change possible. Less code === less problems.
 
 ## Commands
 
