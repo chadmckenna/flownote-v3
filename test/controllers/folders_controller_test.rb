@@ -18,10 +18,12 @@ class FoldersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "show renders the editor shell on a Turbo-Frame request" do
-    get folder_path(@folder), headers: { "Turbo-Frame" => "editor_main" }
+  test "show renders the full editor shell (no content frame)" do
+    get folder_path(@folder)
     assert_response :success
-    assert_select "turbo-frame#editor_main"
+    assert_select "main.folder-shell .folder-shell__sidebar"
+    assert_select ".folder-shell__main"
+    assert_select "turbo-frame#editor_main", false
   end
 
   test "show root folder redirects to root" do

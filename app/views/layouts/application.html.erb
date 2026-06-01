@@ -7,13 +7,12 @@
 
     <% if folder_shell? %>
       <main class="folder-shell">
-        <%= turbo_stream_from(@note || @folder) %>
+        <%= turbo_stream_from @folder %>
+        <%= turbo_stream_from @note if @note %>
 
-        <%= render "layouts/shared/folder_context" %>
-
-        <%= render "layouts/shared/editor_main" do %>
-          <%= yield %>
-        <% end %>
+        <%= render "topnav/context" %>
+        <%= render "sidebar/sidebar" %>
+        <div class="folder-shell__main"><%= yield %></div>
       </main>
     <% else %>
       <main class="container">

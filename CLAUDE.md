@@ -42,6 +42,8 @@ bin/ci                                 # Full CI pipeline
 
 **CSS**: Oat classless framework from CDN styles semantic HTML by default. Custom styles go in `app/assets/stylesheets/`.
 
+**Editor UI navigation (folders/notes)**: Morphing-first, no navigation frames. Sidebar / breadcrumb / View / Edit / Close are plain Turbo Drive links (full-page visits). Same-URL refreshes — save redirects and `broadcasts_refreshes` — morph (`turbo-refresh-method=morph` is set in `layouts/shared/_head`); cross-URL visits replace `<body>`. **Never put navigable content or persistent chrome in a Turbo Frame defined in the layout**: turbo-rails substitutes a minimal `turbo_rails/frame` layout on `Turbo-Frame` requests, so layout-defined frames disappear ("Content missing"). The shell (`topnav/context` + `sidebar/sidebar` + `.folder-shell__main`) renders fully on every visit; `app/views/layouts/application.html.erb` branches on `folder_shell?` (set by `ShellLoader#load_shell`). Turbo Frames are reserved for inline forms only (`new_note`, `new_folder`, `edit_folder_<id>`). The CodeMirror editor (`vim_editor_controller`) is wrapped with a per-note `id` plus a `turbo:before-morph-element` guard, so a live-refresh morph preserves unsaved text while switching notes recreates it. Live updates: `broadcasts_refreshes` on `Note`/`Folder` + `turbo_stream_from @folder`/`@note` in the shell.
+
 **Testing**: Minitest with parallel workers. Fixtures auto-loaded. Test helpers: `SessionTestHelper` (`sign_in_as`, `sign_out`) and `ApiTestHelper` (`create_oauth_application`, `create_access_token`, `api_headers`).
 
 **Background jobs**: Solid Queue (database-backed). Runs in-process with Puma via `SOLID_QUEUE_IN_PUMA` env var in production.

@@ -36,10 +36,18 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "show renders the editor shell on a Turbo-Frame request" do
-    get folder_note_path(@folder, @note), headers: { "Turbo-Frame" => "editor_main" }
+  test "show renders the full editor shell (no content frame)" do
+    get folder_note_path(@folder, @note)
     assert_response :success
-    assert_select "turbo-frame#editor_main"
+    assert_select "main.folder-shell .folder-shell__sidebar"
+    assert_select ".folder-shell__main"
+    assert_select "turbo-frame#editor_main", false
+  end
+
+  test "edit renders the per-note keyed editor" do
+    get edit_folder_note_path(@folder, @note)
+    assert_response :success
+    assert_select "#note-editor-#{@note.id} textarea"
   end
 
   test "edit" do

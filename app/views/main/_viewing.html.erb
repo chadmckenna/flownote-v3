@@ -2,10 +2,8 @@
   <menu class="btn-group">
     <code style="width: 100%; margin: 4px 0; padding: 6px 8px;"><%= note.title %>.md</code>
     <%= link_to "Edit", edit_folder_note_path(note.folder, note),
-        data: { turbo_frame: "editor_main", turbo_action: "advance" },
         class: "btn btn--outline" %>
     <%= link_to "Close", folder_or_root_path(note.folder),
-        data: { turbo_stream: true, turbo_action: "advance" },
         class: "btn btn--outline" %>
     <%= button_to "Delete", folder_note_path(note.folder, note), method: :delete,
         class: "btn btn--ghost txt-negative",

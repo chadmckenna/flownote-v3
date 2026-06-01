@@ -13,10 +13,6 @@
     margin: 0;
     max-inline-size: none;
     padding: 0;
-
-    > turbo-frame#folder_context {
-      display: contents;
-    }
   }
 
   /* Collapsed sidebar (toggled via the context-row button)

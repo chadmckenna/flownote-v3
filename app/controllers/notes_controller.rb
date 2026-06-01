@@ -1,20 +1,11 @@
 class NotesController < ApplicationController
   include ShellLoader
 
-  # editor_main / folder_context turbo-frames live in the application layout, so frame
-  # navigations here must render the full layout. Otherwise turbo-rails substitutes its
-  # minimal "turbo_rails/frame" layout, which omits those frames ("Content missing").
-  layout "application", only: %i[ show edit ]
-
   before_action :set_folder, only: %i[ show new edit create update destroy ]
   before_action :set_note, only: %i[ show edit update destroy ]
   before_action :load_shell, only: %i[ show edit ]
 
   def show
-    respond_to do |format|
-      format.html
-      format.turbo_stream
-    end
   end
 
   def new
@@ -23,10 +14,6 @@ class NotesController < ApplicationController
   end
 
   def edit
-    respond_to do |format|
-      format.html
-      format.turbo_stream
-    end
   end
 
   def create
@@ -41,13 +28,7 @@ class NotesController < ApplicationController
 
   def update
     if @note.update(note_params)
-      respond_to do |format|
-        format.turbo_stream do
-          flash.now[:notice] = "Note `#{@note.title}` was successfully updated."
-          render turbo_stream: turbo_stream.update("flash-slot", partial: "layouts/shared/flashes")
-        end
-        format.html { redirect_to edit_folder_note_path(@note.folder, @note), notice: "Note was successfully updated." }
-      end
+      redirect_to edit_folder_note_path(@note.folder, @note), notice: "Note `#{@note.title}` was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
