@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <%= render "layouts/head" %>
+
+  <body>
+    <nav data-topnav>
+      <ul>
+        <li><%= link_to "Flownote", root_path %></li>
+      </ul>
+      <ul>
+        <li><button class="btn--ghost btn--small" data-controller="theme" data-action="click->theme#toggle"></button></li>
+      </ul>
+    </nav>
+
+    <main class="container">
+      <%= render "shared/flashes" %>
+      <%= yield %>
+    </main>
+  </body>
+</html>
