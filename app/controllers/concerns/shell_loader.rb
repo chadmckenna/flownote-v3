@@ -7,5 +7,6 @@ module ShellLoader
       @ancestors = @folder.ancestors
       @subfolders = @folder.subfolders.order(:name)
       @sidebar_notes = @folder.notes.order(updated_at: :desc)
+      @folder_shell = true
     end
 end

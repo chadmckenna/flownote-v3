@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html>
-  <%= render "layouts/head" %>
+  <%= render "layouts/shared/head" %>
 
   <body>
     <%= render "topnav/topnav" %>
 
-    <main class="<%= content_for(:main_class).presence || "container" %>">
-      <% unless content_for?(:main_class) %>
-        <%= render "shared/flashes" %>
-      <% end %>
-      <%= content_for?(:main) ? content_for(:main) : yield %>
-    </main>
+    <% if folder_shell? %>
+      <main class="folder-shell">
+        <%= turbo_stream_from(@note || @folder) %>
+
+        <%= render "layouts/shared/folder_context" %>
+
+        <%= render "layouts/shared/editor_main" do %>
+          <%= yield %>
+        <% end %>
+      </main>
+    <% else %>
+      <main class="container">
+        <%= render "layouts/shared/flashes" %>
+        <%= yield %>
+      </main>
+    <% end %>
   </body>
 </html>

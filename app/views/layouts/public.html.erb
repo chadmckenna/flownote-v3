@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <%= render "layouts/head" %>
+  <%= render "layouts/shared/head" %>
 
   <body>
     <nav data-topnav>
@@ -13,7 +13,7 @@
     </nav>
 
     <main class="container">
-      <%= render "shared/flashes" %>
+      <%= render "layouts/shared/flashes" %>
       <%= yield %>
     </main>
   </body>
