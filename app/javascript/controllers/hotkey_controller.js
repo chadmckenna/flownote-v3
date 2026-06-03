@@ -29,8 +29,9 @@ export default class extends Controller {
   }
 
   #shouldIgnore(event) {
-    return event.defaultPrevented ||
-      event.target.closest("input, textarea, [contenteditable], .cm-editor")
+    if (event.defaultPrevented) return true
+    if (event.altKey) return false
+    return event.target.closest("input, textarea, [contenteditable], .cm-editor")
   }
 
   get #isClickable() {
