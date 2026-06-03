@@ -30,7 +30,7 @@ export default class extends Controller {
 
   #shouldIgnore(event) {
     if (event.defaultPrevented) return true
-    if (event.altKey) return false
+    if (event.ctrlKey && event.shiftKey) return false
     return event.target.closest("input, textarea, [contenteditable], .cm-editor")
   }
 
