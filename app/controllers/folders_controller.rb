@@ -1,25 +1,15 @@
 class FoldersController < ApplicationController
   include ShellLoader
 
-  layout "editor", only: %i[ index show ]
   before_action :set_folder, only: %i[ show edit update destroy ]
   before_action :require_non_root_folder, only: %i[ edit update destroy ]
   before_action :load_shell, only: %i[ index show ]
 
   def index
-    respond_to do |format|
-      format.html
-      format.turbo_stream
-    end
   end
 
   def show
     redirect_to root_path and return if @folder.root?
-
-    respond_to do |format|
-      format.html
-      format.turbo_stream
-    end
   end
 
   def new

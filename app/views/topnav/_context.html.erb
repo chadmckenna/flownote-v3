@@ -1,9 +1,12 @@
 <div class="folder-shell__context">
   <div id="flash-slot">
-    <%= render "shared/flashes" %>
+    <%= render "layouts/shared/flashes" %>
   </div>
 
   <div class="folder-shell__context-row">
+    <button class="btn--ghost btn--small" aria-label="Toggle sidebar"
+            data-controller="sidebar" data-action="click->sidebar#toggle"></button>
+
     <%= turbo_frame_tag dom_id(@folder, :edit) do %>
       <nav aria-label="breadcrumb" class="breadcrumb-heading">
         <ul>

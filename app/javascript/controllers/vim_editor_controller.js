@@ -80,17 +80,12 @@ export default class extends Controller {
     }
     document.addEventListener("turbo:before-visit", this.beforeVisitHandler)
 
-    // Turbo Frame / Stream links that replace the editor in place — these never
-    // fire turbo:before-visit, so intercept the click before Turbo handles it.
-    this.navigateClickHandler = (event) => {
-      if (!this.#dirty) return
-      const link = event.target.closest("a[data-turbo-stream='true'], a[data-turbo-frame='editor_main']")
-      if (link && !this.#confirmDiscard()) {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-      }
-    }
-    document.addEventListener("click", this.navigateClickHandler, { capture: true })
+    // Preserve the CodeMirror-managed DOM (and any unsaved text) when Turbo morphs
+    // this note's page in place — e.g. an incoming live-refresh broadcast. Navigating
+    // to a different note instead replaces this element wholesale (its id changes), so
+    // that path still re-initializes cleanly via disconnect/connect.
+    this.preserveOnMorph = (event) => event.preventDefault()
+    this.element.addEventListener("turbo:before-morph-element", this.preserveOnMorph)
 
     this.view.focus()
   }
@@ -99,7 +94,7 @@ export default class extends Controller {
     this.textareaTarget.form?.removeEventListener("submit", this.submitHandler)
     window.removeEventListener("beforeunload", this.beforeUnloadHandler)
     document.removeEventListener("turbo:before-visit", this.beforeVisitHandler)
-    document.removeEventListener("click", this.navigateClickHandler, { capture: true })
+    this.element.removeEventListener("turbo:before-morph-element", this.preserveOnMorph)
     this.view?.destroy()
     this.textareaTarget.style.display = ""
   }

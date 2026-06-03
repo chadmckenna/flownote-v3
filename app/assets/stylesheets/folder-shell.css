@@ -13,10 +13,17 @@
     margin: 0;
     max-inline-size: none;
     padding: 0;
+  }
 
-    > turbo-frame#folder_context {
-      display: contents;
-    }
+  /* Collapsed sidebar (toggled via the context-row button)
+  /* ------------------------------------------------------------------------ */
+
+  .folder-shell[data-sidebar-collapsed="true"] {
+    grid-template-columns: 0 1fr;
+  }
+
+  .folder-shell[data-sidebar-collapsed="true"] .folder-shell__sidebar {
+    display: none;
   }
 
   /* Context (breadcrumb + folder actions)
@@ -180,6 +187,12 @@
         "main";
       grid-template-columns: 1fr;
       grid-template-rows: auto auto auto;
+    }
+
+    /* The desktop collapse trick (0 1fr) doesn't apply to the stacked layout;
+       hiding the sidebar via display:none is enough, so keep one full column. */
+    .folder-shell[data-sidebar-collapsed="true"] {
+      grid-template-columns: 1fr;
     }
 
     .folder-shell__sidebar .file-listing {
