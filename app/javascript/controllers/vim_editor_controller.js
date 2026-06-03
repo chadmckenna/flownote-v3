@@ -12,13 +12,19 @@ import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
 import { markdown } from "@codemirror/lang-markdown"
 import { vim, Vim } from "@replit/codemirror-vim"
 
-const submitFromVim = (cm) => {
-  const form = cm.cm6?.dom.closest("form")
-  form?.requestSubmit()
+const formFromVim = (cm) => cm.cm6?.dom.closest("form")
+
+// :q and :view/:v click the form's Close / View links, so they behave exactly
+// like those buttons — including Turbo's unsaved-changes prompt on navigation.
+const clickNavFromVim = (cm, nav) => {
+  formFromVim(cm)?.querySelector(`[data-note-nav="${nav}"]`)?.click()
 }
-Vim.defineEx("write", "w", submitFromVim)
-Vim.defineEx("wq", "wq", submitFromVim)
-Vim.defineEx("x", "x", submitFromVim)
+
+Vim.defineEx("write", "w", (cm) => clickNavFromVim(cm, "save"))
+Vim.defineEx("wq", "wq", (cm) => clickNavFromVim(cm, "save"))
+Vim.defineEx("x", "x", (cm) => clickNavFromVim(cm, "save"))
+Vim.defineEx("quit", "q", (cm) => clickNavFromVim(cm, "close"))
+Vim.defineEx("view", "v", (cm) => clickNavFromVim(cm, "view"))
 
 export default class extends Controller {
   static targets = ["textarea"]
