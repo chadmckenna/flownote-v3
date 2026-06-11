@@ -54,8 +54,8 @@
     }
 
     &.breadcrumb-heading ul {
-      font-size: var(--text-x-large);
-      font-weight: 700;
+      font-size: var(--text-large);
+      font-weight: 400;
       margin: 0 0 var(--block-space);
     }
   }
