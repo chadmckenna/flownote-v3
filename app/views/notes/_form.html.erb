@@ -11,12 +11,12 @@
     <%= form.text_field :title, required: true, placeholder: "Title", "aria-label": "Title" %>
     <menu class="btn-group">
       <% if note.persisted? %>
-        <%= link_to "View", folder_note_path(note.folder, note), class: "btn btn--outline" %>
+        <%= link_to "View", folder_note_path(note.folder, note), data: { controller: "hotkey", action: "keydown.shift+ctrl+v@document->hotkey#click", note_nav: "view" }, class: "btn btn--outline"  %>
       <% end %>
       <% if local_assigns[:cancel_path] %>
-        <%= link_to "Close", cancel_path, class: "btn btn--outline" %>
+        <%= link_to "Close", cancel_path, data: { controller: "hotkey", action: "keydown.shift+ctrl+c@document->hotkey#click", note_nav: "close" }, class: "btn btn--outline" %>
       <% end %>
-      <%= form.submit "Save" %>
+      <%= form.submit "Save", data: { note_nav: "save" } %>
     </menu>
   </div>
 
