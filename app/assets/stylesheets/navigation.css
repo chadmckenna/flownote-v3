@@ -29,6 +29,20 @@
     }
   }
 
+  /* Theme toggle: show the icon for the mode you'll switch TO — moon in light
+     mode (and before JS sets data-theme), sun in dark mode. */
+  .icon--sun {
+    display: none;
+  }
+
+  [data-theme="dark"] .icon--sun {
+    display: block;
+  }
+
+  [data-theme="dark"] .icon--moon {
+    display: none;
+  }
+
   /* Breadcrumb
   /* ------------------------------------------------------------------------ */
 

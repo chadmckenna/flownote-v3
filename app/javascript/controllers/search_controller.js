@@ -13,16 +13,28 @@ export default class extends Controller {
 
   connect() {
     this.onKeydown = this.onKeydown.bind(this)
+    this.onClick = this.onClick.bind(this)
     document.addEventListener("keydown", this.onKeydown)
+    document.addEventListener("click", this.onClick)
   }
 
   disconnect() {
     document.removeEventListener("keydown", this.onKeydown)
+    document.removeEventListener("click", this.onClick)
     clearTimeout(this.timeout)
   }
 
   onKeydown(event) {
     if (event.ctrlKey && event.shiftKey && event.code === "Backslash") {
+      event.preventDefault()
+      this.open()
+    }
+  }
+
+  // Any element with [data-search-open] (e.g. the topnav search icon) opens the
+  // modal, even though it lives outside this controller's DOM scope.
+  onClick(event) {
+    if (event.target.closest("[data-search-open]")) {
       event.preventDefault()
       this.open()
     }
