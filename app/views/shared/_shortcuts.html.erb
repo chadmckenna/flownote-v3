@@ -1,0 +1,52 @@
+<%
+  shortcut_groups = {
+    "Global" => [
+      ["Search notes", %w[Ctrl Shift \\]],
+      ["Show keyboard shortcuts", %w[Ctrl Shift K]],
+      ["Toggle sidebar", %w[Ctrl Shift P]]
+    ],
+    "Viewing a note" => [
+      ["Edit", %w[Ctrl Shift I]],
+      ["Close", %w[Ctrl Shift C]]
+    ],
+    "Editing a note" => [
+      ["View", %w[Ctrl Shift V]],
+      ["Close", %w[Ctrl Shift C]]
+    ],
+    "Search results" => [
+      ["Move through results", %w[↑ ↓]],
+      ["Open selected", %w[Enter]],
+      ["Close", %w[Esc]]
+    ],
+    "Editor (Vim)" => [
+      ["Save", %w[:w]],
+      ["Save & close", %w[:x]],
+      ["Close", %w[:q]],
+      ["View", %w[:v]]
+    ]
+  }
+%>
+
+<dialog class="modal shortcuts-modal"
+        data-controller="shortcuts"
+        data-action="keydown.esc->shortcuts#close click->shortcuts#backdropClose">
+  <h2 class="shortcuts-modal__title">Keyboard shortcuts</h2>
+
+  <div class="shortcuts-modal__groups">
+    <% shortcut_groups.each do |heading, shortcuts| %>
+      <section class="shortcuts-modal__group">
+        <h3><%= heading %></h3>
+        <dl>
+          <% shortcuts.each do |label, keys| %>
+            <div class="shortcuts-modal__row">
+              <dt><%= label %></dt>
+              <dd>
+                <% keys.each do |key| %><kbd><%= key %></kbd><% end %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </section>
+    <% end %>
+  </div>
+</dialog>

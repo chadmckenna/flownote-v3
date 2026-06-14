@@ -4,6 +4,8 @@
 
   <body>
     <%= render "topnav/topnav" %>
+    <%= render "shared/search" if authenticated? %>
+    <%= render "shared/shortcuts" if authenticated? %>
 
     <% if folder_shell? %>
       <main class="folder-shell">

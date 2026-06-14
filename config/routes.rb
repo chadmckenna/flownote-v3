@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   use_doorkeeper do
     skip_controllers :applications, :authorized_applications
   end
+  get "search", to: "search#index"
   resource :session
   resource :registration, only: %i[new create]
   resources :passwords, param: :token

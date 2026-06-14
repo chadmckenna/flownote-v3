@@ -4,7 +4,7 @@
   </div>
 
   <div class="folder-shell__context-row">
-    <button class="btn--ghost btn--small" aria-label="Toggle sidebar"
+    <button id="sidebar-toggle" data-turbo-permanent class="btn--ghost btn--small" aria-label="Toggle sidebar"
             data-controller="sidebar hotkey" data-action="click->sidebar#toggle keydown.shift+ctrl+p@document->hotkey#click"></button>
 
     <%= turbo_frame_tag dom_id(@folder, :edit) do %>
