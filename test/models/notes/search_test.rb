@@ -37,6 +37,19 @@ class Notes::SearchTest < ActiveSupport::TestCase
     assert_empty search("%")
   end
 
+  test "matches an underscored title whether searched with spaces or underscores" do
+    note = @user.notes.create!(title: "sourdough_bread", body: "x", folder: folders(:work))
+
+    assert_includes search("sourdough_bread"), note
+    assert_includes search("sourdough bread"), note
+  end
+
+  test "requires every token to be present" do
+    note = @user.notes.create!(title: "sourdough_bread", body: "x", folder: folders(:work))
+
+    assert_not_includes search("sourdough rye"), note
+  end
+
   test "limits the number of results" do
     folder = folders(:work)
     (Notes::Search::LIMIT + 5).times do |i|

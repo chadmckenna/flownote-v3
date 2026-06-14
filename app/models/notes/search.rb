@@ -3,8 +3,13 @@ module Notes
   # body, scoped through the association so it can only ever see the user's own
   # notes. Deliberately simple — no FTS, no ranking. The query object is the seam
   # to swap in a smarter backend later without touching the controller or views.
+  #
+  # The query is split into tokens on whitespace and underscores, and every token
+  # must appear in the title or body. This makes "sourdough bread" and
+  # "sourdough_bread" find the same note — underscores in filenames/titles read
+  # as word separators rather than literal characters.
   class Search
-    LIMIT = 20
+    LIMIT = 10
 
     def initialize(user:, query:)
       @user = user
@@ -12,12 +17,26 @@ module Notes
     end
 
     def results
-      return Note.none if @query.blank?
+      return Note.none if tokens.empty?
 
-      term = "%#{Note.sanitize_sql_like(@query)}%"
+      tokens.reduce(base_scope) do |scope, token|
+        term = "%#{Note.sanitize_sql_like(token)}%"
+        # ESCAPE is required: sanitize_sql_like escapes with "\", but SQLite's
+        # LIKE has no default escape character, so without this the escaped "_"
+        # and "%" would still be treated as wildcards.
+        scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\'", t: term)
+      end
+    end
+
+    private
+
+    def tokens
+      @tokens ||= @query.split(/[\s_]+/).reject(&:blank?)
+    end
+
+    def base_scope
       @user.notes
            .includes(:folder)
-           .where("title LIKE :t OR body LIKE :t", t: term)
            .order(updated_at: :desc)
            .limit(LIMIT)
     end
