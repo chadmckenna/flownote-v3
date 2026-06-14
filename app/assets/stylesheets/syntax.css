@@ -21,6 +21,19 @@
     padding: 0;
   }
 
+  /* Mermaid diagrams: drop the code-block chrome once rendered, center the SVG. */
+  .prose pre.mermaid-diagram {
+    background: none;
+    border: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  .prose pre.mermaid-diagram svg {
+    height: auto;
+    max-width: 100%;
+  }
+
   /* highlight.js token colors
   /* ------------------------------------------------------------------------ */
   /* Mapped onto named design tokens so light/dark follows token reassignment
