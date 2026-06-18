@@ -10,6 +10,6 @@
     <%= form.hidden_field :folder_id %>
     <%= form.text_field :title, required: true, autofocus: true, placeholder: "Note title", "aria-label": "Note title" %>
     <%= form.submit "Save" %>
-    <%= link_to "Cancel", folder_or_root_path(@folder) %>
+    <%= link_to "Cancel", folder_or_root_path(@folder), data: { turbo_frame: "_top" } %>
   <% end %>
 <% end %>
