@@ -1,0 +1,54 @@
+@layer components {
+  /* Shared modal chrome lives in modal.css (.modal). */
+
+  .shortcuts-modal__title {
+    font-size: var(--text-large);
+    margin: 0 0 var(--block-space);
+  }
+
+  .shortcuts-modal__groups {
+    display: grid;
+    gap: var(--block-space) var(--inline-space-double);
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  }
+
+  .shortcuts-modal__group h3 {
+    border-block-end: 1px solid var(--color-border);
+    color: var(--color-ink-muted);
+    font-size: var(--text-small);
+    margin: 0 0 var(--block-space-half);
+    padding-block-end: var(--block-space-half);
+    text-transform: uppercase;
+  }
+
+  .shortcuts-modal__group dl {
+    margin: 0;
+  }
+
+  .shortcuts-modal__row {
+    align-items: center;
+    display: flex;
+    gap: var(--inline-space);
+    justify-content: space-between;
+    padding-block: var(--block-space-half);
+  }
+
+  .shortcuts-modal__row dt {
+    color: var(--color-ink);
+  }
+
+  .shortcuts-modal__row dd {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0;
+  }
+
+  .shortcuts-modal__row kbd {
+    background: var(--color-shade);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    padding: 0.1rem 0.4rem;
+  }
+}

@@ -1,0 +1,13 @@
+<dialog class="modal search-modal"
+        data-controller="search"
+        data-action="keydown.esc->search#close keydown.down->search#next keydown.up->search#prev click->search#backdropClose">
+  <%= form_with url: search_path, method: :get,
+        data: { search_target: "form", turbo_frame: "search_results",
+                action: "input->search#submit" } do |form| %>
+    <%= form.search_field :q, autocomplete: "off", autocapitalize: "off",
+          spellcheck: false, placeholder: "Search notes…",
+          class: "search-modal__input", data: { search_target: "input" } %>
+  <% end %>
+
+  <%= turbo_frame_tag "search_results", class: "search-modal__results" %>
+</dialog>

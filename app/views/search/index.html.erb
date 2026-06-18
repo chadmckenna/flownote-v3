@@ -1,0 +1,17 @@
+<%= turbo_frame_tag "search_results", class: "search-modal__results" do %>
+  <% if @query.present? && @notes.empty? %>
+    <p class="search-modal__empty">No notes found.</p>
+  <% elsif @notes.any? %>
+    <ul class="file-listing">
+      <% @notes.each do |note| %>
+        <li>
+          <%= link_to edit_folder_note_path(note.folder, note),
+                data: { turbo_frame: "_top" } do %>
+            <span class="file-listing__type">-</span>
+            <span class="file-listing__name"><%= note.title %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>

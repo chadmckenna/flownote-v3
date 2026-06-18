@@ -16,7 +16,8 @@ export default class extends Controller {
   }
 
   #highlight() {
-    this.element.querySelectorAll("pre code").forEach((block) => {
+    // Skip ```mermaid blocks — mermaid_controller renders those as diagrams.
+    this.element.querySelectorAll("pre code:not(.language-mermaid)").forEach((block) => {
       delete block.dataset.highlighted
       hljs.highlightElement(block)
     })

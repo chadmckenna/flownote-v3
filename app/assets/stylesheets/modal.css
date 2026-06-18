@@ -1,0 +1,26 @@
+@layer components {
+  /* Shared chrome for centered <dialog> modals (search, shortcuts).
+     Modal-specific styles live in their own stylesheets. */
+  .modal {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-ink);
+    inline-size: min(90vw, 40rem);
+    margin-block-start: 12vh;
+    margin-inline: auto;
+    padding: var(--block-space);
+  }
+
+  .modal::backdrop {
+    background: oklch(0% 0 0 / 0.4);
+  }
+
+  /* showModal() focuses the dialog itself when it has no focusable child
+     (e.g. the shortcuts list), which paints a stray browser focus ring around
+     the whole modal. Suppress it on the container; interactive children keep
+     their own focus styles. */
+  .modal:focus {
+    outline: none;
+  }
+}
