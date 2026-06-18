@@ -12,6 +12,6 @@
       <%= form.text_field :name, required: true, autofocus: true, placeholder: "Folder name", "aria-label": "Folder name" %>
       <%= form.submit "Save" %>
     <% end %>
-    <%= link_to "Cancel", folder_path(@folder), data: { turbo_frame: "_top" } %>
+    <%= button_tag "Cancel", type: "button", data: { controller: "dismiss", action: "dismiss#cancel" } %>
   </div>
 <% end %>
