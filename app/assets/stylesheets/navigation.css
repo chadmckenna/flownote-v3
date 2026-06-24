@@ -29,18 +29,19 @@
     }
   }
 
-  /* Theme toggle: show the icon for the mode you'll switch TO — moon in light
-     mode (and before JS sets data-theme), sun in dark mode. */
-  .icon--sun {
+  /* Theme toggle: show the icon for the active theme, hide the other.
+  /* ------------------------------------------------------------------------ */
+
+  .icon--moon {
     display: none;
   }
 
   [data-theme="dark"] .icon--sun {
-    display: block;
+    display: none;
   }
 
   [data-theme="dark"] .icon--moon {
-    display: none;
+    display: inline;
   }
 
   /* Breadcrumb
@@ -55,6 +56,7 @@
       list-style: none;
       margin: 0 0 var(--block-space);
       padding: 0;
+      min-height: calc(var(--inline-space-double) + 7px);
     }
 
     li + li::before {

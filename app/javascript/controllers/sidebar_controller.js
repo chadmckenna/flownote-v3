@@ -1,30 +1,44 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Toggles sidebar collapse via data-sidebar-collapsed on the .folder-shell <main>.
-// That attribute is client-only, so on morph navigations (where the server never
-// renders it) we inject it into the incoming body before render to keep the state
-// stable and flicker-free.
+// Collapses the sidebar via data-sidebar-collapsed on .folder-shell. The state
+// persists across navigations (localStorage); the attribute is client-only, so we
+// re-inject it into the incoming body before every render to stay flicker-free.
+// The toggle button is data-turbo-permanent, so this controller stays connected
+// across visits. Clicking a breadcrumb folder link (data-sidebar-open) forces the
+// sidebar open, so navigating to a folder from a collapsed state never lands on an
+// empty pane.
 const STORAGE_KEY = "sidebar-collapsed"
 
 export default class extends Controller {
   connect() {
-    this.#apply(this.#stored)
+    this.#render(this.#stored)
+
     this.beforeRender = (event) => {
       const shell = event.detail.newBody?.querySelector(".folder-shell")
       if (shell && this.#stored) shell.setAttribute("data-sidebar-collapsed", "true")
     }
+    this.forceOpen = (event) => {
+      if (event.target.closest("[data-sidebar-open]")) this.#store(false)
+    }
     document.addEventListener("turbo:before-render", this.beforeRender)
+    document.addEventListener("click", this.forceOpen)
   }
 
   disconnect() {
     document.removeEventListener("turbo:before-render", this.beforeRender)
+    document.removeEventListener("click", this.forceOpen)
   }
 
   toggle() {
-    this.#apply(!(this.#shell?.getAttribute("data-sidebar-collapsed") === "true"))
+    this.#store(!this.#stored)
   }
 
-  #apply(collapsed) {
+  #store(collapsed) {
+    localStorage.setItem(STORAGE_KEY, collapsed ? "true" : "false")
+    this.#render(collapsed)
+  }
+
+  #render(collapsed) {
     const shell = this.#shell
     if (!shell) return
     if (collapsed) {
@@ -32,8 +46,7 @@ export default class extends Controller {
     } else {
       shell.removeAttribute("data-sidebar-collapsed")
     }
-    localStorage.setItem(STORAGE_KEY, collapsed ? "true" : "false")
-    this.#updateLabel()
+    this.#updateLabel(collapsed)
   }
 
   get #stored() {
@@ -44,8 +57,7 @@ export default class extends Controller {
     return this.element.closest(".folder-shell") || document.querySelector("main.folder-shell")
   }
 
-  #updateLabel() {
-    const collapsed = this.#shell?.getAttribute("data-sidebar-collapsed") === "true"
+  #updateLabel(collapsed) {
     this.element.textContent = collapsed ? "»" : "«"
     this.element.setAttribute("aria-expanded", collapsed ? "false" : "true")
   }
