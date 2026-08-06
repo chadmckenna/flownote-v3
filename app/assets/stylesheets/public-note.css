@@ -9,4 +9,23 @@
     justify-content: space-between;
     margin-block-end: var(--block-space);
   }
+
+  /* Diagrams outgrow the 48rem reading column, so break them out of it: 150%
+     of the column, but never wider than the viewport (minus a gutter), so
+     narrow screens collapse back to the column with no sideways scroll.
+     left + translate keeps it centred at every width — `margin-inline: auto`
+     can't centre a box wider than its container.
+
+     Sizing stops here: mermaid puts the diagram's natural width in an inline
+     max-width on the <svg>, which keeps small diagrams from being stretched.
+
+     Scoped to the public page on purpose. In-app notes render inside the
+     folder shell's grid pane, which isn't centred in the viewport, so a
+     vw-based breakout there would run out over the sidebar. */
+  .public-note .prose pre.mermaid-diagram {
+    inline-size: min(150%, calc(100vw - var(--inline-space-double)));
+    inset-inline-start: 50%;
+    position: relative;
+    transform: translateX(-50%);
+  }
 }

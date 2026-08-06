@@ -47,11 +47,11 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
   test "show offers the share modal only once a note is published" do
     get folder_note_path(@folder, @note)
     assert_select "dialog.share-modal", false
-    assert_select "form.share-toggle button", "Publish"
+    assert_select "a.share-toggle", "Publish"
 
     published = notes(:published)
     get folder_note_path(published.folder, published)
-    assert_select "form.share-toggle button", "Unpublish"
+    assert_select "a.share-toggle", "Unpublish"
     assert_select "dialog.share-modal input.share-link__url[value=?]",
       public_note_url(username: @user.username, slug: published.slug)
   end
@@ -72,6 +72,19 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     get edit_folder_note_path(published.folder, published)
 
     assert_select "dialog.share-modal input.share-link__url"
+  end
+
+  test "edit keeps the publish and share controls in the form's action bar" do
+    published = notes(:published)
+
+    get edit_folder_note_path(published.folder, published)
+
+    assert_select ".note-form__heading .btn-group a.share-toggle", "Unpublish"
+    assert_select ".note-form__heading .btn-group button[data-share-open]"
+    # A <form> inside the note form would be invalid HTML, and a dialog nested in
+    # it would make Enter on the URL field save the note.
+    assert_select "form.note-form form", false
+    assert_select "form.note-form dialog", false
   end
 
   test "edit renders the per-note keyed editor" do

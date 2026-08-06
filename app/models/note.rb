@@ -22,6 +22,10 @@ class Note < ApplicationRecord
   end
 
   def published? = slug.present?
+
+  # A published note is only reachable while its owner has a username — the
+  # public URL embeds one.
+  def shareable? = published? && user.username.present?
   def publish! = update!(slug: self.class.generate_slug)
   def unpublish! = update!(slug: nil)
 end

@@ -17,6 +17,8 @@
         <%= link_to "Close", cancel_path, data: { controller: "hotkey", action: "keydown.shift+ctrl+c@document->hotkey#click", note_nav: "close" }, class: "btn btn--outline" %>
       <% end %>
       <%= form.submit "Save", data: { note_nav: "save" } %>
+      <%= render "notes/publish_button", note: note %>
+      <%= render "notes/share_button", note: note %>
     </menu>
   </div>
 

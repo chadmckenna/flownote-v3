@@ -90,8 +90,11 @@
       margin: 0;
     }
 
+    /* Fills the row rather than shrinking to its buttons, so .share-toggle's
+       auto inline-start margin has free space to push the publish and share
+       controls to the far end. */
     .btn-group {
-      flex: 0 0 auto;
+      flex: 1 1 auto;
       margin: 0;
     }
   }

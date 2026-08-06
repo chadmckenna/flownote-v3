@@ -1,0 +1,20 @@
+<% if note.shareable? %>
+  <%# Rendered outside the note form on purpose: nested in it, the URL field's form
+      owner would be the note form and Enter would silently save the note. %>
+  <dialog class="modal share-modal"
+          data-controller="share"
+          data-action="keydown.esc->share#close click->share#backdropClose">
+    <h2 class="share-modal__title">Share note</h2>
+    <p class="share-modal__hint">Anyone with this link can read this note. Making the note private again breaks the link for good.</p>
+
+    <div class="share-link" data-controller="clipboard">
+      <input type="text" class="share-link__url" readonly aria-label="Public link"
+             value="<%= public_note_url(username: note.user.username, slug: note.slug) %>"
+             data-share-target="url"
+             data-clipboard-target="source">
+      <button type="button" class="btn btn--outline"
+              data-clipboard-target="button"
+              data-action="clipboard#copy">Copy</button>
+    </div>
+  </dialog>
+<% end %>

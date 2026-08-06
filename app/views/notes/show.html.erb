@@ -12,8 +12,10 @@
         form: { data: { turbo_frame: "_top" } },
         data: { turbo_confirm: "Are you sure?" } %>
     <%= render "notes/publish_button", note: @note %>
-    <%= render "notes/share", note: @note %>
+    <%= render "notes/share_button", note: @note %>
   </menu>
+
+  <%= render "notes/share_dialog", note: @note %>
 
   <article class="prose" data-controller="syntax-highlight mermaid"><%= render_markdown(@note.body) %></article>
 </div>

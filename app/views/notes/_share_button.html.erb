@@ -1,0 +1,5 @@
+<% if note.shareable? %>
+  <%# Opens notes/_share_dialog, which lives outside the note form. %>
+  <button type="button" class="btn btn--outline share__button" data-share-open
+          aria-label="Share note" title="Share note"><%= render "icons/share" %></button>
+<% end %>
