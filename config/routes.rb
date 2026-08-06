@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   resource :session
   resource :registration, only: %i[new create]
   resources :passwords, param: :token
+  resource :profile, path: "me", only: %i[show update destroy]
+  patch "me/password", to: "profiles#update_password", as: :profile_password
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

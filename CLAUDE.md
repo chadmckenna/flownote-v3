@@ -55,6 +55,7 @@ bin/ci                                 # Full CI pipeline
 - `POST/DELETE /session` — login/logout
 - `POST /registration` — signup
 - `POST /passwords`, `PATCH /passwords/:token` — password reset flow
+- `GET/PATCH/DELETE /me`, `PATCH /me/password` — profile page: username, password change, account deletion (each re-checks the current password)
 - `POST /oauth/authorize`, `POST /oauth/token` — OAuth flow
 - `GET /api/v1/me` — current user (OAuth-protected)
 - `GET /up` — health check
