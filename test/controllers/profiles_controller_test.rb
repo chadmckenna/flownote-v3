@@ -22,6 +22,8 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update username" do
+    unpublish_everything
+
     patch profile_path, params: { current_password: "password", user: { username: "  NewName  " } }
 
     assert_redirected_to profile_path
@@ -29,10 +31,22 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update clears username when blank" do
+    unpublish_everything
+
     patch profile_path, params: { current_password: "password", user: { username: "" } }
 
     assert_redirected_to profile_path
     assert_nil @user.reload.username
+  end
+
+  test "update rejects a username change while notes are published" do
+    assert_predicate @user.notes.published, :any?, "precondition: fixture note is published"
+
+    patch profile_path, params: { current_password: "password", user: { username: "renamed" } }
+
+    assert_response :unprocessable_entity
+    assert_select "div.alert--error", /unpublish them first/
+    assert_equal "userone", @user.reload.username
   end
 
   test "update with a taken username" do
@@ -109,4 +123,11 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to profile_path
   end
+
+  private
+    # A published note locks the username (share links embed it), so tests that
+    # rename have to clear that precondition first.
+    def unpublish_everything
+      @user.notes.published.find_each(&:unpublish!)
+    end
 end

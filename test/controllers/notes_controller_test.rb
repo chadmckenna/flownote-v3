@@ -44,6 +44,36 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#editor_main", false
   end
 
+  test "show offers the share modal only once a note is published" do
+    get folder_note_path(@folder, @note)
+    assert_select "dialog.share-modal", false
+    assert_select "form.share-toggle button", "Publish"
+
+    published = notes(:published)
+    get folder_note_path(published.folder, published)
+    assert_select "form.share-toggle button", "Unpublish"
+    assert_select "dialog.share-modal input.share-link__url[value=?]",
+      public_note_url(username: @user.username, slug: published.slug)
+  end
+
+  test "show still renders when a published note's owner has no username" do
+    published = notes(:published)
+    @user.update_column(:username, nil)
+
+    get folder_note_path(published.folder, published)
+
+    assert_response :success
+    assert_select "dialog.share-modal", false
+  end
+
+  test "edit offers the share modal for a published note" do
+    published = notes(:published)
+
+    get edit_folder_note_path(published.folder, published)
+
+    assert_select "dialog.share-modal input.share-link__url"
+  end
+
   test "edit renders the per-note keyed editor" do
     get edit_folder_note_path(@folder, @note)
     assert_response :success

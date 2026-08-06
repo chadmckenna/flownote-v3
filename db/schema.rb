@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_06_175240) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_06_201521) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -64,10 +64,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_06_175240) do
     t.text "body"
     t.datetime "created_at", null: false
     t.integer "folder_id", null: false
+    t.string "slug"
     t.string "title"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["folder_id"], name: "index_notes_on_folder_id"
+    t.index ["slug"], name: "index_notes_on_slug", unique: true
     t.index ["user_id"], name: "index_notes_on_user_id"
   end
 

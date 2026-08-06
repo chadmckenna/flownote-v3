@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   resources :folders, only: [ :show, :new, :create, :edit, :update, :destroy ] do
-    resources :notes, except: [ :index ]
+    resources :notes, except: [ :index ] do
+      resource :publication, only: %i[create destroy], module: :notes
+    end
   end
   use_doorkeeper do
     skip_controllers :applications, :authorized_applications
@@ -30,6 +32,12 @@ Rails.application.routes.draw do
       resources :notes, only: %i[show create update destroy]
     end
   end
+
+  # Public share links. The `~` prefix keeps these from colliding with any other
+  # route, and constraining the slug to [a-z0-9] keeps dots out of it so Rails'
+  # normal extension parsing yields the `.md` format for free.
+  get "~:username/:slug", to: "public_notes#show", as: :public_note,
+    constraints: { username: /[a-z0-9_-]+/, slug: /[a-z0-9]+/ }
 
   root "folders#index"
 end

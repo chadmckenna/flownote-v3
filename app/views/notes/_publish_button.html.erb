@@ -1,0 +1,5 @@
+<%= button_to note.published? ? "Unpublish" : "Publish",
+      folder_note_publication_path(note.folder, note),
+      method: note.published? ? :delete : :post,
+      class: "btn btn--outline",
+      form: { class: "share-toggle", data: { turbo_frame: "_top" } } %>

@@ -1,0 +1,12 @@
+@layer components {
+  /* Byline on the left, raw-markdown link on the right, sharing one row above
+     the note body. Wraps to two lines rather than colliding on narrow screens. */
+  .public-note__meta {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--inline-space);
+    justify-content: space-between;
+    margin-block-end: var(--block-space);
+  }
+}

@@ -17,12 +17,23 @@ class User < ApplicationRecord
   normalizes :username, with: ->(u) { u.strip.downcase.presence }
   validates :username, uniqueness: true, allow_nil: true, length: { in: 3..30 },
     format: { with: /\A[a-z0-9_-]+\z/, message: "may only contain lowercase letters, numbers, hyphens and underscores" }
+  validate :username_locked_while_published, if: :username_changed?
 
   def root_folder
     folders.find_by!(parent_id: nil, name: "/")
   end
 
   private
+    # Share links embed the username, so renaming would 404 every link already
+    # handed out. Unpublishing stays the only way to break one.
+    def username_locked_while_published
+      return if username_was.blank?
+
+      if notes.published.exists?
+        errors.add(:username, "can't be changed while you have published notes — unpublish them first")
+      end
+    end
+
     def create_root_folder
       folders.create!(name: "/")
     end

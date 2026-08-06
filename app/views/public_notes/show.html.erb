@@ -1,0 +1,19 @@
+<% content_for :title, "#{@note.title} · Flownote" %>
+
+<%# Share links are unlisted, not published pages: anyone who has the URL can
+    read the note, but it should never surface in search results. %>
+<% content_for :head do %>
+  <meta name="robots" content="noindex, nofollow">
+<% end %>
+
+<article>
+  <h1><%= @note.title %></h1>
+  <div class="public-note__meta">
+    <small>by <%= @note.user.username %></small>
+    <small><%= link_to "View as Markdown", public_note_path(username: @note.user.username, slug: @note.slug, format: :md) %></small>
+  </div>
+
+  <hr>
+
+  <div class="prose" data-controller="syntax-highlight mermaid"><%= render_markdown(@note.body) %></div>
+</article>

@@ -13,6 +13,29 @@ class UserTest < ActiveSupport::TestCase
     assert_nil User.new(username: "  ").username
   end
 
+  test "username cannot change while notes are published" do
+    user = users(:one)
+    assert_predicate user.notes.published, :any?, "precondition: fixture note is published"
+
+    assert_not user.update(username: "renamed")
+    assert_includes user.errors[:username], "can't be changed while you have published notes — unpublish them first"
+    assert_not user.reload.update(username: nil)
+  end
+
+  test "username can change once nothing is published" do
+    user = users(:one)
+    user.notes.published.find_each(&:unpublish!)
+
+    assert user.update(username: "renamed")
+  end
+
+  test "username can be set for the first time even with published notes" do
+    user = users(:one)
+    user.update_column(:username, nil)
+
+    assert user.update(username: "freshname")
+  end
+
   test "destroy removes everything owned by the user" do
     user = users(:one)
     session = user.sessions.create!

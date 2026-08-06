@@ -128,7 +128,9 @@
       flex-direction: column;
       min-block-size: 0;
 
-      form {
+      /* The note form only — a bare `form` selector also caught button_to
+         forms in this pane (e.g. the publish toggle) and stretched them. */
+      .note-form {
         display: flex;
         flex: 1 1 auto;
         flex-direction: column;
