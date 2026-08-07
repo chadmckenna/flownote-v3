@@ -9,6 +9,9 @@ class Note < ApplicationRecord
 
   validates :title, presence: true
   validates :slug, uniqueness: true, allow_nil: true, format: { with: /\A[a-z0-9]+\z/ }
+  # folder_id is mass-assignable, so without this a crafted request could file a
+  # note into someone else's folder. Mirrors Folder#parent_belongs_to_same_user.
+  validate :folder_belongs_to_same_user
 
   scope :published, -> { where.not(slug: nil) }
 
@@ -28,4 +31,11 @@ class Note < ApplicationRecord
   def shareable? = published? && user.username.present?
   def publish! = update!(slug: self.class.generate_slug)
   def unpublish! = update!(slug: nil)
+
+  private
+    def folder_belongs_to_same_user
+      if folder && folder.user_id != user_id
+        errors.add(:folder, "must belong to the same user")
+      end
+    end
 end

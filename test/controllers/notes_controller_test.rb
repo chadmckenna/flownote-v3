@@ -128,6 +128,46 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @folder, Note.last.folder
   end
 
+  # Regression: note[folder_id] is mass-assignable, so a crafted request used to be
+  # able to file an attacker-owned note into another user's folder.
+  test "cannot create a note in another user's folder" do
+    assert_no_difference "Note.count" do
+      post folder_notes_path(@folder), params: {
+        note: { title: "Planted", body: "x", folder_id: folders(:root_two).id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "cannot move a note into another user's folder" do
+    patch folder_note_path(@folder, @note), params: { note: { folder_id: folders(:root_two).id } }
+
+    assert_response :unprocessable_entity
+    assert_equal @folder, @note.reload.folder
+  end
+
+  # Defense in depth: even if a cross-user note already exists in the database,
+  # nothing folder-scoped should surface or act on it.
+  test "a pre-existing cross-user note is invisible to the folder's owner" do
+    intruder = Note.new(title: "PLANTED", body: "x", user: users(:two), folder: @folder)
+    intruder.save!(validate: false)
+
+    sign_out
+    sign_in_as(@user)
+
+    get folder_path(@folder)
+    assert_response :success
+    assert_no_match(/PLANTED/, response.body)
+
+    get folder_note_path(@folder, intruder)
+    assert_response :not_found
+
+    post folder_note_publication_path(@folder, intruder)
+    assert_response :not_found
+    assert_not_predicate intruder.reload, :published?
+  end
+
   test "cannot access another user's note" do
     other_note = notes(:two)
     other_root = folders(:root_two)

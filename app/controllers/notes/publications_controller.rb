@@ -19,7 +19,8 @@ class Notes::PublicationsController < ApplicationController
 
   private
     def set_note
-      @note = Current.user.folders.find(params.expect(:folder_id)).notes.find(params.expect(:note_id))
+      folder = Current.user.folders.find(params.expect(:folder_id))
+      @note = Current.user.notes.find_by!(id: params.expect(:note_id), folder: folder)
     end
 
     def note_path

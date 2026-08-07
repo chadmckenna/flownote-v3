@@ -83,6 +83,35 @@ class Api::V1::NotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :no_content
   end
 
+  test "cannot create a note in another user's folder" do
+    assert_no_difference "Note.count" do
+      post api_v1_notes_path,
+        params: { note: { title: "Planted", folder_id: folders(:root_two).id } },
+        headers: api_headers(@token)
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "cannot move a note into another user's folder" do
+    patch api_v1_note_path(@note),
+      params: { note: { folder_id: folders(:root_two).id } },
+      headers: api_headers(@token)
+
+    assert_response :unprocessable_entity
+    assert_equal @work, @note.reload.folder
+  end
+
+  test "index omits a pre-existing cross-user note" do
+    intruder = Note.new(title: "PLANTED", body: "x", user: users(:two), folder: @work)
+    intruder.save!(validate: false)
+
+    get api_v1_folder_notes_path(@work), headers: api_headers(@token)
+
+    assert_response :success
+    assert_no_match(/PLANTED/, response.body)
+  end
+
   test "show without token returns 401" do
     get api_v1_note_path(@note)
     assert_response :unauthorized

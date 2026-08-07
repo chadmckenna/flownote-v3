@@ -31,6 +31,26 @@ class NoteTest < ActiveSupport::TestCase
     assert_equal folders(:work), notes(:one).folder
   end
 
+  test "rejects a folder belonging to another user" do
+    note = users(:one).notes.build(title: "Planted", body: "x", folder: folders(:root_two))
+
+    assert_not note.valid?
+    assert_includes note.errors[:folder], "must belong to the same user"
+  end
+
+  test "rejects being moved into another user's folder" do
+    note = notes(:one)
+
+    assert_not note.update(folder: folders(:other_user_folder))
+    assert_equal folders(:work), note.reload.folder
+  end
+
+  test "accepts any folder the owner owns" do
+    note = users(:one).notes.build(title: "Fine", body: "x", folder: folders(:projects))
+
+    assert_predicate note, :valid?
+  end
+
   test "publish! assigns a short alphanumeric slug" do
     note = notes(:one)
     assert_not_predicate note, :published?
