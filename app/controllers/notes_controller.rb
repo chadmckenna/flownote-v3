@@ -45,8 +45,10 @@ class NotesController < ApplicationController
       @folder = Current.user.folders.find(params.expect(:folder_id))
     end
 
+    # Scoped by owner as well as folder. Note#folder_belongs_to_same_user keeps the
+    # two in sync, but reads shouldn't depend on that invariant holding.
     def set_note
-      @note = @folder.notes.find(params.expect(:id))
+      @note = Current.user.notes.find_by!(id: params.expect(:id), folder: @folder)
     end
 
     def note_params

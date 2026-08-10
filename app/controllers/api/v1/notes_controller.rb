@@ -5,7 +5,8 @@ module Api
 
       def index
         folder = current_user.folders.find(params[:folder_id])
-        render json: folder.notes.order(:updated_at).map { |n| note_summary_json(n) }
+        notes = current_user.notes.where(folder: folder).order(:updated_at)
+        render json: notes.map { |n| note_summary_json(n) }
       end
 
       def show

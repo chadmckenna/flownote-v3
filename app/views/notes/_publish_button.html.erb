@@ -1,0 +1,7 @@
+<%# A link, not button_to: this bar sits inside the note form on the edit page and
+    button_to would emit an invalid nested <form>. Safe as a link because GET isn't
+    routed for this path, so a crawler or Turbo prefetch can't trigger it. %>
+<%= link_to note.published? ? "Unpublish" : "Publish",
+      folder_note_publication_path(note.folder, note),
+      class: "btn btn--outline share-toggle",
+      data: { turbo_method: note.published? ? :delete : :post, turbo_frame: "_top" } %>

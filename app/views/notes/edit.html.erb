@@ -2,4 +2,6 @@
   <%= render "notes/form", note: @note,
                            form_url: folder_note_path(@note.folder, @note),
                            cancel_path: folder_or_root_path(@note.folder) %>
+
+  <%= render "notes/share_dialog", note: @note %>
 </div>

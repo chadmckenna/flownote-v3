@@ -1,4 +1,4 @@
-<%= form_with(model: note, url: form_url) do |form| %>
+<%= form_with(model: note, url: form_url, class: "note-form") do |form| %>
   <% if note.errors.any? %>
     <div role="alert" class="alert alert--error">
       <% note.errors.full_messages.each do |message| %>
@@ -17,6 +17,8 @@
         <%= link_to "Close", cancel_path, data: { controller: "hotkey", action: "keydown.shift+ctrl+c@document->hotkey#click", note_nav: "close" }, class: "btn btn--outline" %>
       <% end %>
       <%= form.submit "Save", data: { note_nav: "save" } %>
+      <%= render "notes/publish_button", note: note %>
+      <%= render "notes/share_button", note: note %>
     </menu>
   </div>
 

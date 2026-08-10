@@ -10,7 +10,7 @@
         </button>
       </li>
       <%= render "topnav/theme_toggle" %>
-      <li><%= button_to "Sign out", session_path, method: :delete, class: "btn--ghost btn--small" %></li>
+      <li><%= link_to "Me", profile_path %></li>
     </ul>
   <% else %>
     <ul>

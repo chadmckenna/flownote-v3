@@ -1,0 +1,80 @@
+<h1>Me</h1>
+
+<section>
+  <p><%= @user.email_address %></p>
+  <p><%= button_to "Sign out", session_path, method: :delete, class: "btn" %></p>
+</section>
+
+<hr>
+
+<section>
+  <h2>Profile</h2>
+
+  <%= form_with model: @user, url: profile_path, method: :patch do |form| %>
+    <% if @section == :profile && @user.errors.any? %>
+      <div role="alert" class="alert alert--error">
+        <% @user.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= form.label :username %>
+    <%= form.text_field :username, placeholder: "Displayed on your public notes", maxlength: 30, autocomplete: "off" %>
+
+    <%= render "credential_hint" %>
+    <%= label_tag :profile_current_password, "Current password" %>
+    <%= password_field_tag :current_password, nil, id: "profile_current_password", required: true, autocomplete: "current-password" %>
+
+    <%= form.submit "Save" %>
+  <% end %>
+</section>
+
+<hr>
+
+<section>
+  <h2>Change password</h2>
+
+  <p class="alert"><small>Changing your password signs you out everywhere else.</small></p>
+
+  <%= form_with model: @user, url: profile_password_path, method: :patch do |form| %>
+    <% if @section == :password && @user.errors.any? %>
+      <div role="alert" class="alert alert--error">
+        <% @user.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= render "credential_hint" %>
+    <%= form.label :password, "New password" %>
+    <%= form.password_field :password, required: true, autocomplete: "new-password", placeholder: "Enter new password", maxlength: 72 %>
+
+    <%= form.label :password_confirmation, "Confirm password" %>
+    <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Repeat new password", maxlength: 72 %>
+
+    <%= label_tag :password_current_password, "Current password" %>
+    <%= password_field_tag :current_password, nil, id: "password_current_password", required: true, autocomplete: "current-password" %>
+
+    <%= form.submit "Update password" %>
+  <% end %>
+</section>
+
+<hr>
+
+<section>
+  <h2>Delete account</h2>
+
+  <div role="alert" class="alert alert--warning">This permanently deletes your account and every folder and note in it. This cannot be undone.</div>
+
+  <%= form_with url: profile_path, method: :delete do |form| %>
+    <%= render "credential_hint" %>
+    <%= label_tag :delete_current_password, "Current password" %>
+    <%= password_field_tag :current_password, nil, id: "delete_current_password", required: true, autocomplete: "current-password" %>
+
+    <%# A <button>, not form.submit: `input[type="submit"]` out-specifies .btn--ghost in buttons.css. %>
+    <%= form.button "Delete account", class: "btn btn--outline txt-negative",
+          data: { turbo_confirm: "Are you sure? This permanently deletes your account and all of your notes." } %>
+  <% end %>
+</section>
+
