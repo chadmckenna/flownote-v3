@@ -16,7 +16,8 @@ module NotesHelper
       path = paths[note.folder_id]
       {
         label: note.title,
-        detail: path.presence || "~",
+        # Same label as a search result's, so the two lists read alike.
+        detail: folder_path_label(path),
         # A title shared with another note only resolves to the one you picked
         # when it's qualified with its folder path.
         apply: duplicated[note.title] ? "#{path.presence || "~"}/#{note.title}" : note.title

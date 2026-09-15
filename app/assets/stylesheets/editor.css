@@ -212,11 +212,7 @@ summary.lexxy-editor__toolbar-button {
   color: var(--color-ink) !important;
   font-family: var(--font-mono);
   font-size: var(--text-small);
-}
-
-.cm-tooltip-autocomplete ul li {
-  padding-block: 2px;
-  padding-inline: var(--inline-space-half);
+  min-inline-size: 18rem;
 }
 
 .cm-tooltip-autocomplete ul li[aria-selected] {
@@ -224,11 +220,20 @@ summary.lexxy-editor__toolbar-button {
   color: var(--color-canvas) !important;
 }
 
-/* Folder path, shown to tell same-titled notes apart. */
+/* Laid out like a search result: note title on the left, folder path pushed to
+   the right edge. */
+.cm-tooltip-autocomplete ul li {
+  align-items: baseline;
+  display: flex;
+  gap: var(--inline-space-double);
+  padding-block: 2px;
+  padding-inline: var(--inline-space-half);
+}
+
 .cm-tooltip-autocomplete .cm-completionDetail {
   color: var(--color-ink-muted);
   font-style: normal;
-  margin-inline-start: var(--inline-space);
+  margin-inline-start: auto;
 }
 
 .cm-tooltip-autocomplete ul li[aria-selected] .cm-completionDetail {
