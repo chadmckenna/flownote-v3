@@ -22,6 +22,14 @@
     outline: none;
   }
 
+  /* The path is the only thing telling two same-titled notes apart, so it can't
+     keep .file-listing__meta's 0.4 opacity once the row is canvas-on-blue. */
+  .search-modal__results .file-listing a:focus .file-listing__meta,
+  .search-modal__results .file-listing a:hover .file-listing__meta {
+    color: var(--color-canvas);
+    opacity: 1;
+  }
+
   /* "Recent" heading above the recently-visited notes an empty box offers. */
   .search-modal__label {
     color: var(--color-ink-muted);

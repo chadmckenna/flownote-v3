@@ -52,6 +52,9 @@ export default class extends Controller {
 
   close() {
     this.element.close()
+    // Clear the box, so the next open starts on the Recent list rather than
+    // replaying the last search — open() submits whatever is in the field.
+    this.inputTarget.value = ""
   }
 
   // Native <dialog> centers its content; clicks that land on the element itself

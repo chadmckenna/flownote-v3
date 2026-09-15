@@ -221,19 +221,28 @@ summary.lexxy-editor__toolbar-button {
 }
 
 /* Laid out like a search result: note title on the left, folder path pushed to
-   the right edge. */
+   the right edge. The title, not the row, does the truncating — CodeMirror's own
+   text-overflow: ellipsis is inert on a flex container, and a flex item won't
+   shrink below its content without min-inline-size: 0. */
 .cm-tooltip-autocomplete ul li {
   align-items: baseline;
   display: flex;
-  gap: var(--inline-space-double);
   padding-block: 2px;
   padding-inline: var(--inline-space-half);
 }
 
+.cm-tooltip-autocomplete .cm-completionLabel {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .cm-tooltip-autocomplete .cm-completionDetail {
   color: var(--color-ink-muted);
+  flex: none;
   font-style: normal;
   margin-inline-start: auto;
+  padding-inline-start: var(--inline-space-double);
 }
 
 .cm-tooltip-autocomplete ul li[aria-selected] .cm-completionDetail {

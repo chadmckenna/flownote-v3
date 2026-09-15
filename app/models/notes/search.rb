@@ -18,26 +18,35 @@ module Notes
       @query = query.to_s.strip
     end
 
+    # Notes containing every token come first. A folder-path match pulls in notes
+    # that don't contain the word at all — with only LIMIT rows to give away,
+    # those would otherwise push out a note that genuinely matches. The folder
+    # pass then fills whatever slots are left, so "recipes" still lists the
+    # Recipes folder once the real matches have had theirs.
     def results
-      return Note.none if tokens.empty?
+      return [] if tokens.empty?
 
-      tokens.reduce(base_scope) do |scope, token|
-        term = "%#{Note.sanitize_sql_like(token)}%"
-        folder_ids = folder_ids_matching(token)
+      matches = matching(folders: false).to_a
+      return matches.first(LIMIT) if matches.size >= LIMIT
 
-        # ESCAPE is required: sanitize_sql_like escapes with "\", but SQLite's
-        # LIKE has no default escape character, so without this the escaped "_"
-        # and "%" would still be treated as wildcards.
-        if folder_ids.any?
-          scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\' OR folder_id IN (:f)",
-                      t: term, f: folder_ids)
-        else
-          scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\'", t: term)
-        end
-      end
+      (matches + matching.where.not(id: matches).to_a).first(LIMIT)
     end
 
     private
+
+    def matching(folders: true)
+      tokens.reduce(base_scope) do |scope, token|
+        term = "%#{Note.sanitize_sql_like(token)}%"
+        folder_ids = folders ? folder_ids_matching(token) : []
+
+        # ESCAPE is required: sanitize_sql_like escapes with "\", but SQLite's
+        # LIKE has no default escape character, so without this the escaped "_"
+        # and "%" would still be treated as wildcards. An empty folder list binds
+        # as IN (NULL), which matches nothing.
+        scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\' OR folder_id IN (:f)",
+                    t: term, f: folder_ids)
+      end
+    end
 
     def tokens
       @tokens ||= @query.split(/[\s_]+/).reject(&:blank?)

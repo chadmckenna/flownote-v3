@@ -60,8 +60,10 @@ export default class extends Controller {
           ]),
           markdown(),
           // override: replaces every other source, so the markdown language's own
-          // completions (it pulls in lang-html) can't pop up unasked.
-          autocompletion({ override: [ this.#noteLinkCompletions ] }),
+          // completions (it pulls in lang-html) can't pop up unasked. icons: false
+          // drops the type-icon column, which would otherwise indent every row for
+          // an icon these completions never set.
+          autocompletion({ override: [ this.#noteLinkCompletions ], icons: false }),
           EditorView.lineWrapping,
           EditorView.updateListener.of((u) => {
             if (u.docChanged) this.#markDirty(true)

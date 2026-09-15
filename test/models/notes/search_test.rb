@@ -70,6 +70,24 @@ class Notes::SearchTest < ActiveSupport::TestCase
     assert_not_includes results, elsewhere
   end
 
+  test "a note that contains the token outranks a folderful that doesn't" do
+    crowd = folders(:projects)
+    (Notes::Search::LIMIT + 2).times { |i| @user.notes.create!(title: "dinner #{i}", body: "x", folder: crowd) }
+    titled = @user.notes.create!(title: "Projects shopping list", body: "eggs", folder: folders(:root_one))
+    crowd.notes.each(&:touch)
+
+    results = search("Projects")
+
+    assert_includes results, titled
+    assert_equal Notes::Search::LIMIT, results.size
+  end
+
+  test "folder matches still fill the slots a content match leaves" do
+    filed = @user.notes.create!(title: "no keyword here", body: "x", folder: folders(:projects))
+
+    assert_includes search("Projects"), filed
+  end
+
   test "a folder path never matches another user's notes" do
     assert_not_includes search("Personal"), notes(:two)
   end
