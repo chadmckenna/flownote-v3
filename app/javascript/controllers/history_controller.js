@@ -23,10 +23,24 @@ export default class extends Controller {
 
     if (event.code === "BracketLeft") {
       event.preventDefault()
-      window.history.back()
+      this.#jump(() => window.history.back())
     } else if (event.code === "BracketRight") {
       event.preventDefault()
-      window.history.forward()
+      this.#jump(() => window.history.forward())
     }
+  }
+
+  // A history jump is a Turbo *restoration* visit: it never fires
+  // turbo:before-visit, which is the only hook the editor's unsaved-changes
+  // guard has, and beforeunload doesn't fire for same-document navigation
+  // either. So the editor publishes [data-unsaved] and the prompt happens here
+  // — otherwise this chord would be the one exit that discards your typing.
+  #jump(go) {
+    if (document.querySelector("[data-unsaved]") && !this.#confirmDiscard()) return
+    go()
+  }
+
+  #confirmDiscard() {
+    return confirm("You have unsaved changes. Leave without saving?")
   }
 }

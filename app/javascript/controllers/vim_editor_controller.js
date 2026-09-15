@@ -64,7 +64,7 @@ export default class extends Controller {
           autocompletion({ override: [ this.#noteLinkCompletions ] }),
           EditorView.lineWrapping,
           EditorView.updateListener.of((u) => {
-            if (u.docChanged) this.#dirty = true
+            if (u.docChanged) this.#markDirty(true)
           }),
         ],
       }),
@@ -75,7 +75,7 @@ export default class extends Controller {
 
     this.submitHandler = () => {
       ta.value = this.view.state.doc.toString()
-      this.#dirty = false
+      this.#markDirty(false)
     }
     ta.form?.addEventListener("submit", this.submitHandler)
 
@@ -123,6 +123,14 @@ export default class extends Controller {
 
   #confirmDiscard() {
     return confirm("You have unsaved changes. Leave without saving?")
+  }
+
+  // Published on the element so a jump through the browser's history can see it:
+  // those are restoration visits, which never fire turbo:before-visit, so the
+  // guard above can't catch them.
+  #markDirty(dirty) {
+    this.#dirty = dirty
+    this.element.toggleAttribute("data-unsaved", dirty)
   }
 
   // Offers the user's notes after "[[". `from` skips the brackets so what you
