@@ -9,6 +9,7 @@
                 data: { turbo_frame: "_top" } do %>
             <span class="file-listing__type">-</span>
             <span class="file-listing__name"><%= note.title %></span>
+            <span class="file-listing__meta"><%= folder_path_string(note.folder) %></span>
           <% end %>
         </li>
       <% end %>

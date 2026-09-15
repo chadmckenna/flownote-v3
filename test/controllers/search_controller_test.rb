@@ -19,6 +19,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".file-listing__name", text: "First note"
   end
 
+  test "shows the folder path of each result" do
+    get search_path, params: { q: "First note" }
+
+    assert_select ".file-listing__meta", text: "~/Work"
+  end
+
+  test "finds notes by their folder path" do
+    get search_path, params: { q: "Work" }
+
+    assert_select ".file-listing__name", text: "First note"
+  end
+
   test "does not return another user's notes" do
     get search_path, params: { q: "Second note" }
     assert_response :success

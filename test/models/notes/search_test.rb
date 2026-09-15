@@ -50,6 +50,30 @@ class Notes::SearchTest < ActiveSupport::TestCase
     assert_not_includes search("sourdough rye"), note
   end
 
+  test "matches on the folder path" do
+    assert_includes search("Work"), notes(:one)
+    assert_includes search("Projects"), notes(:published)
+  end
+
+  test "a folder token matches notes in its subfolders too" do
+    # :published lives in Work/Projects.
+    assert_includes search("Work"), notes(:published)
+  end
+
+  test "combines a folder token with a title token" do
+    filed = @user.notes.create!(title: "sourdough", body: "x", folder: folders(:projects))
+    elsewhere = @user.notes.create!(title: "sourdough", body: "x", folder: folders(:root_one))
+
+    results = search("projects sourdough")
+
+    assert_includes results, filed
+    assert_not_includes results, elsewhere
+  end
+
+  test "a folder path never matches another user's notes" do
+    assert_not_includes search("Personal"), notes(:two)
+  end
+
   test "limits the number of results" do
     folder = folders(:work)
     (Notes::Search::LIMIT + 5).times do |i|

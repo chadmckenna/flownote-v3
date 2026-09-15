@@ -1,13 +1,15 @@
 module Notes
   # Plain keyword search over a user's notes: case-insensitive LIKE on title and
-  # body, scoped through the association so it can only ever see the user's own
-  # notes. Deliberately simple — no FTS, no ranking. The query object is the seam
-  # to swap in a smarter backend later without touching the controller or views.
+  # body, plus the note's folder path, scoped through the association so it can
+  # only ever see the user's own notes. Deliberately simple — no FTS, no ranking.
+  # The query object is the seam to swap in a smarter backend later without
+  # touching the controller or views.
   #
   # The query is split into tokens on whitespace and underscores, and every token
-  # must appear in the title or body. This makes "sourdough bread" and
-  # "sourdough_bread" find the same note — underscores in filenames/titles read
-  # as word separators rather than literal characters.
+  # must appear in the title, the body, or the folder path. This makes "sourdough
+  # bread" and "sourdough_bread" find the same note — underscores in
+  # filenames/titles read as word separators rather than literal characters — and
+  # lets "work sourdough" narrow to the copy filed under Work.
   class Search
     LIMIT = 10
 
@@ -21,10 +23,17 @@ module Notes
 
       tokens.reduce(base_scope) do |scope, token|
         term = "%#{Note.sanitize_sql_like(token)}%"
+        folder_ids = folder_ids_matching(token)
+
         # ESCAPE is required: sanitize_sql_like escapes with "\", but SQLite's
         # LIKE has no default escape character, so without this the escaped "_"
         # and "%" would still be treated as wildcards.
-        scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\'", t: term)
+        if folder_ids.any?
+          scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\' OR folder_id IN (:f)",
+                      t: term, f: folder_ids)
+        else
+          scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\'", t: term)
+        end
       end
     end
 
@@ -32,6 +41,19 @@ module Notes
 
     def tokens
       @tokens ||= @query.split(/[\s_]+/).reject(&:blank?)
+    end
+
+    # Folder paths aren't a column, so they're matched in Ruby against the paths
+    # built once from the user's folders. A token matching a folder matches its
+    # subfolders too, since it matches anywhere in the path: "work" finds notes
+    # in Work/Projects as well as Work.
+    def folder_ids_matching(token)
+      needle = token.downcase
+      folder_paths.select { |_id, path| path.downcase.include?(needle) }.keys
+    end
+
+    def folder_paths
+      @folder_paths ||= Folder.path_map(@user)
     end
 
     def base_scope
