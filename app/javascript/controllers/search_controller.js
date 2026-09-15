@@ -45,6 +45,9 @@ export default class extends Controller {
     this.element.showModal()
     this.inputTarget.focus()
     this.inputTarget.select()
+    // Submitting an empty box asks the server for the recently visited notes,
+    // so the modal opens with somewhere to arrow down to.
+    this.formTarget.requestSubmit()
   }
 
   close() {

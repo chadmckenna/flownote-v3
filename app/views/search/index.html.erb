@@ -1,18 +1,16 @@
 <%= turbo_frame_tag "search_results", class: "search-modal__results" do %>
-  <% if @query.present? && @notes.empty? %>
+  <% if @query.blank? %>
+    <% if @recent.any? %>
+      <p class="search-modal__label">Recent</p>
+      <ul class="file-listing">
+        <%= render partial: "search/note", collection: @recent, as: :note %>
+      </ul>
+    <% end %>
+  <% elsif @notes.empty? %>
     <p class="search-modal__empty">No notes found.</p>
-  <% elsif @notes.any? %>
+  <% else %>
     <ul class="file-listing">
-      <% @notes.each do |note| %>
-        <li>
-          <%= link_to edit_folder_note_path(note.folder, note),
-                data: { turbo_frame: "_top" } do %>
-            <span class="file-listing__type">-</span>
-            <span class="file-listing__name"><%= note.title %></span>
-            <span class="file-listing__meta"><%= folder_path_string(note.folder) %></span>
-          <% end %>
-        </li>
-      <% end %>
+      <%= render partial: "search/note", collection: @notes, as: :note %>
     </ul>
   <% end %>
 <% end %>

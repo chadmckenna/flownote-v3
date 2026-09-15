@@ -43,10 +43,66 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".search-modal__empty"
   end
 
-  test "renders an empty frame for a blank query" do
+  test "renders an empty frame for a blank query with nothing visited yet" do
     get search_path, params: { q: "" }
     assert_response :success
     assert_select "turbo-frame#search_results"
     assert_select ".file-listing", count: 0
+  end
+
+  test "a blank query offers the notes visited most recently, newest first" do
+    [ notes(:one), notes(:root_note), notes(:published) ].each do |note|
+      get folder_note_path(note.folder, note)
+    end
+
+    get search_path, params: { q: "" }
+
+    assert_select ".search-modal__label", "Recent"
+    assert_select ".file-listing__name" do |names|
+      assert_equal [ "Shared note", "Root note", "First note" ], names.map(&:text)
+    end
+  end
+
+  test "revisiting a note moves it back to the top without duplicating it" do
+    get folder_note_path(notes(:one).folder, notes(:one))
+    get folder_note_path(notes(:root_note).folder, notes(:root_note))
+    get folder_note_path(notes(:one).folder, notes(:one))
+
+    get search_path, params: { q: "" }
+
+    assert_select ".file-listing__name" do |names|
+      assert_equal [ "First note", "Root note" ], names.map(&:text)
+    end
+  end
+
+  test "keeps only the most recent five" do
+    notes = (1..7).map { |i| @user.notes.create!(title: "Visited #{i}", body: "x", folder: folders(:work)) }
+    notes.each { |note| get folder_note_path(note.folder, note) }
+
+    get search_path, params: { q: "" }
+
+    assert_select ".file-listing li", RecentNotes::LIMIT
+    assert_select ".file-listing__name", text: "Visited 7"
+    assert_select ".file-listing__name", text: "Visited 2", count: 0
+  end
+
+  test "a typed query replaces the recent list with results" do
+    get folder_note_path(notes(:root_note).folder, notes(:root_note))
+
+    get search_path, params: { q: "First note" }
+
+    assert_select ".search-modal__label", count: 0
+    assert_select ".file-listing__name", text: "First note"
+    assert_select ".file-listing__name", text: "Root note", count: 0
+  end
+
+  test "another user's note never appears in the recent list" do
+    get folder_note_path(notes(:one).folder, notes(:one))
+    sign_out
+    sign_in_as(users(:two))
+
+    get search_path, params: { q: "" }
+
+    assert_select ".file-listing__name", text: "First note", count: 0
   end
 end
