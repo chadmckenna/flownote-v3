@@ -5,7 +5,7 @@ module ApplicationHelper
     Commonmarker.to_html(
       text,
       options: {
-        extension: { table: true, strikethrough: true, autolink: true, tagfilter: true },
+        extension: { table: true, strikethrough: true, autolink: true, tagfilter: true, tasklist: true },
         render: { unsafe: false, hardbreaks: true, github_pre_lang: false }
       },
       # hardbreaks: true renders every newline as a <br>. Notes are written in
