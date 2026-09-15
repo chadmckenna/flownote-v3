@@ -2,7 +2,7 @@
 <html>
   <%= render "layouts/shared/head" %>
 
-  <body>
+  <body data-controller="history">
     <%= render "topnav/topnav" %>
     <%= render "shared/search" if authenticated? %>
     <%= render "shared/shortcuts" if authenticated? %>

@@ -36,6 +36,13 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "the app layout wires up the history shortcuts" do
+    get folder_note_path(@folder, @note)
+
+    assert_select "body[data-controller~=?]", "history"
+    assert_select ".shortcuts-modal dt", "Back to the previous note"
+  end
+
   test "show renders a wiki link to another note" do
     @note.update!(body: "See [[Root note]] and [[No such note]].")
 
