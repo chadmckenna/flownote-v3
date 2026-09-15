@@ -55,9 +55,11 @@ export default class extends Controller {
   }
 
   // Native <dialog> centers its content; clicks that land on the element itself
-  // (rather than a child) are backdrop clicks.
-  backdropClose(event) {
-    if (event.target === this.element) this.close()
+  // (rather than a child) are backdrop clicks. A click on a result closes the
+  // modal too, so it's gone the moment you pick something rather than hanging
+  // over the page until the visit renders.
+  closeOnClick(event) {
+    if (event.target === this.element || event.target.closest("a")) this.close()
   }
 
   submit() {
