@@ -29,3 +29,23 @@
     font-weight: 600;
   }
 }
+
+@layer components {
+  /* Markdown blockquotes
+  /* -------------------------------------------------------------------------- */
+  /* A rail plus muted ink is enough to separate a quote from the prose around
+     it — no background, so quoted code and tables keep their own chrome. The
+     last child's margin is dropped so the rail ends level with the text. */
+
+  .prose blockquote {
+    border-inline-start: 3px solid var(--color-border);
+    color: var(--color-ink-muted);
+    margin-block: var(--block-space);
+    margin-inline: 0;
+    padding-inline-start: var(--inline-space);
+  }
+
+  .prose blockquote > :last-child {
+    margin-block-end: 0;
+  }
+}
