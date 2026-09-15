@@ -44,6 +44,34 @@ class PublicNotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "a dead link renders the not-available page, not a bare 404" do
+    get public_note_path(username: @username, slug: "nosuchslug")
+
+    assert_response :not_found
+    assert_select "h1", "This note isn't available"
+    assert_select "a", "Go to Flownote"
+  end
+
+  test "a dead link in md format answers with markdown, not html" do
+    get public_note_path(username: @username, slug: "nosuchslug", format: :md)
+
+    assert_response :not_found
+    assert_equal "text/markdown", response.media_type
+    assert_match(/isn't available/, response.body)
+  end
+
+  test "the not-available page does not disclose whether the note ever existed" do
+    dead_slug = @note.slug
+    @note.unpublish!
+
+    get public_note_path(username: @username, slug: dead_slug)
+    unpublished = response.body
+
+    get public_note_path(username: @username, slug: "nosuchslug")
+
+    assert_equal unpublished, response.body
+  end
+
   test "right slug under the wrong username is not found" do
     get public_note_path(username: "someoneelse", slug: @note.slug)
 
