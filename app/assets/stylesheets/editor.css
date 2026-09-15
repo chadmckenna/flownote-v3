@@ -197,3 +197,40 @@ summary.lexxy-editor__toolbar-button {
     color: var(--color-ink);
   }
 }
+
+/* CodeMirror autocomplete ([[ note links ]])
+/* -------------------------------------------------------------------------- */
+/* The tooltip's own theme only has light/dark variants keyed off CodeMirror's
+   dark facet, which this editor never sets — so without these it renders in its
+   default light chrome under both themes. Unlayered with !important, per the
+   third-party exception at the top of this file. */
+
+.cm-tooltip.cm-tooltip-autocomplete {
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md);
+  color: var(--color-ink) !important;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+.cm-tooltip-autocomplete ul li {
+  padding-block: 2px;
+  padding-inline: var(--inline-space-half);
+}
+
+.cm-tooltip-autocomplete ul li[aria-selected] {
+  background: var(--color-link) !important;
+  color: var(--color-canvas) !important;
+}
+
+/* Folder path, shown to tell same-titled notes apart. */
+.cm-tooltip-autocomplete .cm-completionDetail {
+  color: var(--color-ink-muted);
+  font-style: normal;
+  margin-inline-start: var(--inline-space);
+}
+
+.cm-tooltip-autocomplete ul li[aria-selected] .cm-completionDetail {
+  color: var(--color-canvas);
+}

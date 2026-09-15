@@ -10,7 +10,8 @@ import {
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands"
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
 import { markdown } from "@codemirror/lang-markdown"
-import { vim, Vim } from "@replit/codemirror-vim"
+import { autocompletion, closeCompletion } from "@codemirror/autocomplete"
+import { vim, Vim, getCM } from "@replit/codemirror-vim"
 
 const formFromVim = (cm) => cm.cm6?.dom.closest("form")
 
@@ -28,6 +29,7 @@ Vim.defineEx("view", "v", (cm) => clickNavFromVim(cm, "view"))
 
 export default class extends Controller {
   static targets = ["textarea"]
+  static values = { completions: Array }
 
   #dirty = false
 
@@ -57,6 +59,9 @@ export default class extends Controller {
             ...historyKeymap,
           ]),
           markdown(),
+          // override: replaces every other source, so the markdown language's own
+          // completions (it pulls in lang-html) can't pop up unasked.
+          autocompletion({ override: [ this.#noteLinkCompletions ] }),
           EditorView.lineWrapping,
           EditorView.updateListener.of((u) => {
             if (u.docChanged) this.#dirty = true
@@ -93,6 +98,16 @@ export default class extends Controller {
     this.preserveOnMorph = (event) => event.preventDefault()
     this.element.addEventListener("turbo:before-morph-element", this.preserveOnMorph)
 
+    // Escape has to be handled through vim rather than the completion keymap:
+    // vim() registers a raw keydown handler on the view, which runs ahead of
+    // CodeMirror's keymap system entirely, so a binding for Escape would look
+    // right and never fire. Leaving insert mode by any means dismisses the list.
+    this.cm = getCM(this.view)
+    this.closeOnModeChange = ({ mode }) => {
+      if (mode !== "insert") closeCompletion(this.view)
+    }
+    this.cm?.on("vim-mode-change", this.closeOnModeChange)
+
     this.view.focus()
   }
 
@@ -101,11 +116,43 @@ export default class extends Controller {
     window.removeEventListener("beforeunload", this.beforeUnloadHandler)
     document.removeEventListener("turbo:before-visit", this.beforeVisitHandler)
     this.element.removeEventListener("turbo:before-morph-element", this.preserveOnMorph)
+    this.cm?.off("vim-mode-change", this.closeOnModeChange)
     this.view?.destroy()
     this.textareaTarget.style.display = ""
   }
 
   #confirmDiscard() {
     return confirm("You have unsaved changes. Leave without saving?")
+  }
+
+  // Offers the user's notes after "[[". `from` skips the brackets so what you
+  // type filters against the title itself, and accepting writes the closing
+  // "]]" — nothing auto-closes brackets in this editor.
+  #noteLinkCompletions = (context) => {
+    const opener = context.matchBefore(/\[\[[^\[\]\n]*/)
+    if (!opener) return null
+
+    return {
+      from: opener.from + 2,
+      validFor: /^[^\[\]\n]*$/,
+      options: this.completionsValue.map(({ label, detail, apply }) => ({
+        label,
+        detail,
+        apply: this.#insertLink(apply),
+      })),
+    }
+  }
+
+  #insertLink(target) {
+    return (view, _completion, from, to) => {
+      const closed = view.state.sliceDoc(to, to + 2) === "]]"
+      const insert = `${target}]]`
+
+      view.dispatch({
+        changes: { from, to: closed ? to + 2 : to, insert },
+        selection: { anchor: from + insert.length },
+        userEvent: "input.complete",
+      })
+    }
   }
 }

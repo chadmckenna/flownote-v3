@@ -66,3 +66,16 @@
     vertical-align: baseline;
   }
 }
+
+@layer components {
+  /* Unresolved [[wiki links]]
+  /* -------------------------------------------------------------------------- */
+  /* A link whose note no longer matches renders as plain text — muted, with a
+     dotted underline so it reads as "meant to be a link" rather than as prose. */
+
+  .prose .note-link--missing {
+    color: var(--color-ink-muted);
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
+  }
+}

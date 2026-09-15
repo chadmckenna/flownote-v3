@@ -17,6 +17,25 @@ class Folder < ApplicationRecord
     parent_id.nil? && name == "/"
   end
 
+  # { folder_id => "work/projects" } for every one of the user's folders, in one
+  # query. The root folder is "", so a path is always relative to it. Walks an
+  # in-memory index rather than #ancestors, which queries per folder.
+  def self.path_map(user)
+    by_id = user.folders.to_a.index_by(&:id)
+    by_id.values.to_h { |folder| [ folder.id, path_for(folder, by_id) ] }
+  end
+
+  def self.path_for(folder, by_id)
+    parts = []
+    current = folder
+    until current.nil? || current.root?
+      parts.unshift(current.name)
+      current = by_id[current.parent_id]
+    end
+    parts.join("/")
+  end
+  private_class_method :path_for
+
   def ancestors
     chain = []
     current = self

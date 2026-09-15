@@ -36,6 +36,25 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show renders a wiki link to another note" do
+    @note.update!(body: "See [[Root note]] and [[No such note]].")
+
+    get folder_note_path(@folder, @note)
+
+    assert_select "article.prose a[href=?]", folder_note_path(folders(:root_one), notes(:root_note))
+    assert_select "article.prose .note-link--missing", "No such note"
+  end
+
+  test "the editor carries the user's own note titles for autocomplete" do
+    get edit_folder_note_path(@folder, @note)
+
+    completions = JSON.parse(css_select("[data-vim-editor-completions-value]").first["data-vim-editor-completions-value"])
+    titles = completions.map { |completion| completion["label"] }
+
+    assert_includes titles, notes(:root_note).title
+    assert_not_includes titles, notes(:two).title
+  end
+
   test "show renders the full editor shell (no content frame)" do
     get folder_note_path(@folder, @note)
     assert_response :success
