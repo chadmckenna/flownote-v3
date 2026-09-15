@@ -88,8 +88,23 @@ class Notes::SearchTest < ActiveSupport::TestCase
     assert_includes search("Projects"), filed
   end
 
-  test "a folder path never matches another user's notes" do
-    assert_not_includes search("Personal"), notes(:two)
+  test "a folder path matches only the searching user's own folders" do
+    # Only :two owns a folder named Personal, so only :two can reach its notes.
+    filed = users(:two).notes.create!(title: "theirs", body: "x", folder: folders(:other_user_folder))
+
+    assert_includes search("Personal", user: users(:two)), filed
+    assert_empty search("Personal")
+  end
+
+  test "the root folder answers to ~" do
+    assert_includes search("~"), notes(:root_note)
+    assert_not_includes search("~"), notes(:one)
+  end
+
+  test "folds case the same way the title half does" do
+    note = @user.notes.create!(title: "plain", body: "x", folder: folders(:work))
+
+    assert_includes search("WORK"), note
   end
 
   test "limits the number of results" do

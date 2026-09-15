@@ -212,7 +212,7 @@ summary.lexxy-editor__toolbar-button {
   color: var(--color-ink) !important;
   font-family: var(--font-mono);
   font-size: var(--text-small);
-  min-inline-size: 18rem;
+  min-inline-size: 18rem !important;
 }
 
 .cm-tooltip-autocomplete ul li[aria-selected] {

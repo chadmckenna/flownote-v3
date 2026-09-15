@@ -96,13 +96,46 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".file-listing__name", text: "Root note", count: 0
   end
 
-  test "another user's note never appears in the recent list" do
+  test "signing in as someone else starts the recent list over" do
     get folder_note_path(notes(:one).folder, notes(:one))
     sign_out
     sign_in_as(users(:two))
+    get folder_note_path(notes(:two).folder, notes(:two))
 
     get search_path, params: { q: "" }
 
+    assert_select ".file-listing__name", text: "Second note"
     assert_select ".file-listing__name", text: "First note", count: 0
+    assert_equal [ notes(:two).id ], session[:recent_note_ids]
+  end
+
+  test "the note being viewed is left out of the recent list" do
+    get folder_note_path(notes(:one).folder, notes(:one))
+    get folder_note_path(notes(:root_note).folder, notes(:root_note))
+
+    get search_path, params: { q: "", current: notes(:root_note).id }
+
+    assert_select ".file-listing__name", text: "First note"
+    assert_select ".file-listing__name", text: "Root note", count: 0
+  end
+
+  test "a prefetched page view is not recorded as a visit" do
+    get folder_note_path(notes(:one).folder, notes(:one)), headers: { "X-Sec-Purpose" => "prefetch" }
+
+    get search_path, params: { q: "" }
+
+    assert_select ".file-listing", count: 0
+  end
+
+  test "an id for a deleted note is dropped from the session, not just the list" do
+    note = @user.notes.create!(title: "Temporary", body: "x", folder: folders(:work))
+    get folder_note_path(note.folder, note)
+    get folder_note_path(notes(:one).folder, notes(:one))
+    note.destroy
+
+    get search_path, params: { q: "" }
+
+    assert_select ".file-listing li", 1
+    assert_equal [ notes(:one).id ], session[:recent_note_ids]
   end
 end

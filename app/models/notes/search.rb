@@ -57,12 +57,21 @@ module Notes
     # subfolders too, since it matches anywhere in the path: "work" finds notes
     # in Work/Projects as well as Work.
     def folder_ids_matching(token)
-      needle = token.downcase
-      folder_paths.select { |_id, path| path.downcase.include?(needle) }.keys
+      # Folded with tr, not downcase: the title/body half of the same condition is
+      # SQLite LIKE, which folds ASCII only. String#downcase folds more (accented
+      # letters), so one search box would match by two different rules.
+      needle = fold(token)
+      folder_paths.select { |_id, path| fold(path).include?(needle) }.keys
     end
 
+    # The root folder's path is empty, which no token can match — it's shown as
+    # "~" in the listings, so that's what it answers to here.
     def folder_paths
-      @folder_paths ||= Folder.path_map(@user)
+      @folder_paths ||= Folder.path_map(@user).transform_values { |path| path.presence || "~" }
+    end
+
+    def fold(string)
+      string.to_s.tr("A-Z", "a-z")
     end
 
     def base_scope

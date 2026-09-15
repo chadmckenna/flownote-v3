@@ -39,6 +39,10 @@ module Authentication
     end
 
     def start_new_session_for(user)
+      # Rotates the session id (fixation defence) and drops anything the previous
+      # visitor left behind — the recently-viewed notes are per-account.
+      reset_session
+
       user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
         Current.session = session
         cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
@@ -48,5 +52,6 @@ module Authentication
     def terminate_session
       Current.session.destroy
       cookies.delete(:session_id)
+      reset_session
     end
 end

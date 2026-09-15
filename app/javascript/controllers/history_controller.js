@@ -7,7 +7,9 @@ import { Controller } from "@hotwired/stimulus"
 //
 // Ctrl+Shift+* is the app's global chord: vim claims none of them, so unlike a
 // bare Ctrl+O these keep working with the cursor in the editor. Matched on
-// event.code so the binding doesn't depend on keyboard layout.
+// event.code, i.e. the physical key next to P on a US layout — which is where
+// the bracket keys are for this app's users, but is a different character on
+// layouts that put brackets elsewhere.
 export default class extends Controller {
   connect() {
     this.onKeydown = this.onKeydown.bind(this)

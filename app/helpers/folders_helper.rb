@@ -17,7 +17,9 @@ module FoldersHelper
   end
 
   private
+    # Empty without a signed-in user: public share pages render no folder paths,
+    # and a folder outside the map falls back to "~" rather than raising.
     def folder_paths
-      @folder_paths ||= Folder.path_map(Current.user)
+      @folder_paths ||= Current.user ? Folder.path_map(Current.user) : {}
     end
 end
