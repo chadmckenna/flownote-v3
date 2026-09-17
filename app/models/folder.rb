@@ -25,6 +25,9 @@ class Folder < ApplicationRecord
     by_id.values.to_h { |folder| [ folder.id, path_for(folder, by_id) ] }
   end
 
+  # The path of one folder, given every folder indexed by id. Public so a caller
+  # that already holds the folders (Notes::LinkResolver needs the records too,
+  # not just their paths) can build the same paths without a second query.
   def self.path_for(folder, by_id)
     parts = []
     current = folder
@@ -34,7 +37,6 @@ class Folder < ApplicationRecord
     end
     parts.join("/")
   end
-  private_class_method :path_for
 
   def ancestors
     chain = []

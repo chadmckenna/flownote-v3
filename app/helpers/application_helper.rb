@@ -4,7 +4,8 @@ module ApplicationHelper
     render: { unsafe: false, hardbreaks: true, github_pre_lang: false }
   }.freeze
 
-  # [[Note title]] — the target may be folder-qualified ([[Work/Title]]). Brackets
+  # [[Note title]] — the target may be folder-qualified ([[Work/Title]]) or name
+  # a folder outright ([[Work/]]). Brackets
   # and newlines are excluded from the target, so a title can never break out of
   # the markup and a link never spans a line.
   NOTE_LINK_TARGET = /[^\[\]\n]+/
@@ -57,9 +58,9 @@ module ApplicationHelper
       return html if nodes.empty?
 
       targets = nodes.flat_map { |node| node.text.scan(NOTE_LINK).flatten }
-      notes = Notes::LinkResolver.new(user: user, from: from).resolve(targets)
+      resolved = Notes::LinkResolver.new(user: user, from: from).resolve(targets)
 
-      nodes.each { |node| node.replace(note_links_html(node.text, notes)) }
+      nodes.each { |node| node.replace(note_links_html(node.text, resolved)) }
       fragment.to_html.html_safe
     end
 
@@ -69,17 +70,29 @@ module ApplicationHelper
 
     # Rebuilds one text node as HTML: escape everything that isn't a link, and
     # emit markup only for the [[...]] runs.
-    def note_links_html(text, notes)
+    def note_links_html(text, targets)
       text.split(/(\[\[#{NOTE_LINK_TARGET}\]\])/o).reject(&:empty?).map do |segment|
         target = segment[NOTE_LINK, 1]&.strip
 
         if target.nil?
           ERB::Util.html_escape(segment)
-        elsif (note = notes[target])
-          tag.a(note.title, href: folder_note_path(note.folder_id, note), data: { note_link: true })
+        elsif (record = targets[target])
+          note_link_tag(record)
         else
           tag.span(target, class: "note-link--missing")
         end
       end.join
+    end
+
+    # A folder link lands on the folder's own page — the same view the sidebar
+    # navigates to — and wears a trailing slash so it reads as a directory
+    # rather than as another note.
+    def note_link_tag(record)
+      unless record.is_a?(Folder)
+        return tag.a(record.title, href: folder_note_path(record.folder_id, record), data: { note_link: true })
+      end
+
+      root = record.root?
+      tag.a(root ? "~/" : "#{record.name}/", href: root ? root_path : folder_path(record), data: { note_link: true })
     end
 end

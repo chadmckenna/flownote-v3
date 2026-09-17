@@ -116,21 +116,70 @@ class Notes::LinkResolverTest < ActiveSupport::TestCase
     assert_equal dotted, resolve("Readme.md")["Readme.md"]
   end
 
+  test "a target with a trailing slash resolves to a folder" do
+    assert_equal folders(:work), resolve("Work/")["Work/"]
+    assert_equal folders(:projects), resolve("Work/Projects/")["Work/Projects/"]
+  end
+
+  test "a trailing slash resolves relative to the linking note's folder" do
+    assert_equal folders(:projects), resolve("Projects/", from: notes(:one))["Projects/"]
+    assert_equal folders(:work), resolve("../", from: notes(:published))["../"]
+  end
+
+  test "a lone ~/ or / resolves to the root folder" do
+    assert_equal folders(:root_one), resolve("~/")["~/"]
+    assert_equal folders(:root_one), resolve("/")["/"]
+    assert_equal folders(:root_one), resolve("~")["~"]
+  end
+
+  test "a target naming no note falls back to a folder of that path" do
+    assert_equal folders(:work), resolve("Work")["Work"]
+    assert_equal folders(:projects), resolve("Work/Projects")["Work/Projects"]
+    assert_equal folders(:projects), resolve("Projects", from: notes(:one))["Projects"]
+  end
+
+  test "a note wins over a folder of the same name" do
+    note = @user.notes.create!(title: "Work", body: "x", folder: folders(:root_one))
+
+    assert_equal note, resolve("Work")["Work"]
+    # ...but the trailing slash asks for the folder outright.
+    assert_equal folders(:work), resolve("Work/")["Work/"]
+  end
+
+  test "a nearby folder wins over a note in some unrelated folder" do
+    @user.notes.create!(title: "Projects", body: "x", folder: folders(:root_one))
+
+    assert_equal folders(:projects), resolve("Projects", from: notes(:one))["Projects"]
+  end
+
+  test "another user's folder never resolves" do
+    assert_nil resolve("Personal/")["Personal/"]
+  end
+
+  test "an unknown folder resolves to nothing" do
+    assert_nil resolve("No such folder/")["No such folder/"]
+    assert_nil resolve("../../../", from: notes(:one))["../../../"]
+  end
+
   test "blank targets are ignored" do
     assert_empty resolve("", "   ")
   end
 
-  test "resolves many targets in a single query" do
-    titles = [ "First note", "Root note", "Shared note", "Nope" ]
+  # One query for the notes and one for the folders, however many targets there
+  # are — a page full of links must not turn into a page full of queries.
+  test "resolves many targets in a fixed number of queries" do
+    targets = [ "First note", "Work/Projects/Shared note", "Root note", "Work/", "~/", "Nope" ]
+    targets += Array.new(60) { |i| "Title #{i}" }
+    from = notes(:one)
 
-    assert_queries_count 1 do
-      Notes::LinkResolver.new(user: @user).resolve(titles)
+    assert_queries_count 2 do
+      Notes::LinkResolver.new(user: @user, from: from).resolve(targets)
     end
   end
 
-  test "loads folders only when a target is folder-qualified" do
-    assert_queries_count 2 do
-      Notes::LinkResolver.new(user: @user).resolve([ "First note", "Work/First note" ])
+  test "skips the note query when every target names a folder" do
+    assert_queries_count 1 do
+      Notes::LinkResolver.new(user: @user).resolve([ "Work/", "~/" ])
     end
   end
 

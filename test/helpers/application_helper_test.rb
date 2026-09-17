@@ -13,6 +13,25 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_includes html, %(<a href="#{@path}" data-note-link="true">First note</a>)
   end
 
+  test "renders a wiki link to a folder" do
+    html = render_linked_markdown("See [[Work/]] for details.", user: @user)
+
+    assert_includes html, %(<a href="#{folder_path(folders(:work))}" data-note-link="true">Work/</a>)
+  end
+
+  test "renders a wiki link to the root folder" do
+    html = render_linked_markdown("Back to [[~/]].", user: @user)
+
+    assert_includes html, %(<a href="/" data-note-link="true">~/</a>)
+  end
+
+  test "renders an unresolved folder link as marked plain text" do
+    html = render_linked_markdown("See [[No such folder/]].", user: @user)
+
+    assert_includes html, %(<span class="note-link--missing">No such folder/</span>)
+    assert_no_match(/<a /, html)
+  end
+
   test "renders an unresolved link as marked plain text" do
     html = render_linked_markdown("See [[No such note]].", user: @user)
 

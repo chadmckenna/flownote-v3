@@ -62,6 +62,23 @@ class PublicNotesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # A folder link would name a folder, which a share page must never disclose;
+  # like every other wiki link it stays the literal text the author typed.
+  test "folder links never render as links on a public page" do
+    @note.update!(body: "#{@note.body}\n\n[[Work/]] and [[~/]]")
+
+    [ nil, users(:one), users(:two) ].each do |viewer|
+      viewer ? sign_in_as(viewer) : sign_out
+
+      get public_note_path(username: @username, slug: @note.slug)
+
+      assert_response :success
+      assert_select ".prose a[href^=?]", "/folders", false
+      assert_match "[[Work/]]", response.body
+      assert_no_match(/note-link--missing/, response.body)
+    end
+  end
+
   test "the markdown format leaves wiki links untouched" do
     @note.update!(body: "#{@note.body}\n\n[[First note]]")
 
