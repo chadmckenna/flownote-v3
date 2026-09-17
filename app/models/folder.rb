@@ -6,7 +6,15 @@ class Folder < ApplicationRecord
   has_many :notes, dependent: :restrict_with_error
 
   validates :name, presence: true
-  validates :name, uniqueness: { scope: [ :user_id, :parent_id ], message: "already exists in this folder" }
+  # Case-insensitively unique, matching the NOCASE collation on the column: a
+  # folder path is how a [[wiki link]] names a place, and those are matched
+  # without regard to case, so "Work" and "work" as siblings would leave a link
+  # two folders to mean.
+  validates :name, uniqueness: { scope: [ :user_id, :parent_id ], case_sensitive: false, message: "already exists in this folder" }
+  # A folder path joins names with "/", so a name containing one would collide
+  # with a real nesting: a folder "a/b" and a folder "b" inside "a" both read as
+  # the path "a/b". The root folder is the one exception — it is named "/".
+  validates :name, format: { without: %r{/}, message: "can't contain a slash" }, if: :parent_id?
   validate :parent_belongs_to_same_user
   validate :not_ancestor_of_self, if: :parent_id_changed?
   validate :root_folder_immutable, on: :update
@@ -25,6 +33,9 @@ class Folder < ApplicationRecord
     by_id.values.to_h { |folder| [ folder.id, path_for(folder, by_id) ] }
   end
 
+  # The path of one folder, given every folder indexed by id. Public so a caller
+  # that already holds the folders (Notes::LinkResolver needs the records too,
+  # not just their paths) can build the same paths without a second query.
   def self.path_for(folder, by_id)
     parts = []
     current = folder
@@ -34,7 +45,6 @@ class Folder < ApplicationRecord
     end
     parts.join("/")
   end
-  private_class_method :path_for
 
   def ancestors
     chain = []

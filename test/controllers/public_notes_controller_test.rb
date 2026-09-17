@@ -45,8 +45,10 @@ class PublicNotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   # Requirement: a share page must never link to another note — not even for the
-  # author, whose Current.user is set while they view their own public page.
-  test "wiki links never render as links on a public page" do
+  # author, whose Current.user is set while they view their own public page. The
+  # link renders unresolved, so a reader sees that the author meant to link
+  # something without learning that it exists or where it lives.
+  test "wiki links render unresolved on a public page" do
     @note.update!(body: "#{@note.body}\n\n[[First note]]")
 
     [ nil, users(:one), users(:two) ].each do |viewer|
@@ -55,10 +57,26 @@ class PublicNotesControllerTest < ActionDispatch::IntegrationTest
       get public_note_path(username: @username, slug: @note.slug)
 
       assert_response :success
+      assert_select ".prose a[data-note-link]", false
       assert_select ".prose a[href^=?]", "/folders", false
-      assert_match "[[First note]]", response.body
-      assert_no_match(/note-link--missing/, response.body)
+      assert_select ".prose .note-link--missing", "First note"
       assert_no_match(/#{notes(:one).folder.name}/, response.body)
+    end
+  end
+
+  # A folder link would name a folder, which a share page must never disclose.
+  test "folder links render unresolved on a public page" do
+    @note.update!(body: "#{@note.body}\n\n[[Work/]] and [[~/]]")
+
+    [ nil, users(:one), users(:two) ].each do |viewer|
+      viewer ? sign_in_as(viewer) : sign_out
+
+      get public_note_path(username: @username, slug: @note.slug)
+
+      assert_response :success
+      assert_select ".prose a[data-note-link]", false
+      assert_select ".prose a[href^=?]", "/folders", false
+      assert_select ".prose .note-link--missing", 2
     end
   end
 

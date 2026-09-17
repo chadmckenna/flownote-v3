@@ -91,4 +91,35 @@ class FolderTest < ActiveSupport::TestCase
     assert user.root_folder.present?
     assert_equal "/", user.root_folder.name
   end
+  test "rejects a sibling name differing only in case" do
+    folder = users(:one).folders.build(name: folders(:work).name.upcase, parent: folders(:root_one))
+
+    assert_not folder.valid?
+    assert_includes folder.errors[:name], "already exists in this folder"
+  end
+
+  test "the database refuses a case-variant sibling the validation didn't catch" do
+    folder = users(:one).folders.build(name: folders(:work).name.upcase, parent: folders(:root_one))
+
+    assert_raises ActiveRecord::RecordNotUnique do
+      folder.save!(validate: false)
+    end
+  end
+
+  test "accepts the same name under a different parent" do
+    folder = users(:one).folders.build(name: folders(:work).name, parent: folders(:projects))
+
+    assert_predicate folder, :valid?
+  end
+
+  test "rejects a name containing a slash" do
+    folder = users(:one).folders.build(name: "a/b", parent: folders(:root_one))
+
+    assert_not folder.valid?
+    assert_includes folder.errors[:name], "can't contain a slash"
+  end
+
+  test "the root folder is allowed its slash name" do
+    assert_predicate users(:one).root_folder, :valid?
+  end
 end
