@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Authentication
+  include RecentNotes
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   # Publicly shared pages opt out: recipients don't choose their browser, and those
   # pages are read-only HTML that needs none of the gated features. allow_browser

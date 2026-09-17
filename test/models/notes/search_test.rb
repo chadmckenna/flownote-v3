@@ -50,6 +50,63 @@ class Notes::SearchTest < ActiveSupport::TestCase
     assert_not_includes search("sourdough rye"), note
   end
 
+  test "matches on the folder path" do
+    assert_includes search("Work"), notes(:one)
+    assert_includes search("Projects"), notes(:published)
+  end
+
+  test "a folder token matches notes in its subfolders too" do
+    # :published lives in Work/Projects.
+    assert_includes search("Work"), notes(:published)
+  end
+
+  test "combines a folder token with a title token" do
+    filed = @user.notes.create!(title: "sourdough", body: "x", folder: folders(:projects))
+    elsewhere = @user.notes.create!(title: "sourdough", body: "x", folder: folders(:root_one))
+
+    results = search("projects sourdough")
+
+    assert_includes results, filed
+    assert_not_includes results, elsewhere
+  end
+
+  test "a note that contains the token outranks a folderful that doesn't" do
+    crowd = folders(:projects)
+    (Notes::Search::LIMIT + 2).times { |i| @user.notes.create!(title: "dinner #{i}", body: "x", folder: crowd) }
+    titled = @user.notes.create!(title: "Projects shopping list", body: "eggs", folder: folders(:root_one))
+    crowd.notes.each(&:touch)
+
+    results = search("Projects")
+
+    assert_includes results, titled
+    assert_equal Notes::Search::LIMIT, results.size
+  end
+
+  test "folder matches still fill the slots a content match leaves" do
+    filed = @user.notes.create!(title: "no keyword here", body: "x", folder: folders(:projects))
+
+    assert_includes search("Projects"), filed
+  end
+
+  test "a folder path matches only the searching user's own folders" do
+    # Only :two owns a folder named Personal, so only :two can reach its notes.
+    filed = users(:two).notes.create!(title: "theirs", body: "x", folder: folders(:other_user_folder))
+
+    assert_includes search("Personal", user: users(:two)), filed
+    assert_empty search("Personal")
+  end
+
+  test "the root folder answers to ~" do
+    assert_includes search("~"), notes(:root_note)
+    assert_not_includes search("~"), notes(:one)
+  end
+
+  test "folds case the same way the title half does" do
+    note = @user.notes.create!(title: "plain", body: "x", folder: folders(:work))
+
+    assert_includes search("WORK"), note
+  end
+
   test "limits the number of results" do
     folder = folders(:work)
     (Notes::Search::LIMIT + 5).times do |i|

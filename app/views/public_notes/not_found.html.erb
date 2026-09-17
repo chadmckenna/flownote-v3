@@ -1,0 +1,13 @@
+<% content_for :title, "Note not available · Flownote" %>
+
+<% content_for :head do %>
+  <meta name="robots" content="noindex, nofollow">
+<% end %>
+
+<%# Deliberately vague: a reader must not be able to tell a mistyped link from
+    a note that was unpublished. %>
+<article class="public-note">
+  <h1>This note isn't available</h1>
+  <p>The link may be mistyped, or the note may no longer be shared.</p>
+  <p><%= link_to "Go to Flownote", root_path %></p>
+</article>

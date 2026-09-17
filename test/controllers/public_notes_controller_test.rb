@@ -44,6 +44,60 @@ class PublicNotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  # Requirement: a share page must never link to another note — not even for the
+  # author, whose Current.user is set while they view their own public page.
+  test "wiki links never render as links on a public page" do
+    @note.update!(body: "#{@note.body}\n\n[[First note]]")
+
+    [ nil, users(:one), users(:two) ].each do |viewer|
+      viewer ? sign_in_as(viewer) : sign_out
+
+      get public_note_path(username: @username, slug: @note.slug)
+
+      assert_response :success
+      assert_select ".prose a[href^=?]", "/folders", false
+      assert_match "[[First note]]", response.body
+      assert_no_match(/note-link--missing/, response.body)
+      assert_no_match(/#{notes(:one).folder.name}/, response.body)
+    end
+  end
+
+  test "the markdown format leaves wiki links untouched" do
+    @note.update!(body: "#{@note.body}\n\n[[First note]]")
+
+    get public_note_path(username: @username, slug: @note.slug, format: :md)
+
+    assert_equal @note.body, response.body
+  end
+
+  test "a dead link renders the not-available page, not a bare 404" do
+    get public_note_path(username: @username, slug: "nosuchslug")
+
+    assert_response :not_found
+    assert_select "h1", "This note isn't available"
+    assert_select "a", "Go to Flownote"
+  end
+
+  test "a dead link in md format answers with markdown, not html" do
+    get public_note_path(username: @username, slug: "nosuchslug", format: :md)
+
+    assert_response :not_found
+    assert_equal "text/markdown", response.media_type
+    assert_match(/isn't available/, response.body)
+  end
+
+  test "the not-available page does not disclose whether the note ever existed" do
+    dead_slug = @note.slug
+    @note.unpublish!
+
+    get public_note_path(username: @username, slug: dead_slug)
+    unpublished = response.body
+
+    get public_note_path(username: @username, slug: "nosuchslug")
+
+    assert_equal unpublished, response.body
+  end
+
   test "right slug under the wrong username is not found" do
     get public_note_path(username: "someoneelse", slug: @note.slug)
 

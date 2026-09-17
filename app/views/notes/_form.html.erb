@@ -24,7 +24,8 @@
 
   <%= form.hidden_field :folder_id %>
 
-  <div id="note-editor-<%= note.persisted? ? note.id : "new" %>" data-controller="vim-editor">
+  <div id="note-editor-<%= note.persisted? ? note.id : "new" %>" data-controller="vim-editor"
+       data-vim-editor-completions-value="<%= note_link_completions.to_json %>">
     <%= form.text_area :body, rows: 24, placeholder: "Write in Markdown...",
                               data: { vim_editor_target: "textarea" } %>
   </div>

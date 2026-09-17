@@ -1,4 +1,4 @@
-<div class="folder-shell__pane" data-mode="viewing">
+<div class="folder-shell__pane" data-mode="viewing" data-controller="scroll-keys">
   <menu class="btn-group">
     <code style="width: 100%; margin: 4px 0; padding: 6px 8px;"><%= @note.title %>.md</code>
     <%= link_to "Edit", edit_folder_note_path(@note.folder, @note),
@@ -17,5 +17,5 @@
 
   <%= render "notes/share_dialog", note: @note %>
 
-  <article class="prose" data-controller="syntax-highlight mermaid"><%= render_markdown(@note.body) %></article>
+  <article class="prose" data-controller="syntax-highlight mermaid"><%= render_linked_markdown(@note.body, user: Current.user) %></article>
 </div>

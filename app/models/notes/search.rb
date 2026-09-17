@@ -1,13 +1,15 @@
 module Notes
   # Plain keyword search over a user's notes: case-insensitive LIKE on title and
-  # body, scoped through the association so it can only ever see the user's own
-  # notes. Deliberately simple — no FTS, no ranking. The query object is the seam
-  # to swap in a smarter backend later without touching the controller or views.
+  # body, plus the note's folder path, scoped through the association so it can
+  # only ever see the user's own notes. Deliberately simple — no FTS, no ranking.
+  # The query object is the seam to swap in a smarter backend later without
+  # touching the controller or views.
   #
   # The query is split into tokens on whitespace and underscores, and every token
-  # must appear in the title or body. This makes "sourdough bread" and
-  # "sourdough_bread" find the same note — underscores in filenames/titles read
-  # as word separators rather than literal characters.
+  # must appear in the title, the body, or the folder path. This makes "sourdough
+  # bread" and "sourdough_bread" find the same note — underscores in
+  # filenames/titles read as word separators rather than literal characters — and
+  # lets "work sourdough" narrow to the copy filed under Work.
   class Search
     LIMIT = 10
 
@@ -16,22 +18,60 @@ module Notes
       @query = query.to_s.strip
     end
 
+    # Notes containing every token come first. A folder-path match pulls in notes
+    # that don't contain the word at all — with only LIMIT rows to give away,
+    # those would otherwise push out a note that genuinely matches. The folder
+    # pass then fills whatever slots are left, so "recipes" still lists the
+    # Recipes folder once the real matches have had theirs.
     def results
-      return Note.none if tokens.empty?
+      return [] if tokens.empty?
 
-      tokens.reduce(base_scope) do |scope, token|
-        term = "%#{Note.sanitize_sql_like(token)}%"
-        # ESCAPE is required: sanitize_sql_like escapes with "\", but SQLite's
-        # LIKE has no default escape character, so without this the escaped "_"
-        # and "%" would still be treated as wildcards.
-        scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\'", t: term)
-      end
+      matches = matching(folders: false).to_a
+      return matches.first(LIMIT) if matches.size >= LIMIT
+
+      (matches + matching.where.not(id: matches).to_a).first(LIMIT)
     end
 
     private
 
+    def matching(folders: true)
+      tokens.reduce(base_scope) do |scope, token|
+        term = "%#{Note.sanitize_sql_like(token)}%"
+        folder_ids = folders ? folder_ids_matching(token) : []
+
+        # ESCAPE is required: sanitize_sql_like escapes with "\", but SQLite's
+        # LIKE has no default escape character, so without this the escaped "_"
+        # and "%" would still be treated as wildcards. An empty folder list binds
+        # as IN (NULL), which matches nothing.
+        scope.where("title LIKE :t ESCAPE '\\' OR body LIKE :t ESCAPE '\\' OR folder_id IN (:f)",
+                    t: term, f: folder_ids)
+      end
+    end
+
     def tokens
       @tokens ||= @query.split(/[\s_]+/).reject(&:blank?)
+    end
+
+    # Folder paths aren't a column, so they're matched in Ruby against the paths
+    # built once from the user's folders. A token matching a folder matches its
+    # subfolders too, since it matches anywhere in the path: "work" finds notes
+    # in Work/Projects as well as Work.
+    def folder_ids_matching(token)
+      # Folded with tr, not downcase: the title/body half of the same condition is
+      # SQLite LIKE, which folds ASCII only. String#downcase folds more (accented
+      # letters), so one search box would match by two different rules.
+      needle = fold(token)
+      folder_paths.select { |_id, path| fold(path).include?(needle) }.keys
+    end
+
+    # The root folder's path is empty, which no token can match — it's shown as
+    # "~" in the listings, so that's what it answers to here.
+    def folder_paths
+      @folder_paths ||= Folder.path_map(@user).transform_values { |path| path.presence || "~" }
+    end
+
+    def fold(string)
+      string.to_s.tr("A-Z", "a-z")
     end
 
     def base_scope

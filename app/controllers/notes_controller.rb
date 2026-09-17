@@ -4,6 +4,9 @@ class NotesController < ApplicationController
   before_action :set_folder, only: %i[ show new edit create update destroy ]
   before_action :set_note, only: %i[ show edit update destroy ]
   before_action :load_shell, only: %i[ show edit ]
+  # Opening a note in either mode counts as visiting it — the sidebar and search
+  # results link to edit, the breadcrumb and note links to show.
+  after_action :remember_note, only: %i[ show edit ]
 
   def show
   end
@@ -41,6 +44,10 @@ class NotesController < ApplicationController
   end
 
   private
+    def remember_note
+      record_recent_note(@note)
+    end
+
     def set_folder
       @folder = Current.user.folders.find(params.expect(:folder_id))
     end
