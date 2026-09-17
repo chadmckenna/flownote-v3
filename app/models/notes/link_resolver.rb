@@ -167,7 +167,8 @@ module Notes
         @folder_paths ||= folders_by_id.transform_values { |folder| fold(Folder.path_for(folder, folders_by_id)) }
       end
 
-      # A folder path is unique among the user's folders, so nothing is lost here.
+      # Folder names are unique among siblings once folded, and none may contain
+      # a "/", so no two folders share a path and nothing is lost here.
       def folders_by_path
         @folders_by_path ||= folders_by_id.values.index_by { |folder| folder_paths[folder.id] }
       end

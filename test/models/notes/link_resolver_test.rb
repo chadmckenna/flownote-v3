@@ -161,6 +161,18 @@ class Notes::LinkResolverTest < ActiveSupport::TestCase
     assert_nil resolve("../../../", from: notes(:one))["../../../"]
   end
 
+  # The folded namespace the resolver assumes is now enforced by the database, so
+  # a target can no longer match two notes or two folders that differ in case.
+  test "case folding cannot make a target ambiguous" do
+    assert_raises ActiveRecord::RecordNotUnique do
+      @user.notes.build(title: notes(:one).title.swapcase, body: "x", folder: folders(:work)).save!(validate: false)
+    end
+
+    assert_raises ActiveRecord::RecordNotUnique do
+      @user.folders.build(name: folders(:work).name.swapcase, parent: folders(:root_one)).save!(validate: false)
+    end
+  end
+
   test "blank targets are ignored" do
     assert_empty resolve("", "   ")
   end

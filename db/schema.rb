@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_215745) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_17_223606) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -51,7 +51,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_215745) do
 
   create_table "folders", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "name", null: false
+    t.string "name", null: false, collation: "NOCASE"
     t.integer "parent_id"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
@@ -65,7 +65,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_215745) do
     t.datetime "created_at", null: false
     t.integer "folder_id", null: false
     t.string "slug"
-    t.string "title"
+    t.string "title", collation: "NOCASE"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["folder_id", "title"], name: "index_notes_on_folder_id_and_title", unique: true

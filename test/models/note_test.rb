@@ -104,6 +104,21 @@ class NoteTest < ActiveSupport::TestCase
     assert_equal folders(:projects), note.reload.folder
   end
 
+  test "rejects a title differing only in case" do
+    note = users(:one).notes.build(title: notes(:one).title.upcase, body: "x", folder: folders(:work))
+
+    assert_not note.valid?
+    assert_includes note.errors[:title], "already exists in this folder"
+  end
+
+  test "the database refuses a case-variant title the validation didn't catch" do
+    duplicate = users(:one).notes.build(title: notes(:one).title.upcase, body: "x", folder: folders(:work))
+
+    assert_raises ActiveRecord::RecordNotUnique do
+      duplicate.save!(validate: false)
+    end
+  end
+
   test "the database refuses a duplicate title the validation didn't catch" do
     duplicate = users(:one).notes.build(title: notes(:one).title, body: "x", folder: folders(:work))
 

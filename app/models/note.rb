@@ -7,10 +7,13 @@ class Note < ApplicationRecord
   belongs_to :user
   belongs_to :folder, touch: true
 
-  # Titles are file names: unique within their folder, as on a filesystem. The
-  # database index is the real guarantee — two simultaneous saves get past the
-  # validation — and it's what lets a link like [[test/CLAUDE]] name one note.
-  validates :title, presence: true, uniqueness: { scope: :folder_id, message: "already exists in this folder" }
+  # Titles are file names: unique within their folder, as on a filesystem, and
+  # case-insensitively so — a [[test/CLAUDE]] link matches without regard to case
+  # and has to have one note to mean. The database index is the real guarantee,
+  # since two simultaneous saves get past the validation; notes.title collates
+  # NOCASE so the index folds exactly the way every lookup does.
+  validates :title, presence: true,
+                    uniqueness: { scope: :folder_id, case_sensitive: false, message: "already exists in this folder" }
   validates :slug, uniqueness: true, allow_nil: true, format: { with: /\A[a-z0-9]+\z/ }
   # folder_id is mass-assignable, so without this a crafted request could file a
   # note into someone else's folder. Mirrors Folder#parent_belongs_to_same_user.
