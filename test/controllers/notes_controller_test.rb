@@ -64,11 +64,35 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
   test "the editor carries the user's own note titles for autocomplete" do
     get edit_folder_note_path(@folder, @note)
 
-    completions = JSON.parse(css_select("[data-vim-editor-completions-value]").first["data-vim-editor-completions-value"])
     titles = completions.map { |completion| completion["label"] }
 
     assert_includes titles, notes(:root_note).title
     assert_not_includes titles, notes(:two).title
+  end
+
+  test "the editor's autocomplete inserts an absolute path" do
+    get edit_folder_note_path(@folder, @note)
+
+    applied = completions.to_h { |completion| [ completion["label"], completion["apply"] ] }
+
+    assert_equal "~/Root note", applied[notes(:root_note).title]
+    assert_equal "~/Work/First note", applied[notes(:one).title]
+    assert_equal "~/Work/Projects/Shared note", applied[notes(:published).title]
+  end
+
+  # What the dropdown inserts has to be a target the resolver reads back as the
+  # very note you picked — from anywhere in the tree, since an absolute path is
+  # the whole point of inserting one.
+  test "every autocomplete entry round-trips through the link resolver" do
+    get edit_folder_note_path(@folder, @note)
+
+    entries = completions
+    resolved = Notes::LinkResolver.new(user: @user, from: notes(:published)).resolve(entries.map { |e| e["apply"] })
+
+    assert_not_empty entries
+    entries.each do |entry|
+      assert_equal entry["label"], resolved[entry["apply"]]&.title, "#{entry["apply"]} did not resolve back"
+    end
   end
 
   test "show renders the full editor shell (no content frame)" do
@@ -215,4 +239,9 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     get folder_note_path(@folder, @note)
     assert_redirected_to new_session_path
   end
+
+  private
+    def completions
+      JSON.parse(css_select("[data-vim-editor-completions-value]").first["data-vim-editor-completions-value"])
+    end
 end
