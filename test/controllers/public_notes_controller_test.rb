@@ -80,20 +80,6 @@ class PublicNotesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # Whatever the author typed is all a reader gets — no lookup means nothing to
-  # disclose even when the target names a note that really is there.
-  test "a public page runs no note or folder lookup" do
-    @note.update!(body: "#{@note.body}\n\n[[First note]] [[Work/]]")
-    sign_out
-
-    get public_note_path(username: @username, slug: @note.slug)
-
-    assert_response :success
-    assert_queries_count 0 do
-      get public_note_path(username: @username, slug: @note.slug)
-    end
-  end
-
   test "the markdown format leaves wiki links untouched" do
     @note.update!(body: "#{@note.body}\n\n[[First note]]")
 

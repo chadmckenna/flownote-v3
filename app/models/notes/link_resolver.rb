@@ -48,23 +48,26 @@ module Notes
     private
       def pick(key, notes)
         rooted, segments = split_path(key)
-        folder_paths = paths_for(rooted, segments)
-        return folder_at(folder_paths) if key.end_with?("/")
+        candidate_paths = paths_for(rooted, segments)
+        return folder_at(candidate_paths) if key.end_with?("/")
 
         titles = titles_in(segments.last)
 
-        note_at(titles, paths_for(rooted, segments[0..-2].to_a), notes) ||
-          folder_at(folder_paths) ||
+        note_at(titles, paths_for(rooted, segments[0..-2]), notes) ||
+          folder_at(candidate_paths) ||
           # An unqualified title that is nowhere nearby still finds a note in any
           # folder: the folder is a preference, not a requirement.
           (note_anywhere(titles, notes) if !rooted && segments.one?)
       end
 
+      # Paths outside, titles inside: proximity decides first, so the nearer
+      # folder wins even when a further one holds the exact ".md" spelling.
       def note_at(titles, paths, notes)
-        titles.each do |title|
-          candidates = notes[fold(title)] || []
-          match = paths.lazy.filter_map { |path| in_folder(candidates, path) }.first
-          return match if match
+        paths.each do |path|
+          titles.each do |title|
+            match = in_folder(notes[fold(title)] || [], path)
+            return match if match
+          end
         end
 
         nil
@@ -111,10 +114,13 @@ module Notes
       # "/" splits to a blank first segment, and "/" alone to nothing at all —
       # both name the root.
       def split_path(key)
-        segments = key.split("/").map(&:strip)
-        rooted = segments.first.blank? || segments.first == "~"
+        @split_paths ||= {}
+        @split_paths[key] ||= begin
+          segments = key.split("/").map(&:strip)
+          rooted = segments.first.blank? || segments.first == "~"
 
-        [ rooted, rooted ? segments.drop(1) : segments ]
+          [ rooted, rooted ? segments.drop(1) : segments ]
+        end
       end
 
       # The folder paths to try, in order. A relative path falls back to the same

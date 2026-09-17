@@ -67,8 +67,7 @@ module ApplicationHelper
       nodes = fragment.xpath(".//text()").select { |node| linkable?(node) }
       return html if nodes.empty?
 
-      targets = nodes.flat_map { |node| node.text.scan(NOTE_LINK).flatten }
-      resolved = resolver ? resolver.resolve(targets) : {}
+      resolved = resolver ? resolver.resolve(nodes.flat_map { |node| node.text.scan(NOTE_LINK).flatten }) : {}
 
       nodes.each { |node| node.replace(note_links_html(node.text, resolved)) }
       fragment.to_html.html_safe
@@ -98,11 +97,10 @@ module ApplicationHelper
     # navigates to — and wears a trailing slash so it reads as a directory
     # rather than as another note.
     def note_link_tag(record)
-      unless record.is_a?(Folder)
-        return tag.a(record.title, href: folder_note_path(record.folder_id, record), data: { note_link: true })
+      if record.is_a?(Folder)
+        tag.a(record.root? ? "~/" : "#{record.name}/", href: folder_or_root_path(record), data: { note_link: true })
+      else
+        tag.a(record.title, href: folder_note_path(record.folder_id, record), data: { note_link: true })
       end
-
-      root = record.root?
-      tag.a(root ? "~/" : "#{record.name}/", href: root ? root_path : folder_path(record), data: { note_link: true })
     end
 end

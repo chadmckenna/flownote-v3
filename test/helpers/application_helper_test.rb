@@ -1,6 +1,10 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
+  # A view has every helper mixed in; ActionView::TestCase only mixes in the one
+  # under test, and note_link_tag builds a folder href with FoldersHelper.
+  include FoldersHelper
+
   setup do
     @user = users(:one)
     @note = notes(:one)
@@ -23,6 +27,17 @@ class ApplicationHelperTest < ActionView::TestCase
     html = render_linked_markdown("Back to [[~/]].", user: @user)
 
     assert_includes html, %(<a href="/" data-note-link="true">~/</a>)
+  end
+
+  test "the nearer folder wins over an exact .md spelling further away" do
+    near_dir = @user.folders.create!(name: "sub", parent: folders(:work))
+    far_dir = @user.folders.create!(name: "sub", parent: folders(:root_one))
+    near = @user.notes.create!(title: "Notes", body: "x", folder: near_dir)
+    @user.notes.create!(title: "Notes.md", body: "x", folder: far_dir)
+
+    html = render_linked_markdown("[[sub/Notes.md]]", user: @user, from: @note)
+
+    assert_includes html, %(href="#{folder_note_path(near.folder_id, near)}")
   end
 
   test "renders an unresolved folder link as marked plain text" do

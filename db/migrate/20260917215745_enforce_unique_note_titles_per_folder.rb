@@ -13,18 +13,19 @@ class EnforceUniqueNoteTitlesPerFolder < ActiveRecord::Migration[8.1]
     # and the rest are suffixed the way a file manager renames a clashing file —
     # "Title (1)", "Title (2)" — skipping every name already in use in that
     # folder, so a note legitimately called "Doc (1)" is left where it is.
-    # Blank titles are skipped: SQLite counts NULLs as distinct, so they don't
-    # collide, and there is no name here to derive a new one from.
+    # Only NULL titles are skipped — SQLite counts those as distinct, so they
+    # never collide. An empty string is a value like any other and does collide,
+    # so it is suffixed too, degenerate as " (1)" looks.
     def deduplicate_titles
       rows = select_all("SELECT id, folder_id, title FROM notes ORDER BY folder_id, id").to_a
 
       rows.group_by { |row| row["folder_id"] }.each_value do |folder_rows|
-        taken = folder_rows.filter_map { |row| row["title"].presence }.to_set
+        taken = folder_rows.filter_map { |row| row["title"] }.to_set
         seen = Set.new
 
         folder_rows.each do |row|
           title = row["title"]
-          next if title.blank?
+          next if title.nil?
 
           if seen.include?(title)
             title = unused_title(title, taken)
