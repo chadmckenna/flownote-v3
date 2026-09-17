@@ -137,14 +137,36 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal [ @path ], hrefs
   end
 
-  # A title with raw HTML in it is stripped by the renderer before the link pass
-  # sees it, so such a note simply isn't linkable — and nothing is emitted.
+  # The target is held back from the renderer, so a title made of raw HTML is
+  # linkable like any other — and goes out escaped, as its own link text.
   test "a title containing raw HTML never renders that HTML" do
-    @user.notes.create!(title: "Danger <script>", body: "x", folder: folders(:work))
+    note = @user.notes.create!(title: "Danger <script>", body: "x", folder: folders(:work))
     html = render_linked_markdown("[[Danger <script>]]", user: @user)
 
     assert_no_match(/<script>/, html)
-    assert_no_match(/<a /, html)
+    assert_includes html, %(<a href="#{folder_note_path(note.folder_id, note)}" data-note-link="true">Danger &lt;script&gt;</a>)
+  end
+
+  # Markdown punctuation inside a target used to be rendered as markdown and take
+  # the link apart — two absolute links on a line read as a strikethrough between
+  # them, since GFM accepts a single tilde.
+  test "two absolute links on one line each render as a link" do
+    root = notes(:root_note)
+    html = render_linked_markdown("See [[~/Root note]] and [[~/Work/First note]].", user: @user)
+
+    assert_includes html, %(<a href="#{folder_note_path(root.folder_id, root)}" data-note-link="true">Root note</a>)
+    assert_includes html, %(<a href="#{@path}" data-note-link="true">First note</a>)
+    assert_no_match(%r{<del>}, html)
+  end
+
+  test "a target holding markdown punctuation still resolves" do
+    %w[ *starred* _snaked_ `ticked` ~tilded~ ].each do |title|
+      note = @user.notes.create!(title: title, body: "x", folder: folders(:work))
+      html = render_linked_markdown("[[#{title}]]", user: @user)
+
+      assert_includes html, %(href="#{folder_note_path(note.folder_id, note)}"), "#{title} did not link"
+      assert_no_match(%r{<em>|<code>|<del>}, html)
+    end
   end
 
   test "resolves several links in one document" do
