@@ -31,6 +31,15 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "create with a title the folder already has" do
+    assert_no_difference("Note.count") do
+      post folder_notes_path(@folder), params: { note: { title: @note.title, body: "Note body", folder_id: @folder.id } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".alert--error", /already exists in this folder/
+  end
+
   test "show" do
     get folder_note_path(@folder, @note)
     assert_response :success

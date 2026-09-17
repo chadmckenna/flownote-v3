@@ -84,6 +84,34 @@ class NoteTest < ActiveSupport::TestCase
     assert_equal [ notes(:published) ], Note.published.to_a
   end
 
+  test "rejects a title already used in the same folder" do
+    note = users(:one).notes.build(title: notes(:one).title, body: "x", folder: folders(:work))
+
+    assert_not note.valid?
+    assert_includes note.errors[:title], "already exists in this folder"
+  end
+
+  test "accepts the same title in a different folder" do
+    note = users(:one).notes.build(title: notes(:one).title, body: "x", folder: folders(:projects))
+
+    assert_predicate note, :valid?
+  end
+
+  test "rejects being moved into a folder that already has the title" do
+    note = users(:one).notes.create!(title: notes(:one).title, body: "x", folder: folders(:projects))
+
+    assert_not note.update(folder: folders(:work))
+    assert_equal folders(:projects), note.reload.folder
+  end
+
+  test "the database refuses a duplicate title the validation didn't catch" do
+    duplicate = users(:one).notes.build(title: notes(:one).title, body: "x", folder: folders(:work))
+
+    assert_raises ActiveRecord::RecordNotUnique do
+      duplicate.save!(validate: false)
+    end
+  end
+
   test "slug must be unique" do
     note = notes(:one)
     note.slug = notes(:published).slug
