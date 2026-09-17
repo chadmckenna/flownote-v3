@@ -17,5 +17,5 @@
 
   <%= render "notes/share_dialog", note: @note %>
 
-  <article class="prose" data-controller="syntax-highlight mermaid"><%= render_linked_markdown(@note.body, user: Current.user) %></article>
+  <article class="prose" data-controller="syntax-highlight mermaid"><%= render_linked_markdown(@note.body, user: Current.user, from: @note) %></article>
 </div>

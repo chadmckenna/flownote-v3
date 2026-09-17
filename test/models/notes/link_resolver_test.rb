@@ -5,8 +5,8 @@ class Notes::LinkResolverTest < ActiveSupport::TestCase
     @user = users(:one)
   end
 
-  def resolve(*targets, user: @user)
-    Notes::LinkResolver.new(user: user).resolve(targets)
+  def resolve(*targets, user: @user, from: nil)
+    Notes::LinkResolver.new(user: user, from: from).resolve(targets)
   end
 
   test "resolves an exact title" do
@@ -58,6 +58,62 @@ class Notes::LinkResolverTest < ActiveSupport::TestCase
 
   test "a wrong folder path resolves to nothing" do
     assert_nil resolve("Projects/First note")["Projects/First note"]
+  end
+
+  test "an unqualified target prefers a note in the linking note's own folder" do
+    here = @user.notes.create!(title: "Duplicated", body: "in work", folder: folders(:work))
+    @user.notes.create!(title: "Duplicated", body: "in root", folder: folders(:root_one))
+
+    assert_equal here, resolve("Duplicated", from: notes(:one))["Duplicated"]
+  end
+
+  test "an unqualified target still finds a note in another folder" do
+    assert_equal notes(:root_note), resolve("Root note", from: notes(:one))["Root note"]
+  end
+
+  test "a relative path descends from the linking note's folder" do
+    note = @user.notes.create!(title: "Deep", body: "x", folder: folders(:projects))
+
+    assert_equal note, resolve("Projects/Deep", from: notes(:one))["Projects/Deep"]
+  end
+
+  test "a relative path climbs with .. and ignores ." do
+    from = @user.notes.create!(title: "Deep", body: "x", folder: folders(:projects))
+
+    assert_equal notes(:one), resolve("../First note", from: from)["../First note"]
+    assert_equal notes(:root_note), resolve("../../Root note", from: from)["../../Root note"]
+    assert_equal notes(:one), resolve("./../First note", from: from)["./../First note"]
+  end
+
+  test "climbing past the root resolves to nothing" do
+    assert_nil resolve("../First note", from: notes(:root_note))["../First note"]
+  end
+
+  test "an absolute path ignores the linking note's folder" do
+    from = @user.notes.create!(title: "Deep", body: "x", folder: folders(:projects))
+
+    assert_equal notes(:root_note), resolve("/Root note", from: from)["/Root note"]
+    assert_equal notes(:root_note), resolve("~/Root note", from: from)["~/Root note"]
+    assert_equal notes(:one), resolve("/Work/First note", from: from)["/Work/First note"]
+    assert_nil resolve("/First note", from: from)["/First note"]
+  end
+
+  test "a relative path falls back to the same path read from the root" do
+    target = "Work/Projects/Shared note"
+
+    assert_equal notes(:published), resolve(target, from: notes(:one))[target]
+  end
+
+  test "a trailing .md is optional" do
+    assert_equal notes(:one), resolve("First note.md")["First note.md"]
+    assert_equal notes(:one), resolve("Work/First note.md")["Work/First note.md"]
+  end
+
+  test "a title that really ends in .md wins over the stripped one" do
+    @user.notes.create!(title: "Readme", body: "x", folder: folders(:work))
+    dotted = @user.notes.create!(title: "Readme.md", body: "x", folder: folders(:work))
+
+    assert_equal dotted, resolve("Readme.md")["Readme.md"]
   end
 
   test "blank targets are ignored" do

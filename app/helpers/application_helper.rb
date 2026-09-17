@@ -36,11 +36,13 @@ module ApplicationHelper
   # Links resolve at render time, so moving a note leaves every link to it
   # working; renaming one breaks them, and they fall back to the missing-link
   # styling rather than disappearing.
-  def render_linked_markdown(text, user:)
+  #
+  # from: the note being rendered, which link targets are resolved relative to.
+  def render_linked_markdown(text, user:, from: nil)
     html = render_markdown(text)
     return html if user.nil? || text.to_s.exclude?("[[")
 
-    link_notes(html, user: user)
+    link_notes(html, user: user, from: from)
   end
 
   private
@@ -49,13 +51,13 @@ module ApplicationHelper
     # links) keeps [[...]] inside a code block from becoming a link. Working on
     # the source with a gsub would rewrite code blocks and, because a title is
     # arbitrary user text, could inject a link of the title's choosing.
-    def link_notes(html, user:)
+    def link_notes(html, user:, from:)
       fragment = Nokogiri::HTML5.fragment(html)
       nodes = fragment.xpath(".//text()").select { |node| linkable?(node) }
       return html if nodes.empty?
 
       targets = nodes.flat_map { |node| node.text.scan(NOTE_LINK).flatten }
-      notes = Notes::LinkResolver.new(user: user).resolve(targets)
+      notes = Notes::LinkResolver.new(user: user, from: from).resolve(targets)
 
       nodes.each { |node| node.replace(note_links_html(node.text, notes)) }
       fragment.to_html.html_safe

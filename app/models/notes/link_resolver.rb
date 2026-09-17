@@ -3,10 +3,18 @@ module Notes
   # the user association, so a link can only ever resolve to a note the reader
   # owns — there is no scope for a caller to forget.
   #
-  # "[[Title]]" matches any note with that title; titles aren't unique, so the
-  # most recently updated one wins. "[[Work/Title]]" matches only inside that
-  # folder path, which is how two notes sharing a title are told apart. Paths are
-  # relative to the user's root folder; a leading "~/" or "/" is ignored.
+  # Targets read like file paths relative to the linking note's own folder, so
+  # the same link means the same thing whether it is typed here or in a synced
+  # working copy:
+  #
+  #   [[Title]]         the note's own folder first, then any folder
+  #   [[test/Title]]    the "test" folder below this one, then below the root
+  #   [[../Title]]      the parent folder
+  #   [[/a/Title]]      absolute — "~/" means the root folder too
+  #
+  # An unqualified title that matches several notes resolves to the most
+  # recently updated, which is why the autocomplete qualifies duplicates. A
+  # trailing ".md" is optional, matching the file name the editor shows.
   #
   # Matching is case-insensitive over ASCII only, to line up exactly with
   # SQLite's NOCASE collation — folding in Ruby with String#downcase instead
@@ -15,31 +23,43 @@ module Notes
   class LinkResolver
     MAX_TARGETS = 200
 
-    def initialize(user:)
+    # from: the note the links were written in. Without it there is nowhere to
+    # be relative to, so every path resolves from the root.
+    def initialize(user:, from: nil)
       @user = user
+      @from = from
     end
 
     # targets: the raw strings found between [[ and ]].
-    # => { "Work/Title" => #<Note>, "Nope" => nil }
+    # => { "test/Title" => #<Note>, "Nope" => nil }
     def resolve(targets)
       keys = targets.map { |target| target.to_s.strip }.reject(&:blank?).uniq.first(MAX_TARGETS)
       return {} if keys.empty?
 
-      notes = notes_by_title(keys.map { |key| title_in(key) })
+      notes = notes_by_title(keys.flat_map { |key| titles_in(key) })
       keys.index_with { |key| pick(key, notes) }
     end
 
     private
       def pick(key, notes)
-        candidates = notes[fold(title_in(key))] || []
-        path = folder_path_in(key)
+        paths = target_paths(key)
 
-        if path
-          candidates.reverse.find { |note| folder_paths[note.folder_id] == path }
-        else
-          # Ordered ascending, so the last candidate is the most recently updated.
-          candidates.last
+        titles_in(key).each do |title|
+          candidates = notes[fold(title)] || []
+          match = paths.lazy.filter_map { |path| in_folder(candidates, path) }.first
+          # An unqualified title that isn't in this folder still finds a note
+          # anywhere: the folder is a preference, not a requirement.
+          match ||= candidates.last unless key.include?("/")
+          return match if match
         end
+
+        nil
+      end
+
+      # Ordered ascending, so searching in reverse takes the most recently
+      # updated of the notes that match equally well.
+      def in_folder(candidates, path)
+        candidates.reverse.find { |note| folder_paths[note.folder_id] == path }
       end
 
       def notes_by_title(titles)
@@ -50,19 +70,49 @@ module Notes
              .group_by { |note| fold(note.title) }
       end
 
-      # "Work/Projects/Title" => "Title". A title containing a slash is only
-      # reachable unqualified, which the autocomplete handles by inserting the
-      # qualified form only when it has to.
-      def title_in(key)
-        key.split("/").last.to_s.strip
+      # "Work/Title.md" => ["Title.md", "Title"] — a title that really ends in
+      # ".md" wins over the same title without it. A title containing a slash is
+      # only reachable unqualified, which the autocomplete handles by inserting
+      # the qualified form only when it has to.
+      def titles_in(key)
+        title = key.split("/").last.to_s.strip
+        [ title, title.sub(/\.md\z/i, "") ].uniq.reject(&:blank?)
       end
 
-      # "Work/Projects/Title" => "work/projects", "~/Title" => "" (the root
-      # folder), "Title" => nil (unqualified — any folder matches).
-      def folder_path_in(key)
-        return nil unless key.include?("/")
+      # The folder paths to try, in order. A relative path falls back to the
+      # same path read from the root, so links written before paths were
+      # relative keep working; a path that climbs past the root matches nothing.
+      def target_paths(key)
+        dirs = key.split("/")[0..-2].to_a.map(&:strip)
+        return [ base_path ].compact if dirs.empty?
 
-        fold(key.split("/")[0..-2].join("/").sub(/\A[~\/]+/, ""))
+        if dirs.first.blank? || dirs.first == "~"
+          [ descend("", dirs.drop(1)) ].compact
+        else
+          [ base_path && descend(base_path, dirs), descend("", dirs) ].compact.uniq
+        end
+      end
+
+      # "work" + ["..", "test"] => "test". nil once ".." runs out of root.
+      def descend(path, dirs)
+        segments = path.split("/")
+
+        dirs.each do |dir|
+          next if dir.blank? || dir == "."
+
+          if dir == ".."
+            return nil if segments.empty?
+            segments.pop
+          else
+            segments << dir
+          end
+        end
+
+        fold(segments.join("/"))
+      end
+
+      def base_path
+        @base_path ||= @from && folder_paths[@from.folder_id]
       end
 
       def folder_paths
