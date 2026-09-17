@@ -39,6 +39,38 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_no_match(/<a /, html)
   end
 
+  test "render_public_markdown marks every link unresolved without looking any up" do
+    assert_queries_count 0 do
+      html = render_public_markdown("See [[First note]] and [[Work/]].")
+
+      assert_includes html, %(<span class="note-link--missing">First note</span>)
+      assert_includes html, %(<span class="note-link--missing">Work/</span>)
+      assert_no_match(/<a /, html)
+    end
+  end
+
+  test "render_public_markdown leaves a link inside code alone" do
+    html = render_public_markdown("Type `[[First note]]` to link.")
+
+    assert_includes html, "<code>[[First note]]</code>"
+    assert_no_match(/note-link--missing/, html)
+  end
+
+  test "render_public_markdown escapes the target text" do
+    html = render_public_markdown(%([[Tom & "Jerry"]]))
+
+    assert_includes html, %(<span class="note-link--missing">Tom &amp; "Jerry"</span>)
+  end
+
+  # Same as for a signed-in reader: the renderer strips raw HTML before the link
+  # pass sees it, so such a target simply isn't marked up at all.
+  test "render_public_markdown never renders raw HTML in a target" do
+    html = render_public_markdown("[[Danger <script>]]")
+
+    assert_no_match(/<script>/, html)
+    assert_no_match(/<a /, html)
+  end
+
   test "links nothing without a user" do
     assert_equal render_markdown("See [[First note]]."), render_linked_markdown("See [[First note]].", user: nil)
   end

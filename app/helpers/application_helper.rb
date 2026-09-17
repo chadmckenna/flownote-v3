@@ -30,9 +30,8 @@ module ApplicationHelper
   end
 
   # Same, but with [[wiki links]] resolved against `user`'s notes. Deliberately a
-  # separate method rather than a flag on render_markdown: public share pages call
-  # render_markdown, which has no note knowledge and so cannot disclose another
-  # note's title, id, or folder no matter who is signed in while viewing.
+  # separate method rather than a flag on render_markdown, so a caller has to ask
+  # for note knowledge before it can leak any.
   #
   # Links resolve at render time, so moving a note leaves every link to it
   # working; renaming one breaks them, and they fall back to the missing-link
@@ -40,10 +39,18 @@ module ApplicationHelper
   #
   # from: the note being rendered, which link targets are resolved relative to.
   def render_linked_markdown(text, user:, from: nil)
-    html = render_markdown(text)
-    return html if user.nil? || text.to_s.exclude?("[[")
+    return render_markdown(text) if user.nil?
 
-    link_notes(html, user: user, from: from)
+    link_targets(text, Notes::LinkResolver.new(user: user, from: from))
+  end
+
+  # Same, but every [[wiki link]] renders unresolved. A share page is read by
+  # someone with no account behind it, and must never disclose another note's
+  # title, id, or folder no matter who happens to be signed in while viewing — so
+  # nothing is looked up at all, and the target stays the author's own text,
+  # styled as a link that leads nowhere.
+  def render_public_markdown(text)
+    link_targets(text, nil)
   end
 
   private
@@ -52,13 +59,16 @@ module ApplicationHelper
     # links) keeps [[...]] inside a code block from becoming a link. Working on
     # the source with a gsub would rewrite code blocks and, because a title is
     # arbitrary user text, could inject a link of the title's choosing.
-    def link_notes(html, user:, from:)
+    def link_targets(text, resolver)
+      html = render_markdown(text)
+      return html if text.to_s.exclude?("[[")
+
       fragment = Nokogiri::HTML5.fragment(html)
       nodes = fragment.xpath(".//text()").select { |node| linkable?(node) }
       return html if nodes.empty?
 
       targets = nodes.flat_map { |node| node.text.scan(NOTE_LINK).flatten }
-      resolved = Notes::LinkResolver.new(user: user, from: from).resolve(targets)
+      resolved = resolver ? resolver.resolve(targets) : {}
 
       nodes.each { |node| node.replace(note_links_html(node.text, resolved)) }
       fragment.to_html.html_safe
