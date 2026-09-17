@@ -80,8 +80,19 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "~/Work/Projects/Shared note", applied[notes(:published).title]
   end
 
+  test "the autocomplete offers folders, each with a trailing slash" do
+    get edit_folder_note_path(@folder, @note)
+
+    applied = completions.to_h { |completion| [ completion["label"], completion["apply"] ] }
+
+    assert_equal "~/", applied["~/"]
+    assert_equal "~/Work/", applied["Work/"]
+    assert_equal "~/Work/Projects/", applied["Projects/"]
+    assert_not_includes applied.keys, "#{folders(:other_user_folder).name}/"
+  end
+
   # What the dropdown inserts has to be a target the resolver reads back as the
-  # very note you picked — from anywhere in the tree, since an absolute path is
+  # very thing you picked — from anywhere in the tree, since an absolute path is
   # the whole point of inserting one.
   test "every autocomplete entry round-trips through the link resolver" do
     get edit_folder_note_path(@folder, @note)
@@ -91,7 +102,16 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
 
     assert_not_empty entries
     entries.each do |entry|
-      assert_equal entry["label"], resolved[entry["apply"]]&.title, "#{entry["apply"]} did not resolve back"
+      record = resolved[entry["apply"]]
+      assert_not_nil record, "#{entry["apply"]} resolved to nothing"
+
+      name = if record.is_a?(Folder)
+        record.root? ? "~/" : "#{record.name}/"
+      else
+        record.title
+      end
+
+      assert_equal entry["label"], name, "#{entry["apply"]} did not resolve back"
     end
   end
 
