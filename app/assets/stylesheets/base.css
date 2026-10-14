@@ -8,6 +8,11 @@
     margin: 0;
   }
 
+  ::selection {
+    background: var(--color-highlight);
+    color: var(--color-ink);
+  }
+
   /* Headings */
   h1,
   h2,
@@ -42,6 +47,15 @@
     font-family: var(--font-mono);
     font-size: var(--text-small);
     padding: 0.15em 0.4em;
+  }
+
+  kbd {
+    background: var(--color-shade);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    padding: 0.1rem 0.4rem;
   }
 
   hr {

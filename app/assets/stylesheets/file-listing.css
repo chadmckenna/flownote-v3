@@ -13,6 +13,16 @@
       padding: 0;
     }
 
+    /* The per-row rename frame: lay the row out as if it weren't there. */
+    turbo-frame {
+      display: contents;
+    }
+
+    /* A row swapped for its rename form. */
+    .inline-form {
+      padding: var(--block-space-half);
+    }
+
     a {
       align-items: baseline;
       border-block-end: 1px solid var(--color-border);
@@ -26,6 +36,13 @@
         background: var(--color-shade);
         text-decoration: none;
       }
+
+      /* Inset, since the scrolling listing clips anything drawn outside a row. */
+      &:focus-visible {
+        background: var(--color-shade);
+        outline: var(--focus-ring-size) solid var(--focus-ring-color);
+        outline-offset: calc(-1 * var(--focus-ring-size));
+      }
     }
 
     li:last-child a {
@@ -34,23 +51,30 @@
   }
 
   .file-listing__type {
+    color: var(--color-ink-faint);
     flex-shrink: 0;
-    opacity: 0.4;
   }
 
-  .file-listing__name {
+  /* One line per row: a long name ends in an ellipsis (the link's title has the
+     whole thing) rather than widening the row, which scrolled the listing
+     sideways and left borders and hover backgrounds stopping short. */
+  .file-listing__name,
+  .file-listing__name--folder {
     font-weight: 500;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .file-listing__name--folder {
     color: var(--color-link);
-    font-weight: 500;
   }
 
   .file-listing__meta {
+    color: var(--color-ink-muted);
     font-size: var(--text-small);
     margin-inline-start: auto;
-    opacity: 0.4;
   }
 
   @media (max-width: 768px) {

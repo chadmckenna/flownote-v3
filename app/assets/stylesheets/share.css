@@ -1,23 +1,6 @@
 @layer components {
   /* Shared modal chrome lives in modal.css (.modal). */
 
-  /* Pushes the publish toggle — and the share button after it — to the end of
-     the note action bar. */
-  .share-toggle {
-    margin-inline-start: auto;
-  }
-
-  .share__button {
-    padding-inline: var(--inline-space-half);
-
-    /* Size the icon to the button's line-box so it stands exactly as tall as
-       the text buttons beside it in the action bar. */
-    .icon {
-      block-size: 1.5em;
-      inline-size: 1.5em;
-    }
-  }
-
   .share-modal {
     inline-size: min(90vw, 32rem);
   }

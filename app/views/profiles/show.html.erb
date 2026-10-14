@@ -33,6 +33,22 @@
 <hr>
 
 <section>
+  <h2>Preferences</h2>
+
+  <%= form_with model: @user, url: preferences_path, method: :patch do |form| %>
+    <%= form.label :open_notes_in do %>
+      <%= form.check_box :open_notes_in, {}, "view", "edit" %>
+      Open notes in view mode
+    <% end %>
+    <p><small>For notes picked from the sidebar or search. When off, they open straight in the editor.</small></p>
+
+    <%= form.submit "Save" %>
+  <% end %>
+</section>
+
+<hr>
+
+<section>
   <h2>Change password</h2>
 
   <p class="alert"><small>Changing your password signs you out everywhere else.</small></p>

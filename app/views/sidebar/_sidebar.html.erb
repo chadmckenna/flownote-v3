@@ -1,8 +1,10 @@
-<aside class="folder-shell__sidebar">
-  <ul class="file-listing">
+<aside class="folder-shell__sidebar" tabindex="-1" data-controller="sidebar-keys"
+       data-sidebar-keys-folder-value="<%= folder_or_root_path(@folder) %>"
+       data-action="keydown->sidebar-keys#navigate click->sidebar-keys#renameOpenNote keydown.shift+ctrl+h@window->sidebar-keys#focus:capture">
+  <ul class="file-listing" data-controller="scroll-memory" data-scroll-memory-key-value="<%= @folder.id %>" data-action="scroll->scroll-memory#remember">
   <% unless @folder.root? %>
     <li>
-      <%= link_to(folder_or_root_path(@folder.parent)) do %>
+      <%= link_to folder_or_root_path(@folder.parent), data: { sidebar_keys_target: "parent" } do %>
         <span class="file-listing__type">d</span>
         <span class="file-listing__name--folder">../</span>
       <% end %>
@@ -10,18 +12,29 @@
   <% end %>
   <% @subfolders.each do |subfolder| %>
     <li>
-      <%= link_to folder_path(subfolder) do %>
-        <span class="file-listing__type">d</span>
-        <span class="file-listing__name--folder"><%= subfolder.name %>/</span>
+      <%# r renames in place: the row swaps for the edit form. %>
+      <%= turbo_frame_tag dom_id(subfolder, :edit) do %>
+        <%= link_to folder_path(subfolder), title: "#{subfolder.name}/", data: { turbo_frame: "_top", edit_url: edit_folder_path(subfolder) } do %>
+          <span class="file-listing__type">d</span>
+          <span class="file-listing__name--folder"><%= subfolder.name %>/</span>
+        <% end %>
       <% end %>
+      <%# d submits these. %>
+      <%= button_to "Delete", subfolder, method: :delete,
+            form: { hidden: true, data: { turbo_confirm: "Delete #{subfolder.name}/? The folder must be empty to delete." } } %>
     </li>
   <% end %>
   <% @sidebar_notes.each do |note| %>
     <%= tag.li("aria-current": ("page" if @note && note.id == @note.id)) do %>
-      <%= link_to edit_folder_note_path(@folder, note) do %>
-        <span class="file-listing__type">-</span>
-        <span class="file-listing__name"><%= note.title %></span>
+      <%# r, or tapping the open note's row again, renames in place. %>
+      <%= turbo_frame_tag dom_id(note, :title) do %>
+        <%= link_to open_note_path(@folder, note), title: note.title, data: { turbo_frame: "_top", edit_url: edit_folder_note_title_path(@folder, note) } do %>
+          <span class="file-listing__type">-</span>
+          <span class="file-listing__name"><%= note.title %></span>
+        <% end %>
       <% end %>
+      <%= button_to "Delete", folder_note_path(@folder, note), method: :delete,
+            form: { hidden: true, data: { turbo_confirm: "Delete #{note.title}?" } } %>
     <% end %>
   <% end %>
   <% if @subfolders.empty? && @sidebar_notes.empty? %>
@@ -33,8 +46,8 @@
     <%= turbo_frame_tag "new_note" %>
     <%= turbo_frame_tag "new_folder" %>
     <menu class="btn-group">
-      <%= link_to "New note", new_folder_note_path(@folder), data: { turbo_frame: "new_note" }, class: "btn" %>
-      <%= link_to "New folder", new_folder_path(parent_id: @folder.id), data: { turbo_frame: "new_folder" }, class: "btn btn--outline" %>
+      <%= link_to "New note", new_folder_note_path(@folder), data: { turbo_frame: "new_note", sidebar_keys_target: "newNote" }, class: "btn" %>
+      <%= link_to "New folder", new_folder_path(parent_id: @folder.id), data: { turbo_frame: "new_folder", sidebar_keys_target: "newFolder" }, class: "btn btn--outline" %>
     </menu>
   </div>
 </aside>

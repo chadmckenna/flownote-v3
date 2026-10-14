@@ -31,7 +31,9 @@ class FoldersController < ApplicationController
 
   def update
     if @folder.update(folder_params)
-      redirect_to @folder, notice: "Folder was successfully updated."
+      # Back where the rename started: the sidebar renames a subfolder in place,
+      # and following it into the folder would lose your spot.
+      redirect_back_or_to @folder, notice: "Folder was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -39,9 +41,10 @@ class FoldersController < ApplicationController
 
   def destroy
     if @folder.destroy
-      redirect_to(helpers.folder_or_root_path(@folder.parent), notice: "Folder was successfully deleted.", status: :see_other)
+      redirect_to back_unless_on(folder_path(@folder)) || helpers.folder_or_root_path(@folder.parent),
+        notice: "Folder was successfully deleted.", status: :see_other
     else
-      redirect_to @folder, alert: "Folder cannot be deleted because it is not empty."
+      redirect_back_or_to @folder, alert: "Folder cannot be deleted because it is not empty."
     end
   end
 

@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :folders, only: [ :show, :new, :create, :edit, :update, :destroy ] do
     resources :notes, except: [ :index ] do
       resource :publication, only: %i[create destroy], module: :notes
+      resource :title, only: %i[edit update], module: :notes
     end
   end
   use_doorkeeper do
@@ -13,6 +14,7 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
   resource :profile, path: "me", only: %i[show update destroy]
   patch "me/password", to: "profiles#update_password", as: :profile_password
+  resource :preferences, path: "me/preferences", only: :update
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

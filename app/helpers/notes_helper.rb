@@ -14,6 +14,12 @@ module NotesHelper
     note_completions(paths) + folder_completions(paths)
   end
 
+  # Where a note opens from the sidebar or search: the editor, unless the user
+  # has chosen view mode on their profile.
+  def open_note_path(folder, note)
+    Current.user.open_notes_in == "view" ? folder_note_path(folder, note) : edit_folder_note_path(folder, note)
+  end
+
   private
     def note_completions(paths)
       Current.user.notes.order(updated_at: :desc).limit(COMPLETION_LIMIT)

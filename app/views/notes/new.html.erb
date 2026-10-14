@@ -1,5 +1,5 @@
 <%= turbo_frame_tag "new_note" do %>
-  <%= form_with(model: [@folder, @note], class: "inline-form", data: { turbo_frame: "_top" }) do |form| %>
+  <%= form_with(model: [@folder, @note], class: "inline-form", data: { turbo_frame: "_top", controller: "dismiss", action: "keydown.esc->dismiss#cancel" }) do |form| %>
     <% if @note.errors.any? %>
       <div role="alert" class="alert alert--error">
         <% @note.errors.full_messages.each do |message| %>
@@ -10,6 +10,6 @@
     <%= form.hidden_field :folder_id %>
     <%= form.text_field :title, required: true, autofocus: true, placeholder: "Note title", "aria-label": "Note title" %>
     <%= form.submit "Save" %>
-    <%= button_tag "Cancel", type: "button", data: { controller: "dismiss", action: "dismiss#cancel" } %>
+    <%= button_tag "Cancel", type: "button", class: "btn btn--outline", data: { action: "dismiss#cancel" } %>
   <% end %>
 <% end %>

@@ -38,7 +38,7 @@
      last child's margin is dropped so the rail ends level with the text. */
 
   .prose blockquote {
-    border-inline-start: 3px solid var(--color-border);
+    border-inline-start: 3px solid var(--color-border-strong);
     color: var(--color-ink-muted);
     margin-block: var(--block-space);
     margin-inline: 0;

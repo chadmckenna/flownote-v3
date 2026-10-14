@@ -1,5 +1,5 @@
 <%= turbo_frame_tag dom_id(@folder, :edit) do %>
-  <div class="inline-form">
+  <div class="inline-form" data-controller="dismiss" data-action="keydown.esc->dismiss#cancel">
     <%= form_with(model: @folder, data: { turbo_frame: "_top" }) do |form| %>
       <% if @folder.errors.any? %>
         <div role="alert" class="alert alert--error">
@@ -9,9 +9,10 @@
         </div>
       <% end %>
       <%= form.hidden_field :parent_id %>
-      <%= form.text_field :name, required: true, autofocus: true, placeholder: "Folder name", "aria-label": "Folder name" %>
+      <%= form.text_field :name, required: true, autofocus: true, placeholder: "Folder name", "aria-label": "Folder name",
+            data: { controller: "caret", action: "focus->caret#end" } %>
       <%= form.submit "Save" %>
     <% end %>
-    <%= button_tag "Cancel", type: "button", data: { controller: "dismiss", action: "dismiss#cancel" } %>
+    <%= button_tag "Cancel", type: "button", class: "btn btn--outline", data: { action: "dismiss#cancel" } %>
   </div>
 <% end %>

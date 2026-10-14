@@ -5,8 +5,9 @@ import {
   highlightSpecialChars, drawSelection, dropCursor
 } from "@codemirror/view"
 import {
-  defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching
+  HighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching
 } from "@codemirror/language"
+import { tags } from "@lezer/highlight"
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands"
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
 import { markdown } from "@codemirror/lang-markdown"
@@ -26,6 +27,26 @@ Vim.defineEx("wq", "wq", (cm) => clickNavFromVim(cm, "save"))
 Vim.defineEx("x", "x", (cm) => clickNavFromVim(cm, "save"))
 Vim.defineEx("quit", "q", (cm) => clickNavFromVim(cm, "close"))
 Vim.defineEx("view", "v", (cm) => clickNavFromVim(cm, "view"))
+
+// Markdown in Rosé Pine's roles, through the same --color-syntax-* tokens as
+// rendered code blocks, so the editor re-themes with the page. CodeMirror's
+// default style hard-codes its colours for a light background.
+const rosePine = HighlightStyle.define([
+  { tag: tags.heading, color: "var(--color-syntax-function)", fontWeight: "bold" },
+  { tag: tags.strong, fontWeight: "bold" },
+  { tag: tags.emphasis, fontStyle: "italic" },
+  { tag: tags.strikethrough, textDecoration: "line-through" },
+  { tag: [tags.link, tags.url], color: "var(--color-link)" },
+  { tag: tags.monospace, color: "var(--color-syntax-string)" },
+  { tag: tags.quote, color: "var(--color-ink-muted)", fontStyle: "italic" },
+  // The markup itself: #, -, >, ```, ** and friends.
+  { tag: [tags.processingInstruction, tags.contentSeparator, tags.labelName], color: "var(--color-ink-muted)" },
+  { tag: tags.keyword, color: "var(--color-syntax-keyword)" },
+  { tag: [tags.string, tags.number], color: "var(--color-syntax-string)" },
+  { tag: [tags.typeName, tags.tagName], color: "var(--color-syntax-type)" },
+  { tag: [tags.attributeName, tags.propertyName], color: "var(--color-syntax-attribute)" },
+  { tag: tags.comment, color: "var(--color-syntax-comment)", fontStyle: "italic" },
+])
 
 export default class extends Controller {
   static targets = ["textarea"]
@@ -49,7 +70,7 @@ export default class extends Controller {
           dropCursor(),
           EditorState.allowMultipleSelections.of(true),
           indentOnInput(),
-          syntaxHighlighting(defaultHighlightStyle, { fallbackToCodeMirror: true }),
+          syntaxHighlighting(rosePine),
           bracketMatching(),
           highlightActiveLine(),
           highlightSelectionMatches(),
@@ -110,6 +131,15 @@ export default class extends Controller {
     }
     this.cm?.on("vim-mode-change", this.closeOnModeChange)
 
+    this.view.focus()
+  }
+
+  // Ctrl+Shift+I or L, the keys that open the editor from view mode, jump into
+  // it when it's already open — from the sidebar, the note bar, wherever focus
+  // wandered. L pairs with Ctrl+Shift+H for the sidebar: left and right. Bound on window in the capture phase so it's handled before vim
+  // sees the chord (vim, fed a Ctrl+Shift chord, swallows the keys after it).
+  focus(event) {
+    event.preventDefault()
     this.view.focus()
   }
 

@@ -18,6 +18,16 @@
       <p class="folder-shell__hint">Use the <strong>New note</strong> and <strong>New folder</strong> actions in the sidebar.</p>
     </div>
   <% else %>
-    <p class="folder-shell__hint">Select a note from the sidebar to begin editing.</p>
+    <div class="folder-shell__empty">
+      <p class="folder-shell__hint">Select a note from the sidebar to begin editing.</p>
+      <dl class="folder-shell__shortcuts">
+        <% [ [ "Browse the sidebar", %w[Ctrl Shift H] ],
+             [ "Search notes", %w[Ctrl Shift \\] ],
+             [ "All keyboard shortcuts", %w[Ctrl Shift K] ] ].each do |label, keys| %>
+          <dt><%= label %></dt>
+          <dd><% keys.each do |key| %><kbd><%= key %></kbd><% end %></dd>
+        <% end %>
+      </dl>
+    </div>
   <% end %>
 </div>

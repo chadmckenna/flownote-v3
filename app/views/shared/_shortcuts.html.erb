@@ -1,30 +1,28 @@
 <%
+  # Every app-wide shortcut is Ctrl+Shift plus a key, so that group names the
+  # chord once and lists only the keys. Paired keys follow their label's
+  # "a / b", and render with a "/" between them.
   shortcut_groups = {
-    "Global" => [
-      ["Back to the previous note", [ "Ctrl", "Shift", "[" ]],
-      ["Forward again", [ "Ctrl", "Shift", "]" ]],
-      ["Search notes", %w[Ctrl Shift \\]],
-      ["Show keyboard shortcuts", %w[Ctrl Shift K]],
-      ["Toggle sidebar", %w[Ctrl Shift P]]
+    "Ctrl + Shift +" => [
+      [ "Search notes", [ "\\" ] ],
+      [ "Back / forward", [ "[", "]" ] ],
+      [ "Focus sidebar / editor", %w[H L] ],
+      [ "Toggle sidebar", %w[P] ],
+      [ "Edit / view note", %w[I V] ],
+      [ "Note menu: publish, share, delete", %w[M] ],
+      [ "Close note", %w[C] ],
+      [ "This list", %w[K] ]
     ],
-    "Viewing a note" => [
-      ["Edit", %w[Ctrl Shift I]],
-      ["Close", %w[Ctrl Shift C]]
+    "Sidebar · arrows work too" => [
+      [ "Down / up", %w[j k] ],
+      [ "Open / up a folder", %w[l h] ],
+      [ "New note / folder", %w[a A] ],
+      [ "Rename / delete", %w[r d] ],
+      [ "Back to the note, or cancel", %w[Esc] ]
     ],
-    "Editing a note" => [
-      ["View", %w[Ctrl Shift V]],
-      ["Close", %w[Ctrl Shift C]]
-    ],
-    "Search results" => [
-      ["Move through results", %w[↑ ↓]],
-      ["Open selected", %w[Enter]],
-      ["Close", %w[Esc]]
-    ],
-    "Editor (Vim)" => [
-      ["Save", %w[:w]],
-      ["Save & close", %w[:x]],
-      ["Close", %w[:q]],
-      ["View", %w[:v]]
+    "Editor · vim" => [
+      [ "Save / save & close", %w[:w :x] ],
+      [ "Close / view", %w[:q :v] ]
     ]
   }
 %>
@@ -43,7 +41,10 @@
             <div class="shortcuts-modal__row">
               <dt><%= label %></dt>
               <dd>
-                <% keys.each do |key| %><kbd><%= key %></kbd><% end %>
+                <% keys.each_with_index do |key, index| %>
+                  <% if index > 0 %><span class="shortcuts-modal__or">/</span><% end %>
+                  <kbd><%= key %></kbd>
+                <% end %>
               </dd>
             </div>
           <% end %>

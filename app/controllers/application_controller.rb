@@ -23,4 +23,12 @@ class ApplicationController < ActionController::Base
     def folder_shell?
       @folder_shell.present?
     end
+
+    # Where to land after deleting something: back on the page the delete came
+    # from — the sidebar deletes notes and folders you aren't on — unless that
+    # page was the thing deleted. Nil then, for the caller's fallback.
+    def back_unless_on(*deleted_paths)
+      back = url_from(request.referer)
+      back unless back.nil? || URI(back).path.in?(deleted_paths)
+    end
 end
