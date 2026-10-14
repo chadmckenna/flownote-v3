@@ -7,24 +7,18 @@
     </div>
   <% end %>
 
-  <div class="note-form__heading">
-    <%= form.text_field :title, required: true, placeholder: "Title", "aria-label": "Title" %>
-    <menu class="btn-group">
-      <% if note.persisted? %>
-        <%= link_to "View", folder_note_path(note.folder, note), data: { controller: "hotkey", action: "keydown.shift+ctrl+v@document->hotkey#click", note_nav: "view" }, class: "btn btn--outline"  %>
-      <% end %>
-      <% if local_assigns[:cancel_path] %>
-        <%= link_to "Close", cancel_path, data: { controller: "hotkey", action: "keydown.shift+ctrl+c@document->hotkey#click", note_nav: "close" }, class: "btn btn--outline" %>
-      <% end %>
-      <%= form.submit "Save", data: { note_nav: "save" } %>
-      <%= render "notes/publish_button", note: note %>
-      <%= render "notes/share_button", note: note %>
-    </menu>
+  <div class="note-bar">
+    <%# Renamed from the sidebar (r), not here. %>
+    <code class="note-filename" title="<%= note.title %>.md"><%= note.title %>.md</code>
+    <%= link_to "View", folder_note_path(note.folder, note), data: { controller: "hotkey", action: "keydown.shift+ctrl+v@document->hotkey#click", note_nav: "view" }, class: "btn btn--outline" %>
+    <%= form.submit "Save", data: { note_nav: "save" } %>
+    <%= render "notes/actions_menu", note: note, close_path: cancel_path %>
   </div>
 
   <%= form.hidden_field :folder_id %>
 
   <div id="note-editor-<%= note.persisted? ? note.id : "new" %>" data-controller="vim-editor"
+       data-action="keydown.shift+ctrl+i@window->vim-editor#focus:capture keydown.shift+ctrl+l@window->vim-editor#focus:capture"
        data-vim-editor-completions-value="<%= note_link_completions.to_json %>">
     <%= form.text_area :body, rows: 24, placeholder: "Write in Markdown...",
                               data: { vim_editor_target: "textarea" } %>

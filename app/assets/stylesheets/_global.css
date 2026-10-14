@@ -2,6 +2,9 @@
    Later layers win regardless of selector specificity. */
 @layer reset, base, components, modules, utilities;
 
+/* Colours: the Rosé Pine palette, as Omarchy themes it — Dawn for light, the
+   main variant for dark, one accent per theme. https://rosepinetheme.com/palette */
+
 :root {
   color-scheme: light dark;
 
@@ -30,51 +33,98 @@
   --radius-lg: 8px;
 
   /* Focus rings for keyboard navigation */
-  --focus-ring-color: var(--color-link);
+  --focus-ring-color: var(--color-accent);
   --focus-ring-offset: 2px;
   --focus-ring-size: 2px;
 
-  /* OKLCH colors: raw channel triplets (L C H) — theme-independent.
-     Values mirror the existing zinc/blue/red/green/amber palette. */
-  --lch-white: 100% 0 0;
-  --lch-zinc-50: 98.5% 0 0;
-  --lch-zinc-100: 96.7% 0.001 286.375;
-  --lch-zinc-300: 87.1% 0.006 286.286;
-  --lch-zinc-400: 70.5% 0.015 286.067;
-  --lch-zinc-500: 55.2% 0.016 285.938;
-  --lch-zinc-800: 27.4% 0.006 286.033;
-  --lch-zinc-900: 21% 0.006 285.885;
-  --lch-zinc-950: 14.1% 0.005 285.823;
-  --lch-blue: 62.3% 0.214 259.815;
-  --lch-red: 63.7% 0.237 25.331;
-  --lch-green: 62.7% 0.17 149.214;
-  --lch-amber: 76.9% 0.188 70.08;
+  /* Colors: Rosé Pine (main), raw OKLCH channel triplets */
+  --lch-main-base: 21.3% 0.025 291.1;
+  --lch-main-surface: 24.1% 0.032 289.1;
+  --lch-main-overlay: 27.1% 0.042 289.2;
+  --lch-main-muted: 53.8% 0.044 291.4;
+  --lch-main-subtle: 65.4% 0.044 291.2;
+  --lch-main-text: 90.9% 0.030 290.0;
+  --lch-main-love: 69.8% 0.156 4.2;
+  --lch-main-gold: 84.3% 0.110 74.6;
+  --lch-main-rose: 83.6% 0.054 21.1;
+  --lch-main-pine: 52.8% 0.079 227.7;
+  --lch-main-foam: 82.2% 0.054 209.6;
+  --lch-main-iris: 77.6% 0.095 305.0;
+  --lch-main-hl-low: 25.1% 0.026 287.6;
+  --lch-main-hl-med: 37.2% 0.036 291.1;
+  --lch-main-hl-high: 44.0% 0.039 290.4;
 
-  /* Colors: named abstractions (light mode) — always reference these,
-     never a raw --lch-* or a literal, in components. */
-  --color-canvas: oklch(var(--lch-white));
-  --color-shade: oklch(var(--lch-zinc-100));
-  --color-card: oklch(var(--lch-white));
-  --color-ink: oklch(var(--lch-zinc-950));
-  --color-ink-muted: oklch(var(--lch-zinc-500));
-  --color-border: oklch(var(--lch-zinc-300));
-  --color-link: oklch(var(--lch-blue));
-  --color-negative: oklch(var(--lch-red));
-  --color-positive: oklch(var(--lch-green));
-  --color-warning: oklch(var(--lch-amber));
+  /* Colors: Rosé Pine Dawn, raw OKLCH channel triplets */
+  --lch-dawn-base: 97.0% 0.011 71.9;
+  --lch-dawn-surface: 98.7% 0.011 76.6;
+  --lch-dawn-overlay: 93.9% 0.015 64.3;
+  --lch-dawn-muted: 67.3% 0.027 298.4;
+  --lch-dawn-subtle: 57.7% 0.046 291.0;
+  --lch-dawn-text: 46.0% 0.063 289.6;
+  --lch-dawn-love: 59.9% 0.107 2.7;
+  --lch-dawn-gold: 75.5% 0.146 69.7;
+  --lch-dawn-rose: 69.6% 0.106 23.0;
+  --lch-dawn-pine: 49.1% 0.077 228.0;
+  --lch-dawn-foam: 62.9% 0.066 210.1;
+  --lch-dawn-iris: 61.7% 0.074 305.7;
+  --lch-dawn-hl-low: 95.0% 0.010 58.2;
+  --lch-dawn-hl-med: 89.2% 0.006 31.1;
+  --lch-dawn-hl-high: 84.3% 0.006 334.0;
+
+  /* Colors: named (light — Dawn). Always reference these in components, never
+     a raw --lch-*. Dawn's accents are soft: anything read as text either uses
+     one that clears 4.5:1 (pine) or is deepened toward the text colour. */
+  --color-canvas: oklch(var(--lch-dawn-base));
+  --color-card: oklch(var(--lch-dawn-surface));
+  --color-shade: oklch(var(--lch-dawn-overlay));
+  --color-highlight: oklch(var(--lch-dawn-hl-med));
+  --color-ink: oklch(var(--lch-dawn-text));
+  --color-ink-muted: color-mix(in oklab, oklch(var(--lch-dawn-subtle)) 65%, oklch(var(--lch-dawn-text)));
+  --color-ink-faint: oklch(var(--lch-dawn-muted));
+  --color-border: oklch(var(--lch-dawn-hl-med));
+  --color-border-strong: oklch(var(--lch-dawn-hl-high));
+  --color-accent: oklch(var(--lch-dawn-pine));
+  --color-link: var(--color-accent);
+  --color-negative: color-mix(in oklab, oklch(var(--lch-dawn-love)) 60%, oklch(var(--lch-dawn-text)));
+  --color-positive: oklch(var(--lch-dawn-foam));
+  --color-warning: oklch(var(--lch-dawn-gold));
+
+  /* Syntax, by Rosé Pine's roles: pine keywords, gold strings, rose functions,
+     foam types, iris attributes. */
+  --color-syntax-keyword: oklch(var(--lch-dawn-pine));
+  --color-syntax-string: color-mix(in oklab, oklch(var(--lch-dawn-gold)) 65%, oklch(var(--lch-dawn-text)));
+  --color-syntax-function: color-mix(in oklab, oklch(var(--lch-dawn-rose)) 65%, oklch(var(--lch-dawn-text)));
+  --color-syntax-type: color-mix(in oklab, oklch(var(--lch-dawn-foam)) 65%, oklch(var(--lch-dawn-text)));
+  --color-syntax-attribute: color-mix(in oklab, oklch(var(--lch-dawn-iris)) 65%, oklch(var(--lch-dawn-text)));
+  --color-syntax-deletion: var(--color-negative);
+  --color-syntax-comment: var(--color-ink-muted);
 }
 
-/* Dark mode — explicit theme choice. Re-point the named tokens at darker
-   raw values; components consume --color-* and re-theme automatically. */
+/* Dark mode — explicit theme choice. Re-point the named tokens at Rosé Pine
+   (main); components consume --color-* and re-theme automatically. */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --color-canvas: oklch(var(--lch-zinc-950));
-  --color-shade: oklch(var(--lch-zinc-900));
-  --color-card: oklch(var(--lch-zinc-900));
-  --color-ink: oklch(var(--lch-zinc-50));
-  --color-ink-muted: oklch(var(--lch-zinc-400));
-  --color-border: oklch(var(--lch-zinc-800));
+  --color-canvas: oklch(var(--lch-main-base));
+  --color-card: oklch(var(--lch-main-surface));
+  --color-shade: oklch(var(--lch-main-overlay));
+  --color-highlight: oklch(var(--lch-main-hl-med));
+  --color-ink: oklch(var(--lch-main-text));
+  --color-ink-muted: oklch(var(--lch-main-subtle));
+  --color-ink-faint: oklch(var(--lch-main-muted));
+  --color-border: oklch(var(--lch-main-hl-med));
+  --color-border-strong: oklch(var(--lch-main-hl-high));
+  --color-accent: oklch(var(--lch-main-iris));
+  --color-negative: oklch(var(--lch-main-love));
+  --color-positive: oklch(var(--lch-main-foam));
+  --color-warning: oklch(var(--lch-main-gold));
+
+  /* Pine is too dim to read on base (3.4:1), so keywords take it lighter. */
+  --color-syntax-keyword: color-mix(in oklab, oklch(var(--lch-main-pine)) 65%, oklch(var(--lch-main-text)));
+  --color-syntax-string: oklch(var(--lch-main-gold));
+  --color-syntax-function: oklch(var(--lch-main-rose));
+  --color-syntax-type: oklch(var(--lch-main-foam));
+  --color-syntax-attribute: oklch(var(--lch-main-iris));
 }
 
 /* Fallback to system preference before JS sets an explicit data-theme
@@ -83,11 +133,24 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --color-canvas: oklch(var(--lch-zinc-950));
-    --color-shade: oklch(var(--lch-zinc-900));
-    --color-card: oklch(var(--lch-zinc-900));
-    --color-ink: oklch(var(--lch-zinc-50));
-    --color-ink-muted: oklch(var(--lch-zinc-400));
-    --color-border: oklch(var(--lch-zinc-800));
+    --color-canvas: oklch(var(--lch-main-base));
+    --color-card: oklch(var(--lch-main-surface));
+    --color-shade: oklch(var(--lch-main-overlay));
+    --color-highlight: oklch(var(--lch-main-hl-med));
+    --color-ink: oklch(var(--lch-main-text));
+    --color-ink-muted: oklch(var(--lch-main-subtle));
+    --color-ink-faint: oklch(var(--lch-main-muted));
+    --color-border: oklch(var(--lch-main-hl-med));
+    --color-border-strong: oklch(var(--lch-main-hl-high));
+    --color-accent: oklch(var(--lch-main-iris));
+    --color-negative: oklch(var(--lch-main-love));
+    --color-positive: oklch(var(--lch-main-foam));
+    --color-warning: oklch(var(--lch-main-gold));
+
+    --color-syntax-keyword: color-mix(in oklab, oklch(var(--lch-main-pine)) 65%, oklch(var(--lch-main-text)));
+    --color-syntax-string: oklch(var(--lch-main-gold));
+    --color-syntax-function: oklch(var(--lch-main-rose));
+    --color-syntax-type: oklch(var(--lch-main-foam));
+    --color-syntax-attribute: oklch(var(--lch-main-iris));
   }
 }

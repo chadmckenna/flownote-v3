@@ -19,6 +19,16 @@ class User < ApplicationRecord
     format: { with: /\A[a-z0-9_-]+\z/, message: "may only contain lowercase letters, numbers, hyphens and underscores" }
   validate :username_locked_while_published, if: :username_changed?
 
+  # Settings, all in one JSON column: a new one is an accessor here, a default
+  # and a validation, not a migration.
+  store_accessor :preferences, :open_notes_in
+  validates :open_notes_in, inclusion: { in: %w[ edit view ] }, allow_nil: true
+
+  # Where a note picked from the sidebar or search opens.
+  def open_notes_in
+    super || "edit"
+  end
+
   def root_folder
     folders.find_by!(parent_id: nil, name: "/")
   end

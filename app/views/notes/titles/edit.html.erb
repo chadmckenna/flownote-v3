@@ -1,0 +1,9 @@
+<%= turbo_frame_tag dom_id(@note, :title) do %>
+  <%= form_with model: @note, url: folder_note_title_path(@note.folder, @note), class: "inline-form",
+        data: { turbo_frame: "_top", controller: "dismiss", action: "keydown.esc->dismiss#cancel" } do |form| %>
+    <%= form.text_field :title, required: true, autofocus: true, "aria-label": "Note title",
+          data: { controller: "caret", action: "focus->caret#end" } %>
+    <%= form.submit "Save" %>
+    <%= button_tag "Cancel", type: "button", class: "btn btn--outline", data: { action: "dismiss#cancel" } %>
+  <% end %>
+<% end %>

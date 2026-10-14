@@ -40,7 +40,8 @@ class NotesController < ApplicationController
   def destroy
     folder = @note.folder
     @note.destroy!
-    redirect_to(helpers.folder_or_root_path(folder), notice: "Note was successfully deleted.", status: :see_other)
+    redirect_to back_unless_on(folder_note_path(folder, @note), edit_folder_note_path(folder, @note)) || helpers.folder_or_root_path(folder),
+      notice: "Note was successfully deleted.", status: :see_other
   end
 
   private

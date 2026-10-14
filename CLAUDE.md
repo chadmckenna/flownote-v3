@@ -30,7 +30,7 @@ bin/ci                                 # Full CI pipeline
 
 ## Architecture
 
-**Stack**: Rails 8.1, Propshaft (no Node.js), Hotwire (Turbo + Stimulus), [Oat CSS](https://oat.ink/) (classless), SQLite3, Doorkeeper (OAuth 2.0).
+**Stack**: Rails 8.1, Propshaft (no Node.js), Hotwire (Turbo + Stimulus), hand-written CSS (no framework, no CDN), SQLite3, Doorkeeper (OAuth 2.0).
 
 **Authentication**: Session-based with signed cookies. `Current` singleton for thread-safe session/user access. `Authentication` concern on ApplicationController. Rate-limited login/password-reset (10 per 3 min).
 
@@ -40,9 +40,9 @@ bin/ci                                 # Full CI pipeline
 
 **JavaScript**: Stimulus controllers in `app/javascript/controllers/` loaded via importmap — no npm, no build step.
 
-**CSS**: Oat classless framework from CDN styles semantic HTML by default. Custom styles go in `app/assets/stylesheets/`.
+**CSS**: All first-party, in `app/assets/stylesheets/`, following `.claude/css-guidelines.md` (one file per concern, cascade layers, tokens in `_global.css`). Colours are the Rosé Pine palette (Dawn for light, main for dark) as OKLCH tokens, with one accent per theme (pine / iris); type, spacing and shape are the app's own (system sans, rounded corners). Syntax colours, in rendered code and the CodeMirror editor alike, come from the `--color-syntax-*` tokens.
 
-**Editor UI navigation (folders/notes)**: Morphing-first, no navigation frames. Sidebar / breadcrumb / View / Edit / Close are plain Turbo Drive links (full-page visits). Same-URL refreshes — save redirects and `broadcasts_refreshes` — morph (`turbo-refresh-method=morph` is set in `layouts/shared/_head`); cross-URL visits replace `<body>`. **Never put navigable content or persistent chrome in a Turbo Frame defined in the layout**: turbo-rails substitutes a minimal `turbo_rails/frame` layout on `Turbo-Frame` requests, so layout-defined frames disappear ("Content missing"). The shell (`topnav/context` + `sidebar/sidebar` + `.folder-shell__main`) renders fully on every visit; `app/views/layouts/application.html.erb` branches on `folder_shell?` (set by `ShellLoader#load_shell`). Turbo Frames are reserved for inline forms only (`new_note`, `new_folder`, `edit_folder_<id>`). The CodeMirror editor (`vim_editor_controller`) is wrapped with a per-note `id` plus a `turbo:before-morph-element` guard, so a live-refresh morph preserves unsaved text while switching notes recreates it. Live updates: `broadcasts_refreshes` on `Note`/`Folder` + `turbo_stream_from @folder`/`@note` in the shell.
+**Editor UI navigation (folders/notes)**: Morphing-first, no navigation frames. Sidebar / breadcrumb / View / Edit / Close are plain Turbo Drive links (full-page visits). Same-URL refreshes — save redirects and `broadcasts_refreshes` — morph (`turbo-refresh-method=morph` is set in `layouts/shared/_head`); cross-URL visits replace `<body>`. **Never put navigable content or persistent chrome in a Turbo Frame defined in the layout**: turbo-rails substitutes a minimal `turbo_rails/frame` layout on `Turbo-Frame` requests, so layout-defined frames disappear ("Content missing"). The shell (`topnav/context` + `sidebar/sidebar` + `.folder-shell__main`) renders fully on every visit; `app/views/layouts/application.html.erb` branches on `folder_shell?` (set by `ShellLoader#load_shell`). Turbo Frames are reserved for inline forms only (`new_note`, `new_folder`, `edit_folder_<id>`, `title_note_<id>`). Sidebar rows sit inside their own rename frame (`edit_folder_<id>` / `title_note_<id>`), so their links carry `data-turbo-frame="_top"`. Renaming happens only in the sidebar (`sidebar_keys_controller`: `r`, or tapping the open note's row) — the editor shows the filename read-only. The CodeMirror editor (`vim_editor_controller`) is wrapped with a per-note `id` plus a `turbo:before-morph-element` guard, so a live-refresh morph preserves unsaved text while switching notes recreates it. Live updates: `broadcasts_refreshes` on `Note`/`Folder` + `turbo_stream_from @folder`/`@note` in the shell.
 
 **Public sharing**: A note is public exactly when `notes.slug` is present — there is no separate flag. Unpublishing clears the slug, so old links 404 forever and re-publishing mints a new one. Since share URLs embed the username, `User` refuses a username change while any note is published — unpublishing stays the only way to break a live link. Public pages render under `layout "public"` (never `ShellLoader`), are `noindex`, opt out of the modern-browser gate via `public_page?`, and must not disclose the folder the note lives in.
 
@@ -60,6 +60,8 @@ bin/ci                                 # Full CI pipeline
 - `GET/PATCH/DELETE /me`, `PATCH /me/password` — profile page: username, password change, account deletion (each re-checks the current password)
 - `GET /~:username/:slug(.md)` — public note (no auth); `.md` serves the raw body as `text/markdown`
 - `POST/DELETE /folders/:folder_id/notes/:note_id/publication` — publish/unpublish a note
+- `GET/PATCH /folders/:folder_id/notes/:note_id/title(/edit)` — rename a note in place in the sidebar
+- `PATCH /me/preferences` — per-user settings, stored in the `users.preferences` JSON column (add new ones as `store_accessor`s on `User`, no migration)
 - `POST /oauth/authorize`, `POST /oauth/token` — OAuth flow
 - `GET /api/v1/me` — current user (OAuth-protected)
 - `GET /up` — health check

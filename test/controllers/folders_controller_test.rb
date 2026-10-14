@@ -26,6 +26,19 @@ class FoldersControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#editor_main", false
   end
 
+  test "sidebar opens notes in the editor by default" do
+    note = notes(:one)
+    get folder_path(@folder)
+    assert_select ".folder-shell__sidebar a[href=?]", edit_folder_note_path(@folder, note)
+  end
+
+  test "sidebar opens notes in view mode when the user prefers it" do
+    note = notes(:one)
+    @user.update!(open_notes_in: "view")
+    get folder_path(@folder)
+    assert_select ".folder-shell__sidebar a[href=?]", folder_note_path(@folder, note)
+  end
+
   test "show root folder redirects to root" do
     get folder_path(@root)
     assert_redirected_to root_path
@@ -81,6 +94,11 @@ class FoldersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Renamed", @folder.reload.name
   end
 
+  test "update returns to the page the rename was made from" do
+    patch folder_path(@folder), params: { folder: { name: "Renamed" } }, headers: { "Referer" => root_url }
+    assert_redirected_to root_url
+  end
+
   test "cannot update root folder" do
     patch folder_path(@root), params: { folder: { name: "Renamed" } }
     assert_response :not_found
@@ -94,11 +112,30 @@ class FoldersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test "destroy from another page stays on it" do
+    empty = @user.folders.create!(name: "Empty", parent: @root)
+    delete folder_path(empty), headers: { "Referer" => edit_folder_note_url(@folder, notes(:one)) }
+
+    assert_redirected_to edit_folder_note_url(@folder, notes(:one))
+  end
+
+  test "destroy from the folder's own page goes to its parent" do
+    empty = @user.folders.create!(name: "Empty", parent: @folder)
+    delete folder_path(empty), headers: { "Referer" => folder_url(empty) }
+
+    assert_redirected_to folder_path(@folder)
+  end
+
   test "cannot destroy folder with contents" do
     assert_no_difference("Folder.count") do
       delete folder_path(@folder)
     end
     assert_redirected_to folder_path(@folder)
+  end
+
+  test "cannot destroy folder with contents returns to the page it was asked from" do
+    delete folder_path(@folder), headers: { "Referer" => root_url }
+    assert_redirected_to root_url
   end
 
   test "cannot destroy root folder" do

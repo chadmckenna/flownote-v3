@@ -19,6 +19,21 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".file-listing__name", text: "First note"
   end
 
+  test "results open notes in the editor by default" do
+    note = notes(:one)
+    get search_path, params: { q: "First note" }
+
+    assert_select "#search_results a[href=?]", edit_folder_note_path(note.folder, note)
+  end
+
+  test "results open notes in view mode when the user prefers it, like the sidebar" do
+    note = notes(:one)
+    @user.update!(open_notes_in: "view")
+    get search_path, params: { q: "First note" }
+
+    assert_select "#search_results a[href=?]", folder_note_path(note.folder, note)
+  end
+
   test "shows the folder path of each result" do
     get search_path, params: { q: "First note" }
 

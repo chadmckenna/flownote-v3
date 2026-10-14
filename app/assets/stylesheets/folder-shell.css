@@ -70,9 +70,11 @@
       min-block-size: 0;
       overflow-y: auto;
 
+      /* The open note, marked with an accent bar. */
       li[aria-current="page"] {
-        background: var(--color-card);
+        background: var(--color-shade);
         border-radius: var(--radius-sm);
+        box-shadow: inset 3px 0 0 var(--color-accent);
         font-weight: 600;
       }
 
@@ -95,9 +97,9 @@
   }
 
   .folder-shell__sidebar-empty {
+    color: var(--color-ink-muted);
     font-style: italic;
     list-style: none;
-    opacity: 0.5;
     text-align: center;
   }
 
@@ -150,12 +152,122 @@
     }
   }
 
+  /* Note bar: the filename, the one action you'll want (Edit, or View and
+     Save), and a ⋯ menu for the rest — one compact row above the note.
+  /* ------------------------------------------------------------------------ */
+
+  .note-bar {
+    align-items: center;
+    display: flex;
+    gap: var(--inline-space-half);
+    margin: 0 0 var(--block-space);
+  }
+
+  /* Takes the row's spare width and gives it up first, ending in an ellipsis
+     (the full name is in its title). */
+  .note-filename {
+    flex: 1 1 auto;
+    /* The buttons' line-height, padding and border, so the chip stands level
+       with them. */
+    line-height: 1.5;
+    min-inline-size: 0;
+    overflow: hidden;
+    padding: calc(var(--block-space-half) + 1px) var(--inline-space-half);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .note-bar__more {
+    anchor-name: --note-actions;
+    font-weight: 700;
+  }
+
+  /* The ⋯ menu. A sheet along the bottom of the screen by default — a phone's
+     layout, and the fallback where anchor positioning isn't supported. */
+  .note-actions {
+    background: var(--color-card);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    color: var(--color-ink);
+    inline-size: 100%;
+    inset: auto 0 0;
+    list-style: none;
+    margin: 0;
+    max-inline-size: none;
+    padding: var(--block-space-half) 0 calc(var(--block-space-half) + env(safe-area-inset-bottom));
+
+    &::backdrop {
+      background: oklch(0% 0 0 / 0.3);
+    }
+
+    li {
+      margin: 0;
+    }
+
+    a,
+    button {
+      background: none;
+      border: 0;
+      border-radius: 0;
+      color: inherit;
+      display: block;
+      font-size: var(--text-normal);
+      font-weight: 400;
+      inline-size: 100%;
+      padding: var(--block-space-half) var(--inline-space);
+      text-align: start;
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        background: var(--color-shade);
+        opacity: 1;
+        outline: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      a,
+      button {
+        padding-block: 0.75rem;
+      }
+    }
+  }
+
+  /* With room and anchor positioning: a dropdown hanging off the ⋯ button,
+     right edges aligned, flipping above it when there's no space below. */
+  @supports (position-area: block-end) {
+    @media (min-width: 769px) {
+      .note-actions {
+        border-radius: var(--radius-md);
+        box-shadow: 0 8px 24px oklch(0% 0 0 / 0.2);
+        inline-size: auto;
+        inset: auto;
+        margin-block: 4px;
+        min-inline-size: 12rem;
+        padding-block-end: var(--block-space-half);
+        position-anchor: --note-actions;
+        position-area: block-end span-inline-start;
+        position-try-fallbacks: flip-block;
+
+        &::backdrop {
+          background: none;
+        }
+
+        a,
+        button {
+          font-size: var(--text-small);
+        }
+      }
+    }
+  }
+
   /* Empty / hint states
   /* ------------------------------------------------------------------------ */
 
   .folder-shell__hint {
+    color: var(--color-ink-muted);
     font-style: italic;
-    opacity: 0.5;
   }
 
   .folder-shell__empty {
@@ -167,12 +279,30 @@
     }
 
     p {
+      color: var(--color-ink-muted);
       margin-block: var(--block-space-half);
-      opacity: 0.75;
     }
 
     .folder-shell__hint {
       margin-block-start: 0.75rem;
+    }
+  }
+
+  /* A few shortcuts to get going, under the "select a note" hint. */
+  .folder-shell__shortcuts {
+    align-items: center;
+    color: var(--color-ink-muted);
+    display: grid;
+    gap: var(--block-space-half) var(--inline-space-double);
+    grid-template-columns: auto auto;
+    justify-content: center;
+    margin: var(--block-space) 0 0;
+    text-align: start;
+
+    dd {
+      display: flex;
+      gap: 0.25rem;
+      margin: 0;
     }
   }
 
@@ -187,14 +317,14 @@
         "context"
         "sidebar"
         "main";
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto auto auto;
     }
 
     /* The desktop collapse trick (0 1fr) doesn't apply to the stacked layout;
        hiding the sidebar via display:none is enough, so keep one full column. */
     .folder-shell[data-sidebar-collapsed="true"] {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .folder-shell__sidebar .file-listing {

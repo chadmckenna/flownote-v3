@@ -1,0 +1,23 @@
+<%# The note's less frequent actions, kept out of the way of reading and writing.
+    A native popover: it opens from the ⋯ button, closes on Esc or a click away,
+    and its keys work while it's shut, since hotkey clicks a hidden link all the
+    same. Links rather than button_to throughout: on the edit page this sits
+    inside the note form, and button_to would nest a <form> in it (GET isn't
+    routed for these paths, so a crawler or Turbo prefetch can't trigger one). %>
+<button type="button" class="btn btn--ghost note-bar__more" popovertarget="note-actions"
+        aria-label="More actions" title="More actions (Ctrl+Shift+M)"
+        data-controller="hotkey" data-action="keydown.shift+ctrl+m@window->hotkey#click:capture">⋯</button>
+<%# Opens with the first item focused; ↑ ↓ (or j k) move, Enter picks. %>
+<menu id="note-actions" class="note-actions" popover role="menu"
+      data-controller="popover" data-action="click->popover#hide keydown->popover#navigate">
+  <li role="none"><%= link_to note.published? ? "Unpublish" : "Publish", folder_note_publication_path(note.folder, note),
+            autofocus: true, role: "menuitem", data: { turbo_method: note.published? ? :delete : :post, turbo_frame: "_top" } %></li>
+  <% if note.shareable? %>
+    <%# Opens notes/_share_dialog, which lives outside the note form. %>
+    <li role="none"><button type="button" role="menuitem" data-share-open>Share link…</button></li>
+  <% end %>
+  <li role="none"><%= link_to "Close", close_path, role: "menuitem",
+            data: { controller: "hotkey", action: "keydown.shift+ctrl+c@document->hotkey#click", note_nav: "close" } %></li>
+  <li role="none"><%= link_to "Delete", folder_note_path(note.folder, note), class: "txt-negative", role: "menuitem",
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure?", turbo_frame: "_top" } %></li>
+</menu>

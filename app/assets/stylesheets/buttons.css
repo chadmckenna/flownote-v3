@@ -7,8 +7,8 @@
   .btn,
   button,
   input[type="submit"] {
-    --btn-background: var(--color-ink);
-    --btn-border-color: transparent;
+    --btn-background: var(--color-accent);
+    --btn-border-color: var(--color-accent);
     --btn-color: var(--color-canvas);
     --btn-padding: var(--block-space-half) var(--inline-space);
 
@@ -44,7 +44,7 @@
 
   .btn--outline {
     --btn-background: transparent;
-    --btn-border-color: var(--color-border);
+    --btn-border-color: var(--color-border-strong);
     --btn-color: var(--color-ink);
 
     &:hover {

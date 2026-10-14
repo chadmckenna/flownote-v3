@@ -27,6 +27,11 @@
     a:not(.btn) {
       color: var(--color-ink);
     }
+
+    /* The brand takes the theme's accent. */
+    ul:first-child a {
+      color: var(--color-accent);
+    }
   }
 
   /* Theme toggle: show the icon for the active theme, hide the other.
@@ -59,14 +64,15 @@
       min-height: calc(var(--inline-space-double) + 7px);
     }
 
+    /* Muted by colour, not opacity, so the text keeps its contrast. */
     li + li::before {
+      color: var(--color-ink-faint);
       content: "/";
       margin-inline-end: 0.25rem;
-      opacity: 0.4;
     }
 
     li[aria-current="page"] {
-      opacity: 0.5;
+      color: var(--color-ink-muted);
     }
 
     &.breadcrumb-heading ul {

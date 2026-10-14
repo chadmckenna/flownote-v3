@@ -36,6 +36,18 @@ class UserTest < ActiveSupport::TestCase
     assert user.update(username: "freshname")
   end
 
+  test "notes open in the editor until the user prefers view mode" do
+    user = users(:one)
+    assert_equal "edit", user.open_notes_in
+
+    user.update!(open_notes_in: "view")
+    assert_equal "view", user.reload.open_notes_in
+  end
+
+  test "open_notes_in only takes edit or view" do
+    assert_not users(:one).update(open_notes_in: "split")
+  end
+
   test "destroy removes everything owned by the user" do
     user = users(:one)
     session = user.sessions.create!

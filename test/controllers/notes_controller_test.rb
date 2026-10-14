@@ -49,7 +49,15 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     get folder_note_path(@folder, @note)
 
     assert_select "body[data-controller~=?]", "history"
-    assert_select ".shortcuts-modal dt", "Back to the previous note"
+    assert_select ".shortcuts-modal dt", "Back / forward"
+  end
+
+  test "the shortcuts list names the Ctrl+Shift chord once and lists each key under it" do
+    get folder_note_path(@folder, @note)
+
+    assert_select ".shortcuts-modal h3", "Ctrl + Shift +"
+    assert_select ".shortcuts-modal kbd", text: "Ctrl", count: 0
+    assert_select ".shortcuts-modal__row", text: /Note menu.*M/m
   end
 
   test "show renders a wiki link to another note" do
@@ -126,11 +134,11 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
   test "show offers the share modal only once a note is published" do
     get folder_note_path(@folder, @note)
     assert_select "dialog.share-modal", false
-    assert_select "a.share-toggle", "Publish"
+    assert_select "#note-actions a", "Publish"
 
     published = notes(:published)
     get folder_note_path(published.folder, published)
-    assert_select "a.share-toggle", "Unpublish"
+    assert_select "#note-actions a", "Unpublish"
     assert_select "dialog.share-modal input.share-link__url[value=?]",
       public_note_url(username: @user.username, slug: published.slug)
   end
@@ -153,13 +161,31 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_select "dialog.share-modal input.share-link__url"
   end
 
-  test "edit keeps the publish and share controls in the form's action bar" do
+  test "the note bar keeps Edit in reach and the rest in its actions menu" do
+    get folder_note_path(@folder, @note)
+
+    assert_select ".note-bar > a", "Edit"
+    assert_select ".note-bar button[popovertarget=note-actions]"
+    assert_select "#note-actions[popover][role=menu][data-action~=?]", "keydown->popover#navigate"
+    assert_select "#note-actions[popover]" do
+      assert_select "a", "Publish"
+      assert_select "a[href=?]", folder_path(@folder), text: "Close"
+      assert_select "a[data-turbo-method=delete]", "Delete"
+    end
+  end
+
+  test "edit keeps View and Save in the bar and the rest in a menu inside the form" do
     published = notes(:published)
 
     get edit_folder_note_path(published.folder, published)
 
-    assert_select ".note-form__heading .btn-group a.share-toggle", "Unpublish"
-    assert_select ".note-form__heading .btn-group button[data-share-open]"
+    assert_select "form.note-form .note-bar > a", "View"
+    assert_select "form.note-form .note-bar input[type=submit][value=Save]"
+    assert_select "form.note-form #note-actions" do
+      assert_select "a", "Unpublish"
+      assert_select "button[data-share-open]"
+      assert_select "a[data-turbo-method=delete]", "Delete"
+    end
     # A <form> inside the note form would be invalid HTML, and a dialog nested in
     # it would make Enter on the URL field save the note.
     assert_select "form.note-form form", false
@@ -172,9 +198,33 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#note-editor-#{@note.id} textarea"
   end
 
+  test "Ctrl+Shift+I or L jumps into the editor, as it opens it from view mode" do
+    get edit_folder_note_path(@folder, @note)
+    %w[i l].each do |key|
+      assert_select "#note-editor-#{@note.id}[data-action~=?]", "keydown.shift+ctrl+#{key}@window->vim-editor#focus:capture"
+    end
+
+    get folder_note_path(@folder, @note)
+    %w[i l].each do |key|
+      assert_select ".note-bar a[data-action*=?]", "keydown.shift+ctrl+#{key}@document->hotkey#click", text: "Edit"
+    end
+  end
+
+  test "Ctrl+Shift+H focuses the sidebar" do
+    get edit_folder_note_path(@folder, @note)
+    assert_select ".folder-shell__sidebar[data-action~=?]", "keydown.shift+ctrl+h@window->sidebar-keys#focus:capture"
+  end
+
   test "edit" do
     get edit_folder_note_path(@folder, @note)
     assert_response :success
+  end
+
+  test "edit shows the filename, not a title field: notes are renamed from the sidebar" do
+    get edit_folder_note_path(@folder, @note)
+
+    assert_select ".note-filename", text: "#{@note.title}.md"
+    assert_select ".note-form input[name='note[title]']", false
   end
 
   test "update" do
@@ -189,6 +239,28 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to folder_path(@folder)
+  end
+
+  test "destroy from another page stays on it: the sidebar can delete a note you're not on" do
+    other = notes(:root_note)
+    delete folder_note_path(@folder, @note), headers: { "HTTP_REFERER" => edit_folder_note_url(@root, other) }
+
+    assert_redirected_to edit_folder_note_url(@root, other)
+  end
+
+  test "destroy of the note you're on goes to its folder" do
+    delete folder_note_path(@folder, @note), headers: { "HTTP_REFERER" => edit_folder_note_url(@folder, @note) }
+    assert_redirected_to folder_path(@folder)
+
+    note = notes(:root_note)
+    delete folder_note_path(@root, note), headers: { "HTTP_REFERER" => folder_note_url(@root, note) }
+    assert_redirected_to root_path
+  end
+
+  test "the sidebar carries a delete form for each note, for d" do
+    get folder_path(@folder)
+
+    assert_select ".folder-shell__sidebar li form[hidden][action=?]", folder_note_path(@folder, @note)
   end
 
   test "destroy note in root folder redirects to root" do

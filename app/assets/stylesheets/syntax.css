@@ -36,8 +36,8 @@
 
   /* highlight.js token colors
   /* ------------------------------------------------------------------------ */
-  /* Mapped onto named design tokens so light/dark follows token reassignment
-     in _global.css — no per-theme block needed here. */
+  /* Rosé Pine's roles, through the --color-syntax-* tokens in _global.css, so
+     light/dark follows token reassignment — no per-theme block needed here. */
 
   .prose .hljs {
     color: var(--color-ink);
@@ -45,40 +45,49 @@
 
   .prose .hljs-comment,
   .prose .hljs-quote {
-    color: var(--color-ink-muted);
+    color: var(--color-syntax-comment);
     font-style: italic;
   }
 
   .prose .hljs-keyword,
-  .prose .hljs-built_in,
-  .prose .hljs-literal,
-  .prose .hljs-type {
-    color: var(--color-link);
+  .prose .hljs-selector-tag,
+  .prose .hljs-literal {
+    color: var(--color-syntax-keyword);
   }
 
   .prose .hljs-string,
   .prose .hljs-regexp,
-  .prose .hljs-addition {
-    color: var(--color-positive);
-  }
-
   .prose .hljs-number,
-  .prose .hljs-symbol,
-  .prose .hljs-attr,
-  .prose .hljs-attribute {
-    color: var(--color-warning);
+  .prose .hljs-symbol {
+    color: var(--color-syntax-string);
   }
 
   .prose .hljs-title,
-  .prose .hljs-section,
+  .prose .hljs-section {
+    color: var(--color-syntax-function);
+  }
+
+  .prose .hljs-type,
+  .prose .hljs-built_in,
   .prose .hljs-name,
-  .prose .hljs-selector-tag,
+  .prose .hljs-tag,
+  .prose .hljs-addition {
+    color: var(--color-syntax-type);
+  }
+
+  .prose .hljs-attr,
+  .prose .hljs-attribute,
+  .prose .hljs-variable,
+  .prose .hljs-template-variable {
+    color: var(--color-syntax-attribute);
+  }
+
   .prose .hljs-deletion {
-    color: var(--color-negative);
+    color: var(--color-syntax-deletion);
   }
 
   .prose .hljs-meta,
-  .prose .hljs-tag {
+  .prose .hljs-punctuation {
     color: var(--color-ink-muted);
   }
 }

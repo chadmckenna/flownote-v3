@@ -155,27 +155,47 @@ summary.lexxy-editor__toolbar-button {
   }
 }
 
-/* CodeMirror dark mode
+/* CodeMirror chrome, both themes
 /* -------------------------------------------------------------------------- */
+/* Through the tokens, so Dawn and Rosé Pine both apply. CodeMirror's own theme
+   styles its selection and matches with high-specificity generated selectors,
+   hence the !important on those (the third-party exception above). */
 
-[data-theme="dark"] .cm-editor {
+.cm-editor {
   .cm-gutters {
-    background: var(--color-card);
+    background: var(--color-canvas);
     border-right-color: var(--color-border);
+    color: var(--color-ink-faint);
+  }
+
+  /* Rosé Pine's cursor line: the faintest highlight. */
+  .cm-activeLine,
+  .cm-activeLineGutter {
+    background: color-mix(in oklab, var(--color-highlight) 35%, var(--color-canvas));
+  }
+
+  .cm-activeLineGutter {
     color: var(--color-ink);
   }
 
-  .cm-activeLine,
-  .cm-activeLineGutter {
-    background: var(--color-shade, rgba(255, 255, 255, 0.04));
+  .cm-selectionBackground,
+  &.cm-focused .cm-selectionBackground,
+  .cm-content ::selection {
+    background: var(--color-highlight) !important;
+  }
+
+  .cm-selectionMatch,
+  .cm-matchingBracket {
+    background: color-mix(in oklab, var(--color-accent) 20%, transparent) !important;
   }
 
   .cm-cursor {
     border-left-color: var(--color-ink);
   }
 
+  /* Vim's normal-mode block cursor. */
   .cm-fat-cursor {
-    background: var(--color-link) !important;
+    background: var(--color-accent) !important;
     color: var(--color-canvas) !important;
   }
 
@@ -188,7 +208,7 @@ summary.lexxy-editor__toolbar-button {
   }
 
   .cm-vim-panel input {
-    background: var(--color-canvas);
+    background: var(--color-card);
     border-color: var(--color-border);
     color: var(--color-ink);
   }
@@ -207,7 +227,7 @@ summary.lexxy-editor__toolbar-button {
 
 .cm-tooltip.cm-tooltip-autocomplete {
   background: var(--color-card) !important;
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-accent) !important;
   border-radius: var(--radius-md);
   color: var(--color-ink) !important;
   font-family: var(--font-mono);

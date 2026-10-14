@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_223606) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_135926) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -131,6 +131,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_223606) do
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
+    t.json "preferences", default: {}, null: false
     t.datetime "updated_at", null: false
     t.string "username"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
