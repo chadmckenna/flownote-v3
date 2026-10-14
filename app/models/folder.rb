@@ -46,6 +46,16 @@ class Folder < ApplicationRecord
     parts.join("/")
   end
 
+  # This folder's id and those of every folder beneath it, one query per level.
+  def subtree_ids
+    ids = frontier = [ id ]
+    until frontier.empty?
+      frontier = user.folders.where(parent_id: frontier).pluck(:id)
+      ids += frontier
+    end
+    ids
+  end
+
   def ancestors
     chain = []
     current = self

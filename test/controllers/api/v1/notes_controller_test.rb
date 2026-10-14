@@ -22,6 +22,27 @@ class Api::V1::NotesControllerTest < ActionDispatch::IntegrationTest
     refute json.first.key?("body")
   end
 
+  test "index with ids returns those notes in full" do
+    get api_v1_notes_path, params: { ids: "#{@note.id},#{notes(:root_note).id}" }, headers: api_headers(@token)
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal [ @note.id, notes(:root_note).id ].sort, json.map { |n| n["id"] }.sort
+    assert_equal @note.body, json.find { |n| n["id"] == @note.id }["body"]
+  end
+
+  test "index with ids omits another user's notes" do
+    get api_v1_notes_path, params: { ids: "#{@note.id},#{notes(:two).id}" }, headers: api_headers(@token)
+
+    assert_response :success
+    assert_equal [ @note.id ], JSON.parse(response.body).map { |n| n["id"] }
+  end
+
+  test "index without a folder or ids returns 400" do
+    get api_v1_notes_path, headers: api_headers(@token)
+    assert_response :bad_request
+  end
+
   test "show returns full note including body" do
     get api_v1_note_path(@note), headers: api_headers(@token)
 

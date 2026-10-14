@@ -3,10 +3,18 @@ module Api
     class NotesController < BaseController
       before_action -> { doorkeeper_authorize! :write }, only: %i[create update destroy]
 
+      # Nested under a folder: that folder's notes, without bodies. Unnested, with
+      # ?ids=1,2,3: those notes in full, so a sync client fetches every note its
+      # manifest says changed in one request.
       def index
-        folder = current_user.folders.find(params[:folder_id])
-        notes = current_user.notes.where(folder: folder).order(:updated_at)
-        render json: notes.map { |n| note_summary_json(n) }
+        if params[:folder_id]
+          folder = current_user.folders.find(params[:folder_id])
+          notes = current_user.notes.where(folder: folder).order(:updated_at)
+          render json: notes.map { |n| note_summary_json(n) }
+        else
+          notes = current_user.notes.where(id: params.expect(:ids).split(","))
+          render json: notes.map { |n| note_full_json(n) }
+        end
       end
 
       def show
@@ -40,19 +48,6 @@ module Api
       private
         def note_params
           params.expect(note: [ :title, :body, :folder_id ])
-        end
-
-        def note_summary_json(note)
-          {
-            id: note.id,
-            title: note.title,
-            folder_id: note.folder_id,
-            updated_at: note.updated_at.iso8601
-          }
-        end
-
-        def note_full_json(note)
-          note_summary_json(note).merge(body: note.body.to_s)
         end
     end
   end
