@@ -14,6 +14,16 @@ class PublicNotesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".prose h2", "Shared"
   end
 
+  test "show keeps task checkboxes read-only" do
+    @note.update!(body: "- [ ] milk\n- [x] eggs\n")
+
+    get public_note_path(username: @username, slug: @note.slug)
+
+    assert_select ".prose input[type=checkbox][disabled]", count: 2
+    assert_select ".prose input[data-line]", false
+    assert_select ".prose [data-sourcepos]", false
+  end
+
   test "show does not disclose the folder or the app shell" do
     get public_note_path(username: @username, slug: @note.slug)
 

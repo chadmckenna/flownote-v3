@@ -9,5 +9,6 @@
 
   <%= render "notes/share_dialog", note: @note %>
 
-  <article class="prose" data-controller="syntax-highlight mermaid"><%= render_linked_markdown(@note.body, user: Current.user, from: @note) %></article>
+  <article class="prose" data-controller="syntax-highlight mermaid task-list"
+           data-task-list-url-value="<%= folder_note_task_path(@note.folder, @note, line: ":line") %>"><%= render_linked_markdown(@note.body, user: Current.user, from: @note, tasks: true) %></article>
 </div>

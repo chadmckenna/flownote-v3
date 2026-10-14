@@ -53,17 +53,27 @@
 @layer components {
   /* Markdown task lists
   /* -------------------------------------------------------------------------- */
-  /* Commonmarker emits a bare disabled checkbox and tags neither the list nor
-     the item, so :has() is what identifies a task item. The bullet comes off —
-     the checkbox is the marker — and the box is nudged onto the text baseline. */
+  /* Commonmarker emits a bare checkbox and tags neither the list nor the item,
+     so :has() is what identifies a task item. The bullet comes off — the
+     checkbox is the marker. Boxes are a size up from the browser's, to be easy
+     to hit: on the owner's view page they're live (task_list_controller). */
 
+  /* Spaced a little wider than a plain list, so the bigger boxes have room. */
   .prose li:has(> input[type="checkbox"]) {
     list-style: none;
+    margin-block: 0.4em;
   }
 
   .prose li > input[type="checkbox"] {
-    margin-inline-end: var(--inline-space-half);
-    vertical-align: baseline;
+    accent-color: var(--color-accent);
+    block-size: 1.15em;
+    inline-size: 1.15em;
+    margin: 0 var(--inline-space-half) 0 0;
+    vertical-align: -0.2em;
+
+    &:not(:disabled) {
+      cursor: pointer;
+    }
   }
 }
 
