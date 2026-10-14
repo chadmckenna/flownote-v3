@@ -4,6 +4,10 @@ class Note < ApplicationRecord
   SLUG_CHARS = [ *"a".."z", *"0".."9" ].freeze
   SLUG_LENGTH = 8
 
+  # A Markdown task's marker — "- [ ]", "1. [x]", "> - [ ]" — capturing what
+  # surrounds the box so only the character inside it changes.
+  TASK_MARKER = /\A(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)[ xX](\])/
+
   belongs_to :user
   belongs_to :folder, touch: true
 
@@ -37,6 +41,19 @@ class Note < ApplicationRecord
   def shareable? = published? && user.username.present?
   def publish! = update!(slug: self.class.generate_slug)
   def unpublish! = update!(slug: nil)
+
+  # Ticks or clears the task on line_number (1-based, as the rendered checkbox
+  # reports it). Sets the state rather than flipping it, so a repeated request
+  # is harmless. False, saving nothing, when that line isn't a task — the page
+  # it came from is out of date.
+  def check_task(line_number, checked)
+    lines = body.to_s.lines
+    line = lines[line_number - 1] if line_number.positive?
+    return false unless line&.match?(TASK_MARKER)
+
+    lines[line_number - 1] = line.sub(TASK_MARKER, "\\1#{checked ? "x" : " "}\\2")
+    update!(body: lines.join)
+  end
 
   private
     def folder_belongs_to_same_user

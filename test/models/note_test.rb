@@ -134,4 +134,51 @@ class NoteTest < ActiveSupport::TestCase
     assert_not note.valid?
     assert_includes note.errors[:slug], "has already been taken"
   end
+
+  # check_task: ticking a [ ] from the view page
+  # ---------------------------------------------------------------------------
+
+  TASKS = "Intro\r\n\r\n- [ ] one\r\n- [x] two\r\n  - [ ] nested\r\n\r\n" \
+          "> - [ ] quoted\r\n\r\n1. [ ] ordered\r\n\r\n```\r\n- [ ] in code\r\n```\r\n"
+
+  def task_note
+    notes(:one).tap { |note| note.update!(body: TASKS) }
+  end
+
+  test "check_task checks and unchecks a task by its line, leaving every other line alone" do
+    note = task_note
+
+    assert note.check_task(3, true)
+    assert_equal TASKS.sub("- [ ] one", "- [x] one"), note.reload.body
+
+    assert note.check_task(4, false)
+    assert_equal TASKS.sub("- [ ] one", "- [x] one").sub("- [x] two", "- [ ] two"), note.reload.body
+  end
+
+  test "check_task is idempotent: it sets the state, it doesn't flip it" do
+    note = task_note
+
+    assert note.check_task(4, true)
+    assert_equal TASKS, note.reload.body
+  end
+
+  test "check_task handles nested, quoted, and ordered tasks" do
+    note = task_note
+
+    assert note.check_task(5, true)
+    assert note.check_task(7, true)
+    assert note.check_task(9, true)
+    assert_includes note.reload.body, "  - [x] nested\r\n"
+    assert_includes note.body, "> - [x] quoted\r\n"
+    assert_includes note.body, "1. [x] ordered\r\n"
+  end
+
+  test "check_task refuses a line that isn't a task, and saves nothing" do
+    note = task_note
+
+    assert_not note.check_task(1, true)
+    assert_not note.check_task(99, true)
+    assert_not note.check_task(0, true)
+    assert_equal TASKS, note.reload.body
+  end
 end

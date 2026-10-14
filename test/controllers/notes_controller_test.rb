@@ -69,6 +69,22 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_select "article.prose .note-link--missing", "No such note"
   end
 
+  test "show makes task checkboxes clickable, each naming its source line" do
+    @note.update!(body: "Plan for [[Root note]]\n\n- [ ] milk\n- [x] eggs\n  - [ ] large\n")
+
+    get folder_note_path(@folder, @note)
+
+    assert_select "article.prose[data-controller~=task-list][data-task-list-url-value=?]", folder_note_task_path(@folder, @note, line: ":line")
+    assert_select "article.prose input[type=checkbox]", count: 3
+    assert_select "article.prose input[type=checkbox][disabled]", false
+    assert_select "article.prose input[type=checkbox][data-line='3'][data-action='change->task-list#toggle'][aria-label='milk']"
+    assert_select "article.prose input[type=checkbox][data-line='4'][checked]"
+    assert_select "article.prose input[type=checkbox][data-line='5']"
+    assert_select "article.prose [data-sourcepos]", false
+    # Wiki links still resolve alongside the tasks.
+    assert_select "article.prose a[href=?]", folder_note_path(folders(:root_one), notes(:root_note))
+  end
+
   test "the editor carries the user's own note titles for autocomplete" do
     get edit_folder_note_path(@folder, @note)
 

@@ -3,6 +3,9 @@ module ApplicationHelper
     extension: { table: true, strikethrough: true, autolink: true, tagfilter: true, tasklist: true },
     render: { unsafe: false, hardbreaks: true, github_pre_lang: false }
   }.freeze
+  # The same, with each element tagged with the source lines it came from —
+  # how a rendered task checkbox finds its "- [ ]" line again.
+  SOURCEPOS_OPTIONS = MARKDOWN_OPTIONS.merge(render: { **MARKDOWN_OPTIONS[:render], sourcepos: true }).freeze
 
   # [[Note title]] — the target may be folder-qualified ([[Work/Title]]) or name
   # a folder outright ([[Work/]]). Brackets and newlines are excluded from the
@@ -11,12 +14,12 @@ module ApplicationHelper
   NOTE_LINK_TARGET = /[^\[\]\n]+/
   NOTE_LINK = /\[\[(#{NOTE_LINK_TARGET})\]\]/
 
-  def render_markdown(text)
+  def render_markdown(text, sourcepos: false)
     return "".html_safe if text.blank?
 
     Commonmarker.to_html(
       text,
-      options: MARKDOWN_OPTIONS,
+      options: sourcepos ? SOURCEPOS_OPTIONS : MARKDOWN_OPTIONS,
       # hardbreaks: true renders every newline as a <br>. Notes are written in
       # a plain text editor where a line break is meant literally, so markdown's
       # soft-break-joins-lines rule reads as a bug here.
@@ -38,10 +41,12 @@ module ApplicationHelper
   # styling rather than disappearing.
   #
   # from: the note being rendered, which link targets are resolved relative to.
-  def render_linked_markdown(text, user:, from: nil)
+  # tasks: make task-list checkboxes live for the owner (see checkable_tasks).
+  def render_linked_markdown(text, user:, from: nil, tasks: false)
     return render_markdown(text) if user.nil?
 
-    link_targets(text, Notes::LinkResolver.new(user: user, from: from))
+    html = link_targets(text, Notes::LinkResolver.new(user: user, from: from), sourcepos: tasks)
+    tasks ? checkable_tasks(html) : html
   end
 
   # Same, but every [[wiki link]] renders unresolved. A share page is read by
@@ -65,8 +70,8 @@ module ApplicationHelper
     # becomes the literal text the author typed, exactly as before. Everything
     # emitted is escaped or built with tag helpers, so an arbitrary title still
     # can't inject markup or an href of its own.
-    def link_targets(text, resolver)
-      return render_markdown(text) if text.to_s.exclude?("[[")
+    def link_targets(text, resolver, sourcepos: false)
+      return render_markdown(text, sourcepos: sourcepos) if text.to_s.exclude?("[[")
 
       targets = []
       # Unguessable, so a target cannot contain a token and impersonate another,
@@ -77,9 +82,10 @@ module ApplicationHelper
         "#{nonce}#{targets.size - 1}#{nonce}"
       end
 
-      fragment = Nokogiri::HTML5.fragment(render_markdown(masked))
+      # Tokens hold no newlines, so masking leaves every source line where it was.
+      fragment = Nokogiri::HTML5.fragment(render_markdown(masked, sourcepos: sourcepos))
       nodes = fragment.xpath(".//text()").select { |node| node.text.include?(nonce) }
-      return render_markdown(text) if nodes.empty?
+      return render_markdown(text, sourcepos: sourcepos) if nodes.empty?
 
       resolved = resolver ? resolver.resolve(targets.map(&:strip)) : {}
 
@@ -106,6 +112,26 @@ module ApplicationHelper
           tag.span(target.strip, class: "note-link--missing")
         end
       end.join
+    end
+
+    # Commonmarker renders a task as a disabled checkbox. For the note's owner,
+    # each becomes live for the task-list controller, naming the source line it
+    # came from — the start of its <li>'s data-sourcepos — so a tick is written
+    # back to the right "- [ ]". The sourcepos tags are dropped once read.
+    def checkable_tasks(html)
+      fragment = Nokogiri::HTML5.fragment(html)
+
+      fragment.css("li[data-sourcepos] > input[type=checkbox]").each do |box|
+        item = box.parent
+        box.remove_attribute("disabled")
+        box["data-line"] = item["data-sourcepos"].to_i.to_s
+        box["data-action"] = "change->task-list#toggle"
+        # The item's own text, not its nested sub-tasks'.
+        box["aria-label"] = item.children.reject { |child| child.name.in?(%w[ul ol]) }.map(&:text).join.squish
+      end
+      fragment.css("[data-sourcepos]").each { |node| node.remove_attribute("data-sourcepos") }
+
+      fragment.to_html.html_safe
     end
 
     # A folder link lands on the folder's own page — the same view the sidebar

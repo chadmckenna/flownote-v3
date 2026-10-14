@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     resources :notes, except: [ :index ] do
       resource :publication, only: %i[create destroy], module: :notes
       resource :title, only: %i[edit update], module: :notes
+      resources :tasks, only: :update, module: :notes, param: :line
     end
   end
   use_doorkeeper do
