@@ -15,6 +15,16 @@ class Api::V1::MeControllerTest < ActionDispatch::IntegrationTest
     json = JSON.parse(response.body)
     assert_equal @user.id, json["id"]
     assert_equal @user.email_address, json["email"]
+    assert_equal "userone", json["username"]
+  end
+
+  test "show returns a nil username when none is set" do
+    get api_v1_me_path, headers: api_headers(create_access_token(user: users(:two)))
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert json.key?("username")
+    assert_nil json["username"]
   end
 
   test "show without token returns 401" do

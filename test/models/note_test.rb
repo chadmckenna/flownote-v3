@@ -80,6 +80,14 @@ class NoteTest < ActiveSupport::TestCase
     assert_not_equal original, note.slug
   end
 
+  test "publishing an already published note keeps its slug" do
+    note = notes(:published)
+
+    note.publish!
+
+    assert_equal "abc12345", note.reload.slug
+  end
+
   test "published scope returns only notes with a slug" do
     assert_equal [ notes(:published) ], Note.published.to_a
   end

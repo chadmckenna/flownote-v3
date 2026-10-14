@@ -16,6 +16,13 @@ class FolderTest < ActiveSupport::TestCase
     assert_equal users(:one), folders(:work).user
   end
 
+  test "requires a parent unless it is the root" do
+    folder = users(:one).folders.build(name: "Orphan")
+
+    assert_not folder.valid?
+    assert_includes folder.errors[:parent], "can't be blank"
+  end
+
   test "can have a parent folder" do
     assert_equal folders(:work), folders(:projects).parent
   end
