@@ -19,6 +19,29 @@ module Api
       def render_bad_request(error)
         render json: { error: "bad_request", message: error.message }, status: :bad_request
       end
+
+      def folder_json(folder)
+        {
+          id: folder.id,
+          name: folder.name,
+          parent_id: folder.parent_id,
+          root: folder.root?,
+          updated_at: folder.updated_at.iso8601
+        }
+      end
+
+      def note_summary_json(note)
+        {
+          id: note.id,
+          title: note.title,
+          folder_id: note.folder_id,
+          updated_at: note.updated_at.iso8601
+        }
+      end
+
+      def note_full_json(note)
+        note_summary_json(note).merge(body: note.body.to_s)
+      end
     end
   end
 end

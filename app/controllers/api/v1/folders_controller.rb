@@ -7,7 +7,7 @@ module Api
         scope = if params[:path].present?
           root = resolve_path!(params[:path])
           if ActiveModel::Type::Boolean.new.cast(params[:recursive])
-            descendants_including(root)
+            current_user.folders.where(id: root.subtree_ids)
           else
             current_user.folders.where(id: [ root.id, *root.subfolders.pluck(:id) ])
           end
@@ -46,33 +46,12 @@ module Api
           params.expect(folder: [ :name, :parent_id ])
         end
 
-        def folder_json(folder)
-          {
-            id: folder.id,
-            name: folder.name,
-            parent_id: folder.parent_id,
-            root: folder.root?,
-            updated_at: folder.updated_at.iso8601
-          }
-        end
-
         def resolve_path!(path)
           folder = current_user.root_folder
           path.split("/").reject(&:blank?).each do |segment|
             folder = folder.subfolders.find_by!(name: segment)
           end
           folder
-        end
-
-        def descendants_including(root)
-          ids = [ root.id ]
-          frontier = [ root.id ]
-          until frontier.empty?
-            children = current_user.folders.where(parent_id: frontier).pluck(:id)
-            ids.concat(children)
-            frontier = children
-          end
-          current_user.folders.where(id: ids)
         end
     end
   end

@@ -31,8 +31,9 @@ Rails.application.routes.draw do
       resource :me, only: :show, controller: "me"
       resources :folders, only: %i[index show create destroy] do
         resources :notes, only: %i[index], shallow: true
+        resource :manifest, only: :show
       end
-      resources :notes, only: %i[show create update destroy]
+      resources :notes, only: %i[index show create update destroy]
     end
   end
 
