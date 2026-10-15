@@ -5,8 +5,15 @@ class Notes::SearchTest < ActiveSupport::TestCase
     @user = users(:one)
   end
 
-  def search(query, user: @user)
-    Notes::Search.new(user: user, query: query).results
+  def search(query, user: @user, within: nil)
+    Notes::Search.new(user: user, query: query, within: within).results
+  end
+
+  test "within a folder searches it and the folders below it only" do
+    results = search("note", within: folders(:work))
+    assert_includes results, notes(:one)
+    assert_includes results, notes(:published)
+    assert_not_includes results, notes(:root_note)
   end
 
   test "matches on title" do

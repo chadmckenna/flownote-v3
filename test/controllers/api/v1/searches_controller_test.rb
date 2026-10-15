@@ -19,6 +19,21 @@ class Api::V1::SearchesControllerTest < ActionDispatch::IntegrationTest
     refute json.first.key?("body")
   end
 
+  test "show with folder_id searches that folder and below only" do
+    get api_v1_search_path, params: { q: "note", folder_id: folders(:work).id }, headers: api_headers(@token)
+
+    assert_response :success
+    ids = JSON.parse(response.body).map { |n| n["id"] }
+    assert_includes ids, notes(:one).id
+    assert_includes ids, notes(:published).id
+    assert_not_includes ids, notes(:root_note).id
+  end
+
+  test "show with another user's folder_id returns 404" do
+    get api_v1_search_path, params: { q: "note", folder_id: folders(:other_user_folder).id }, headers: api_headers(@token)
+    assert_response :not_found
+  end
+
   test "show gives a note in the root folder an empty path" do
     get api_v1_search_path, params: { q: "root note" }, headers: api_headers(@token)
 
