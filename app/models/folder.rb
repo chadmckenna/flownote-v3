@@ -6,6 +6,9 @@ class Folder < ApplicationRecord
   has_many :notes, dependent: :restrict_with_error
 
   validates :name, presence: true
+  # Only the root lives at the top; any other folder without a parent would be
+  # a second, unreachable tree.
+  validates :parent, presence: true, unless: :root?
   # Case-insensitively unique, matching the NOCASE collation on the column: a
   # folder path is how a [[wiki link]] names a place, and those are matched
   # without regard to case, so "Work" and "work" as siblings would leave a link

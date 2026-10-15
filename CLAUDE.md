@@ -64,4 +64,5 @@ bin/ci                                 # Full CI pipeline
 - `PATCH /me/preferences` — per-user settings, stored in the `users.preferences` JSON column (add new ones as `store_accessor`s on `User`, no migration)
 - `POST /oauth/authorize`, `POST /oauth/token` — OAuth flow
 - `GET /api/v1/me` — current user (OAuth-protected)
+- `POST/DELETE /api/v1/notes/:note_id/publication`, `PATCH /api/v1/folders/:id`, `GET /api/v1/search?q=` — fn3 CLI parity: publish/unpublish (note JSON carries `public_url`), rename/move a folder, search (each result carries its folder `path`)
 - `GET /up` — health check

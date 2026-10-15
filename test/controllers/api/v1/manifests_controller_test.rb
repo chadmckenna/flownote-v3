@@ -22,7 +22,11 @@ class Api::V1::ManifestsControllerTest < ActionDispatch::IntegrationTest
     assert_equal Digest::SHA256.hexdigest(notes(:one).body), note["body_sha256"]
     assert_equal "First note", note["title"]
     assert_equal @work.id, note["folder_id"]
+    assert_nil note["public_url"]
     refute note.key?("body")
+
+    published = json["notes"].find { |n| n["id"] == notes(:published).id }
+    assert_equal "http://www.example.com/~userone/abc12345", published["public_url"]
   end
 
   test "show of a subfolder leaves out notes above it" do

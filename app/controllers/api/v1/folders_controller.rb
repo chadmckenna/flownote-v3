@@ -1,7 +1,7 @@
 module Api
   module V1
     class FoldersController < BaseController
-      before_action -> { doorkeeper_authorize! :write }, only: %i[create destroy]
+      before_action -> { doorkeeper_authorize! :write }, only: %i[create update destroy]
 
       def index
         scope = if params[:path].present?
@@ -27,6 +27,15 @@ module Api
         folder = current_user.folders.build(folder_params)
         if folder.save
           render json: folder_json(folder), status: :created
+        else
+          render json: { errors: folder.errors }, status: :unprocessable_entity
+        end
+      end
+
+      def update
+        folder = current_user.folders.find(params[:id])
+        if folder.update(folder_params)
+          render json: folder_json(folder)
         else
           render json: { errors: folder.errors }, status: :unprocessable_entity
         end

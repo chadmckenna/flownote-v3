@@ -39,7 +39,9 @@ class Note < ApplicationRecord
   # A published note is only reachable while its owner has a username — the
   # public URL embeds one.
   def shareable? = published? && user.username.present?
-  def publish! = update!(slug: self.class.generate_slug)
+  # A no-op when already published, so a repeated request never rotates the
+  # slug and breaks the link already handed out.
+  def publish! = published? || update!(slug: self.class.generate_slug)
   def unpublish! = update!(slug: nil)
 
   # Ticks or clears the task on line_number (1-based, as the rendered checkbox

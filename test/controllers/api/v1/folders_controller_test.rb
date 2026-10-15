@@ -89,6 +89,106 @@ class Api::V1::FoldersControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "create returns 422 without a parent" do
+    assert_no_difference "Folder.count" do
+      post api_v1_folders_path, params: { folder: { name: "Orphan" } }, headers: api_headers(@token)
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  # Two requests racing past the validation: the rival row lands between the
+  # uniqueness check and the insert, so only the unique index catches it.
+  test "create returns 422 conflict when a duplicate races past the validation" do
+    rival = ->(*, payload) do
+      if !@raced && payload[:sql].start_with?('SELECT 1 AS one FROM "folders"')
+        @raced = true
+        Folder.insert!({ user_id: @user.id, parent_id: @root.id, name: "Archive" })
+      end
+    end
+
+    ActiveSupport::Notifications.subscribed(rival, "sql.active_record") do
+      post api_v1_folders_path,
+        params: { folder: { name: "Archive", parent_id: @root.id } },
+        headers: api_headers(@token)
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal "conflict", JSON.parse(response.body)["error"]
+  end
+
+  test "update renames and moves a folder" do
+    patch api_v1_folder_path(@projects),
+      params: { folder: { name: "Side projects", parent_id: @root.id } },
+      headers: api_headers(@token)
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal "Side projects", json["name"]
+    assert_equal @root.id, json["parent_id"]
+    assert_equal "Side projects", @projects.reload.name
+    assert_equal @root, @projects.parent
+  end
+
+  test "update returns 422 renaming to a sibling's name in another case" do
+    current_user_folder("Archive")
+
+    patch api_v1_folder_path(@work), params: { folder: { name: "ARCHIVE" } }, headers: api_headers(@token)
+
+    assert_response :unprocessable_entity
+    assert_includes JSON.parse(response.body)["errors"]["name"], "already exists in this folder"
+    assert_equal "Work", @work.reload.name
+  end
+
+  test "update returns 422 for a name with a slash" do
+    patch api_v1_folder_path(@work), params: { folder: { name: "a/b" } }, headers: api_headers(@token)
+
+    assert_response :unprocessable_entity
+    assert_includes JSON.parse(response.body)["errors"]["name"], "can't contain a slash"
+  end
+
+  test "update returns 422 moving a folder into its own descendant" do
+    patch api_v1_folder_path(@work), params: { folder: { parent_id: @projects.id } }, headers: api_headers(@token)
+
+    assert_response :unprocessable_entity
+    assert_includes JSON.parse(response.body)["errors"]["parent"], "would create a circular reference"
+    assert_equal @root, @work.reload.parent
+  end
+
+  test "update returns 422 renaming the root" do
+    patch api_v1_folder_path(@root), params: { folder: { name: "Home" } }, headers: api_headers(@token)
+
+    assert_response :unprocessable_entity
+    assert_includes JSON.parse(response.body)["errors"]["base"], "Root folder cannot be modified"
+    assert_equal "/", @root.reload.name
+  end
+
+  test "update returns 422 moving a folder under another user's folder" do
+    patch api_v1_folder_path(@work),
+      params: { folder: { parent_id: folders(:other_user_folder).id } },
+      headers: api_headers(@token)
+
+    assert_response :unprocessable_entity
+    assert_equal @root, @work.reload.parent
+  end
+
+  test "update returns 404 for another user's folder" do
+    patch api_v1_folder_path(folders(:other_user_folder)),
+      params: { folder: { name: "Mine now" } },
+      headers: api_headers(@token)
+
+    assert_response :not_found
+    assert_equal "Personal", folders(:other_user_folder).reload.name
+  end
+
+  test "update requires write scope" do
+    read_only = create_access_token(user: @user, scopes: "read")
+    patch api_v1_folder_path(@work), params: { folder: { name: "X" } }, headers: api_headers(read_only)
+
+    assert_response :forbidden
+    assert_equal "Work", @work.reload.name
+  end
+
   test "destroy removes an empty folder" do
     empty = current_user_folder("Empty")
     assert_difference "Folder.count", -1 do

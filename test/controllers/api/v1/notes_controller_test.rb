@@ -53,6 +53,32 @@ class Api::V1::NotesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @note.body, json["body"]
   end
 
+  test "show includes the public url of a published note, on the request's host" do
+    host! "notes.example.org"
+
+    get api_v1_note_path(notes(:published)), headers: api_headers(@token)
+
+    assert_response :success
+    assert_equal "http://notes.example.org/~userone/abc12345", JSON.parse(response.body)["public_url"]
+  end
+
+  test "show has a nil public url for an unpublished note" do
+    get api_v1_note_path(@note), headers: api_headers(@token)
+
+    json = JSON.parse(response.body)
+    assert json.key?("public_url")
+    assert_nil json["public_url"]
+  end
+
+  test "show has a nil public url while the owner has no username" do
+    notes(:two).update_column(:slug, "nouser12")
+
+    get api_v1_note_path(notes(:two)), headers: api_headers(create_access_token(user: users(:two)))
+
+    assert_response :success
+    assert_nil JSON.parse(response.body)["public_url"]
+  end
+
   test "show returns 404 for another user's note" do
     get api_v1_note_path(notes(:two)), headers: api_headers(@token)
     assert_response :not_found
