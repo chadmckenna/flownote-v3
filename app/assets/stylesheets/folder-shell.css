@@ -70,11 +70,14 @@
       min-block-size: 0;
       overflow-y: auto;
 
-      /* The open note, marked with an accent bar. */
+      /* The open note, marked with a hairline accent bar. Its start corners are
+         square because an inset shadow follows the radius: rounded, the bar
+         would curve. */
       li[aria-current="page"] {
         background: var(--color-shade);
-        border-radius: var(--radius-sm);
-        box-shadow: inset 3px 0 0 var(--color-accent);
+        border-end-end-radius: var(--radius-sm);
+        border-start-end-radius: var(--radius-sm);
+        box-shadow: inset 1px 0 0 var(--color-accent);
         font-weight: 600;
       }
 
