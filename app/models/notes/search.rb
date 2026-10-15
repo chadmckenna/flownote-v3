@@ -10,12 +10,16 @@ module Notes
   # bread" and "sourdough_bread" find the same note — underscores in
   # filenames/titles read as word separators rather than literal characters — and
   # lets "work sourdough" narrow to the copy filed under Work.
+  #
+  # within: limits the search to one folder and everything below it, as the CLI
+  # does for the folder it's run from.
   class Search
     LIMIT = 10
 
-    def initialize(user:, query:)
+    def initialize(user:, query:, within: nil)
       @user = user
       @query = query.to_s.strip
+      @within = within
     end
 
     # Notes containing every token come first. A folder-path match pulls in notes
@@ -75,10 +79,8 @@ module Notes
     end
 
     def base_scope
-      @user.notes
-           .includes(:folder)
-           .order(updated_at: :desc)
-           .limit(LIMIT)
+      scope = @user.notes.includes(:folder).order(updated_at: :desc).limit(LIMIT)
+      @within ? scope.where(folder_id: @within.subtree_ids) : scope
     end
   end
 end
