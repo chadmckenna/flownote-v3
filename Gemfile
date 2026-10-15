@@ -44,7 +44,7 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 # Rich text editor built on Lexical [https://github.com/basecamp/lexxy]
-gem 'lexxy', '~> 0.9.7.beta' # Need to specify the version since it's a pre-release
+gem "lexxy", "~> 0.9.7.beta" # Need to specify the version since it's a pre-release
 
 # CommonMark + GFM Markdown renderer for server-side note rendering [https://github.com/gjtorikian/commonmarker]
 gem "commonmarker"
